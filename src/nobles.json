@@ -1,0 +1,82 @@
+[
+  {
+    "points": 3,
+    "diamond": null,
+    "sapphire": null,
+    "emerald": null,
+    "ruby": 4,
+    "onyx": 4
+  },
+  {
+    "points": 3,
+    "diamond": null,
+    "sapphire": null,
+    "emerald": 4,
+    "ruby": 4,
+    "onyx": null
+  },
+  {
+    "points": 3,
+    "diamond": 4,
+    "sapphire": null,
+    "emerald": null,
+    "ruby": null,
+    "onyx": 4
+  },
+  {
+    "points": 3,
+    "diamond": 4,
+    "sapphire": 4,
+    "emerald": null,
+    "ruby": null,
+    "onyx": null
+  },
+  {
+    "points": 3,
+    "diamond": null,
+    "sapphire": 3,
+    "emerald": 3,
+    "ruby": 3,
+    "onyx": null
+  },
+  {
+    "points": 3,
+    "diamond": null,
+    "sapphire": null,
+    "emerald": 3,
+    "ruby": 3,
+    "onyx": 3
+  },
+  {
+    "points": 3,
+    "diamond": 3,
+    "sapphire": null,
+    "emerald": null,
+    "ruby": 3,
+    "onyx": 3
+  },
+  {
+    "points": 3,
+    "diamond": null,
+    "sapphire": 4,
+    "emerald": 4,
+    "ruby": null,
+    "onyx": null
+  },
+  {
+    "points": 3,
+    "diamond": 3,
+    "sapphire": 3,
+    "emerald": 3,
+    "ruby": null,
+    "onyx": null
+  },
+  {
+    "points": 3,
+    "diamond": 3,
+    "sapphire": 3,
+    "emerald": null,
+    "ruby": null,
+    "onyx": 3
+  }
+ ]
