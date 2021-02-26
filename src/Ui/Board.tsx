@@ -12,6 +12,7 @@ const CardRowStyle = styled.div`
 const NobleRowStyle = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: flex-end;
 `
 
 interface CardRowUIProps {
@@ -45,7 +46,7 @@ const GemBankStyle = styled.div`
 
 const TilesStyle = styled.div`
   display: flex;
-  flex;direction: column;
+  flex-direction: column;
 `
 
 export const BoardUI = (props: BoardUIProps) => (

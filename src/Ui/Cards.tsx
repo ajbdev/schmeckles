@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Tier, Card } from '../Game';
+import { GemCostsUI, GemUI } from './Gems';
 
 enum CardSize {
   xs = 'xs',
@@ -29,21 +30,46 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   height ${props => CardSizes[props.size][1]};
   border: 1px solid #000;
   border-radius: 5px;
-  display: flex;
-  align-items: center;
+  margin: 5px;
+  position: relative;
 `
 
+
 export const VictoryPointsStyle = styled.div`
-  font-size: 20px;
+  font-size: 30px;
+  font-weight: bold;
+  color: #000;
+  margin-left: 3px;
 `
 
 interface CardUIProps {
   card: Card
 }
 
+const GemAwardStyle = styled.div`
+  position: absolute;
+  right: 2px;
+  top: 2px;
+`
+
 export const CardUI = (props: CardUIProps) => (
   <CardStyle>
-    <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle>
+    {props.card.points ? <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle> : null}
+    {props.card.costs 
+      ? (
+        <GemCostsUI gems={props.card.costs} />
+      )
+      : null
+    }
+    {
+      props.card.gem
+      ? (
+        <GemAwardStyle>
+          <GemUI gem={props.card.gem} />
+        </GemAwardStyle>
+      )
+      : null
+    }
   </CardStyle>
 );
 
@@ -52,8 +78,18 @@ interface DrawPileProps {
   numberOfCards: number
 }
 
+const TierDots = styled.div`
+  font-size: 30px;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+`
+
 export const DrawPileUI = (props: DrawPileProps) => (
   <CardStyle>
+    <TierDots>
     {props.tier === Tier.I
       ? (<>•</>)
       : (props.tier === Tier.II)
@@ -62,5 +98,6 @@ export const DrawPileUI = (props: DrawPileProps) => (
           ? (<>• • •</>)
           : null
     }
+    </TierDots>
   </CardStyle>
 );

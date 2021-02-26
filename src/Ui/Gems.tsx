@@ -5,6 +5,7 @@ import { ReactComponent as DiamondSvg } from './svg/diamond.svg';
 import { ReactComponent as OnyxSvg } from './svg/onyx.svg';
 import { ReactComponent as SapphireSvg } from './svg/sapphire.svg';
 import { ReactComponent as StarSvg } from './svg/star.svg';
+import { GemStash, Gem } from '../Game';
 
 
 export enum IconSize { xs = '12px', sm = '24px', md = '32px', lg = '48px', xl = '64px' };
@@ -83,7 +84,27 @@ export const Star = (props: IconProps) => (
   </Icon>
 );
 
-export enum GemCostSize { xs = '14px', sm = '18px', md = '24px', lg = '30px', xl = '38px' }
+interface GemTypeProps {
+  gem: Gem
+}
+
+type GemUIProps = GemTypeProps & IconProps;
+
+export const GemUI = (props: GemUIProps) => {
+  const map = {
+    [Gem.Diamond]: Diamond,
+    [Gem.Emerald]: Emerald,
+    [Gem.Onyx]: Onyx,
+    [Gem.Ruby]: Ruby,
+    [Gem.Sapphire]: Sapphire
+  }
+
+  const GemIconType = map[props.gem];
+
+  return <GemIconType {...props} />
+}
+
+export enum GemCostSize { xs = '11px', sm = '15px', md = '18px', lg = '25px', xl = '32px' }
 
 interface GemCostStyleProps {
   size?: GemCostSize
@@ -94,10 +115,12 @@ const GemCostStyle = styled.div.attrs((props: GemCostStyleProps) => ({
 }))`
   width: ${props => props.size};
   height: ${props => props.size};
-  border: 1px solid #000;
   border-radius: 100%;
   text-align: center;
   font-family: Courgette;
+  position: relative;
+  border: 1px solid #000;
+  margin: 2px;
 `
 
 const RubyCostStyle = styled(GemCostStyle)`
@@ -125,11 +148,34 @@ interface CostProps {
 }
 
 const PointValueStyle = styled.span`
-  font-size: 26px;
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 22px;
   color: #fff;
   -webkit-text-fill-color: white;
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: #555;
+`
+
+const OnyxPointValueStyle = styled(PointValueStyle)`
+-webkit-text-stroke-color: #bbb;
+`
+
+const CostGemIcon = styled.div`
+  position: absolute;
+  left: 20px;
+  top: 2px;
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`
+
+const CostDiamondIcon = styled(CostGemIcon)`
+  svg {
+    stroke-width: 5;
+    stroke: #222;
+  }
 `
 
 export const RubyCostUI = (props: CostProps) => (
@@ -137,5 +183,74 @@ export const RubyCostUI = (props: CostProps) => (
     <PointValueStyle>
       {props.cost}
     </PointValueStyle>
+    <CostGemIcon>
+      <RubyIcon />
+    </CostGemIcon>
   </RubyCostStyle>
+)
+
+export const EmeraldCostUI = (props: CostProps) => (
+  <EmeraldCostStyle>
+    <PointValueStyle>
+      {props.cost}
+    </PointValueStyle>
+    <CostGemIcon>
+      <EmeraldIcon />
+    </CostGemIcon>
+  </EmeraldCostStyle>
+)
+
+export const SapphireCostUI = (props: CostProps) => (
+  <SapphireCostStyle>
+    <PointValueStyle>
+      {props.cost}
+    </PointValueStyle>
+    <CostGemIcon>
+      <SapphireIcon />
+    </CostGemIcon>
+  </SapphireCostStyle>
+)
+
+
+export const OnyxCostUI = (props: CostProps) => (
+  <OnyxCostStyle>
+    <OnyxPointValueStyle>
+      {props.cost}
+    </OnyxPointValueStyle>
+    <CostGemIcon>
+      <OnyxIcon />
+    </CostGemIcon>
+  </OnyxCostStyle>
+)
+
+export const DiamondCostUI = (props: CostProps) => (
+  <DiamondCostStyle>
+    <PointValueStyle>
+      {props.cost}
+    </PointValueStyle>
+    <CostDiamondIcon>
+      <DiamondIcon />
+    </CostDiamondIcon>
+  </DiamondCostStyle>
+)
+
+const GemGroupedCostStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  bottom: 0;
+`
+
+export interface GemCostsUIProps {
+  gems: GemStash
+}
+
+export const GemCostsUI = (props: GemCostsUIProps) => (
+  <GemGroupedCostStyle>
+    {props.gems.diamond > 0 ? <DiamondCostUI cost={props.gems.diamond} /> : null}
+    {props.gems.ruby > 0 ? <RubyCostUI cost={props.gems.ruby} /> : null}
+    {props.gems.emerald > 0 ? <EmeraldCostUI cost={props.gems.emerald} /> : null}
+    {props.gems.onyx > 0 ? <OnyxCostUI cost={props.gems.onyx} /> : null}
+    {props.gems.sapphire > 0 ? <SapphireCostUI cost={props.gems.sapphire} /> : null}
+  </GemGroupedCostStyle>
 )

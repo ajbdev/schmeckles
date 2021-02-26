@@ -30,7 +30,9 @@ export enum Gem {
 }
 
 export enum Tier {
-  I, II, III
+  I = 1, 
+  II = 2, 
+  III = 3
 }
 export interface Noble {
   points: number;
@@ -63,8 +65,8 @@ const mapNobleValuesJsonToNobleType = (noblesValues: NobleJsonValues[]) => noble
 const mapCardValuesJsonToCardType = (cardValues: CardJsonValues[]) => cardValues.map(
   c => new Card(
     c.points || 0,
-    Gem[c.gem as keyof typeof Gem],
-    tierMap[c.tier-1],
+    c.gem as Gem,
+    c.tier as Tier,
     {
       [Gem.Ruby]: c.ruby || 0,
       [Gem.Sapphire]: c.sapphire || 0,
@@ -78,8 +80,6 @@ const mapCardValuesJsonToCardType = (cardValues: CardJsonValues[]) => cardValues
 const shuffle = (arr:Array<any>) => 
   [...arr].reduceRight((res,_,__,s) => 
     (res.push(s.splice(0|Math.random()*s.length,1)[0]), res), []);
-
-const tierMap = [ Tier.I, Tier.II, Tier.III ];
 
 export class Card {
   points: number;
@@ -103,6 +103,10 @@ export class CardPile {
     this.tier = tier;
     this.cards = shuffle(cards);
   }
+
+  draw(n: number, destination: CardPile) {
+    this.cards.splice(0, n).forEach(c => destination.cards.push(c));
+  }
 }
 
 export class GameState  {
@@ -119,7 +123,7 @@ export class GameState  {
     const cards = mapCardValuesJsonToCardType(cardsJson);
     const nobles = shuffle(mapNobleValuesJsonToNobleType(noblesJson));
 
-    this.nobles = nobles.slice(0, 3);
+    this.nobles = nobles.splice(0, 3);
 
     this.tierICards = new CardPile(Tier.I, []);
     this.tierIICards = new CardPile(Tier.II, []);
@@ -129,6 +133,8 @@ export class GameState  {
     this.tierIIDrawPile = new CardPile(Tier.II, cards.filter(c => c.tier = Tier.II));
     this.tierIIIDrawPile = new CardPile(Tier.III, cards.filter(c => c.tier = Tier.III));
 
+    this.drawVisibleCards();
+
     this.gems = {
       [Gem.Ruby]: 6,
       [Gem.Sapphire]: 6,
@@ -136,6 +142,13 @@ export class GameState  {
       [Gem.Onyx]: 6,
       [Gem.Emerald]: 6
     }
-
   }
+
+  drawVisibleCards() {
+    this.tierIDrawPile.draw(4-this.tierICards.cards.length, this.tierICards);
+    this.tierIIDrawPile.draw(4-this.tierIICards.cards.length, this.tierIICards);
+    this.tierIIIDrawPile.draw(4-this.tierIIICards.cards.length, this.tierIIICards);
+  }
+
+
 }
