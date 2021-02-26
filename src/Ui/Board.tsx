@@ -71,10 +71,6 @@ const SchmeckelStyle = styled.div`
   }
 `
 
-interface SchmeckelUIProps {
-  gem: Gem
-}
-
 const RubySchmeckelStyle = styled(SchmeckelStyle)`
   border-color: var(--ruby);
   svg {
@@ -113,6 +109,10 @@ const StarSchmeckelStyle = styled(SchmeckelStyle)`
   border-color: var(--star);
 `
 
+interface SchmeckelUIProps {
+  gem: Gem
+}
+
 const SchmeckelUI = (props: SchmeckelUIProps) => {
   const map = {
     [Gem.Diamond]: DiamondSchmeckelStyle,
@@ -132,23 +132,25 @@ const SchmeckelUI = (props: SchmeckelUIProps) => {
   )
 }
 
+interface GemBankProps {
+  gems: GemStash
+}
 
-
-const GemBankUI = (props: GemStash) => (
+const GemBankUI = (props: GemBankProps) => (
   <GemBankStyle>
-    {props.diamond > 0 ? <SchmeckelUI gem={Gem.Diamond} /> : null}
-    {props.ruby > 0 ? <SchmeckelUI gem={Gem.Ruby} />  : null}
-    {props.emerald > 0 ? <SchmeckelUI gem={Gem.Emerald} />  : null}
-    {props.onyx > 0 ? <SchmeckelUI gem={Gem.Onyx} />  : null}
-    {props.sapphire > 0 ? <SchmeckelUI gem={Gem.Sapphire} />  : null}
-    {props.star > 0 ? <SchmeckelUI gem={Gem.Star} />  : null}
+    {props.gems.diamond > 0 ? <SchmeckelUI gem={Gem.Diamond} /> : null}
+    {props.gems.ruby > 0 ? <SchmeckelUI gem={Gem.Ruby} />  : null}
+    {props.gems.emerald > 0 ? <SchmeckelUI gem={Gem.Emerald} />  : null}
+    {props.gems.onyx > 0 ? <SchmeckelUI gem={Gem.Onyx} />  : null}
+    {props.gems.sapphire > 0 ? <SchmeckelUI gem={Gem.Sapphire} />  : null}
+    {props.gems.star > 0 ? <SchmeckelUI gem={Gem.Star} />  : null}
   </GemBankStyle>
 )
 
 
 export const BoardUI = (props: BoardUIProps) => (
   <BoardStyle>
-    <GemBankUI {...props.gameState.gems} />
+    <GemBankUI gems={props.gameState.gems} />
     <TilesStyle>
       <NobleRowStyle>
         {props.gameState.nobles.map(noble => 

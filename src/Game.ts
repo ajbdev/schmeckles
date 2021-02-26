@@ -153,6 +153,48 @@ export class GameState  {
     this.tierIIDrawPile.draw(4-this.tierIICards.cards.length, this.tierIICards);
     this.tierIIIDrawPile.draw(4-this.tierIIICards.cards.length, this.tierIIICards);
   }
+}
 
+
+export class Player {
+  name: string;
+  position: number;
+
+  constructor(name: string, position: number) {    
+    this.name = name;
+    this.position = position;
+  }
+}
+
+enum Actions {
+  JoinGame = 0,
+  ExitGame = 1,
+  TakeGems = 2,
+  ReserveCard = 3,
+  PurchaseCard = 4
+}
+
+interface Action {
+  type: Actions
+}
+
+interface JoinGameAction extends Action {}
+interface ExitGameAction extends Action {}
+interface TakeGemsAction extends Action {}
+interface ReserveCardAction extends Action {}
+interface PurchaseCardAction extends Action {}
+
+class Actor {
+  act(action: Action, player: Player) {
+    
+  }
+}
+
+export default class Game {
+  gameState: GameState;
+
+  constructor() {
+    this.gameState = new GameState();
+  }
 
 }
