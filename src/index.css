@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Courgette&display=swap');
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
@@ -7,4 +9,13 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+:root {
+  --ruby: #e60c0c;
+  --emerald: #5ee465;
+  --diamond: #f0f0f0;
+  --sapphire: #2a55e6;
+  --onyx: #222222;
+  --star: #ffdb63;
 }

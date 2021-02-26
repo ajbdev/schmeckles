@@ -6,6 +6,7 @@ import { ReactComponent as OnyxSvg } from './svg/onyx.svg';
 import { ReactComponent as SapphireSvg } from './svg/sapphire.svg';
 import { ReactComponent as StarSvg } from './svg/star.svg';
 
+
 export enum IconSize { xs = '12px', sm = '24px', md = '32px', lg = '48px', xl = '64px' };
 
 interface IconProps {
@@ -18,33 +19,32 @@ const Icon = styled.div.attrs((props: IconProps) => ({
 }))`
   svg {
     width: ${props => props.size};
-    height: ${props => props.size}};
+    height: ${props => props.size};
   }
-  
 `;
 
 const RubyIcon = styled(RubySvg)`
-  fill: #e60c0c;
+  fill: var(--ruby);
 `;
 
 const EmeraldIcon = styled(EmeraldSvg)`
-  fill: #5ee465;
+fill: var(--emerald);
 `;
 
 const DiamondIcon = styled(DiamondSvg)`
-  fill: #f0f0f0;
+  fill: var(--diamond);
 `;
 
 const SapphireIcon = styled(SapphireSvg)`
-  fill: #2a55e6;
+  fill: var(--sapphire);
 `;
 
 const OnyxIcon = styled(OnyxSvg)`
-  fill: #222;
+  fill: var(--onyx);
 `
 
 const StarIcon = styled(StarSvg)`
-  fill: #ffdb63;
+  fill: var(--star);
 `;
 
 export const Ruby = (props: IconProps) => (
@@ -75,10 +75,67 @@ export const Sapphire = (props: IconProps) => (
   <Icon {...props}>
     <SapphireIcon />
   </Icon>
-)
+);
 
 export const Star = (props: IconProps) => (
   <Icon {...props}>
     <StarIcon />
   </Icon>
+);
+
+export enum GemCostSize { xs = '14px', sm = '18px', md = '24px', lg = '30px', xl = '38px' }
+
+interface GemCostStyleProps {
+  size?: GemCostSize
+}
+
+const GemCostStyle = styled.div.attrs((props: GemCostStyleProps) => ({
+  size: props.size || GemCostSize.md
+}))`
+  width: ${props => props.size};
+  height: ${props => props.size};
+  border: 1px solid #000;
+  border-radius: 100%;
+  text-align: center;
+  font-family: Courgette;
+`
+
+const RubyCostStyle = styled(GemCostStyle)`
+  background: var(--ruby);
+`
+
+const EmeraldCostStyle = styled(GemCostStyle)`
+  background: var(--emerald);
+`
+
+const DiamondCostStyle = styled(GemCostStyle)`
+  background: var(--diamond);
+`
+
+const SapphireCostStyle = styled(GemCostStyle)`
+  background: var(--sapphire);
+`
+
+const OnyxCostStyle = styled(GemCostStyle)`
+  background: var(--onyx);
+`
+
+interface CostProps {
+  cost: number;
+}
+
+const PointValueStyle = styled.span`
+  font-size: 26px;
+  color: #fff;
+  -webkit-text-fill-color: white;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #555;
+`
+
+export const RubyCostUI = (props: CostProps) => (
+  <RubyCostStyle>
+    <PointValueStyle>
+      {props.cost}
+    </PointValueStyle>
+  </RubyCostStyle>
 )

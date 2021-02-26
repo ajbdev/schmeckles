@@ -1,7 +1,5 @@
-
-
-const cardsJson: CardJsonValues[] = require('./cards.json');
-const noblesJson: NobleJsonValues[] = require('./nobles.json');
+import cardsJson from './cards.json';
+import noblesJson from './nobles.json';
 
 interface NobleJsonValues {
   points: number;
@@ -13,7 +11,7 @@ interface NobleJsonValues {
 }
 
 interface CardJsonValues {
-  gem: 'emerald' | 'sapphire' | 'diamond' | 'ruby' | 'onyx';
+  gem: string;
   tier: number;
   points: number | null;
   diamond: number | null;
@@ -24,37 +22,16 @@ interface CardJsonValues {
 }
 
 export enum Gem {
-  Ruby, Sapphire, Onyx, Emerald, Diamond
+  Ruby = 'ruby', 
+  Sapphire = 'sapphire', 
+  Onyx = 'onyx', 
+  Emerald = 'emerald', 
+  Diamond = 'diamond'
 }
 
 export enum Tier {
   I, II, III
 }
-
-class Card {
-  points: number;
-  gem: Gem;
-  tier: Tier;
-  costs: GemStash;
-
-  constructor(points: number, gem: Gem, tier: Tier, costs: GemStash) {
-    this.points = points;
-    this.gem = gem;
-    this.tier = tier;
-    this.costs = costs;
-  }
-}
-
-class CardPile {
-  cards: Card[];
-  tier: Tier;
-  
-  constructor(tier: Tier, cards: Card[]) {
-    this.tier = tier;
-    this.cards = cards;
-  }
-}
-
 export interface Noble {
   points: number;
   costs: GemStash;
@@ -68,21 +45,26 @@ export interface GemStash {
   [Gem.Emerald]: number;
 }
 
-const stringToGemMap = {
-  'ruby': Gem.Ruby,
-  'emerald': Gem.Emerald,
-  'diamond': Gem.Diamond,
-  'onyx': Gem.Onyx,
-  'sapphire': Gem.Sapphire
-};
-
-const numberToTierMap = [ Tier.I, Tier.II, Tier.III ];
+const mapNobleValuesJsonToNobleType = (noblesValues: NobleJsonValues[]) => noblesValues.map(
+  n => {
+    return {
+      points: n.points,
+      costs: {
+        [Gem.Ruby]: n.ruby || 0,
+        [Gem.Sapphire]: n.sapphire || 0,
+        [Gem.Diamond]: n.diamond || 0,
+        [Gem.Onyx]: n.onyx || 0,
+        [Gem.Emerald]: n.emerald || 0
+      }
+    }
+  }
+);
 
 const mapCardValuesJsonToCardType = (cardValues: CardJsonValues[]) => cardValues.map(
   c => new Card(
     c.points || 0,
-    stringToGemMap[c.gem],
-    numberToTierMap[c.tier-1],
+    Gem[c.gem as keyof typeof Gem],
+    tierMap[c.tier-1],
     {
       [Gem.Ruby]: c.ruby || 0,
       [Gem.Sapphire]: c.sapphire || 0,
@@ -93,19 +75,51 @@ const mapCardValuesJsonToCardType = (cardValues: CardJsonValues[]) => cardValues
   )
 )
 
+const shuffle = (arr:Array<any>) => 
+  [...arr].reduceRight((res,_,__,s) => 
+    (res.push(s.splice(0|Math.random()*s.length,1)[0]), res), []);
 
-export class Game  {
-  protected tierICards: CardPile;
-  protected tierIICards: CardPile;
-  protected tierIIICards: CardPile;
-  protected tierIDrawPile: CardPile;
-  protected tierIIDrawPile: CardPile;
-  protected tierIIIDrawPile: CardPile;
-  protected nobles: Noble[];
-  protected gems: GemStash;
+const tierMap = [ Tier.I, Tier.II, Tier.III ];
+
+export class Card {
+  points: number;
+  gem: Gem;
+  tier: Tier;
+  costs: GemStash;
+
+  constructor(points: number, gem: Gem, tier: Tier, costs: GemStash) {
+    this.points = points;
+    this.gem = gem;
+    this.tier = tier;
+    this.costs = costs;
+  }
+}
+
+export class CardPile {
+  cards: Card[];
+  tier: Tier;
+  
+  constructor(tier: Tier, cards: Card[]) {
+    this.tier = tier;
+    this.cards = shuffle(cards);
+  }
+}
+
+export class GameState  {
+  tierICards: CardPile;
+  tierIICards: CardPile;
+  tierIIICards: CardPile;
+  tierIDrawPile: CardPile;
+  tierIIDrawPile: CardPile;
+  tierIIIDrawPile: CardPile;
+  nobles: Noble[];
+  gems: GemStash;
 
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
+    const nobles = shuffle(mapNobleValuesJsonToNobleType(noblesJson));
+
+    this.nobles = nobles.slice(0, 3);
 
     this.tierICards = new CardPile(Tier.I, []);
     this.tierIICards = new CardPile(Tier.II, []);

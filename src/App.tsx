@@ -1,18 +1,14 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { Ruby, Diamond, Onyx, Emerald, Sapphire, Star } from './Gems';
+import GameUI from './Ui/Game';
+import { RubyCostUI } from './Ui/Gems';
 
 function App() {
   return (
-    <div className="App">
-      <Ruby />
-      <Diamond />
-      <Onyx />
-      <Emerald />
-      <Sapphire />
-      <Star />
-    </div>
+    <>
+      <GameUI />
+      <RubyCostUI cost={4} />
+    </>
   );
 }
 
