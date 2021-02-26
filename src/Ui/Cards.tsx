@@ -50,6 +50,10 @@ const GemAwardStyle = styled.div`
   position: absolute;
   right: 2px;
   top: 2px;
+  svg {
+    width: 25px;
+    height: 25px;
+  }
 `
 
 export const CardUI = (props: CardUIProps) => (

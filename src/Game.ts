@@ -26,7 +26,8 @@ export enum Gem {
   Sapphire = 'sapphire', 
   Onyx = 'onyx', 
   Emerald = 'emerald', 
-  Diamond = 'diamond'
+  Diamond = 'diamond',
+  Star = 'star'
 }
 
 export enum Tier {
@@ -45,6 +46,7 @@ export interface GemStash {
   [Gem.Diamond]: number;
   [Gem.Onyx]: number;
   [Gem.Emerald]: number;
+  [Gem.Star]: number;
 }
 
 const mapNobleValuesJsonToNobleType = (noblesValues: NobleJsonValues[]) => noblesValues.map(
@@ -72,7 +74,8 @@ const mapCardValuesJsonToCardType = (cardValues: CardJsonValues[]) => cardValues
       [Gem.Sapphire]: c.sapphire || 0,
       [Gem.Diamond]: c.diamond || 0,
       [Gem.Onyx]: c.onyx || 0,
-      [Gem.Emerald]: c.emerald || 0
+      [Gem.Emerald]: c.emerald || 0,
+      [Gem.Star]: 0
     }
   )
 )
@@ -140,7 +143,8 @@ export class GameState  {
       [Gem.Sapphire]: 6,
       [Gem.Diamond]: 6,
       [Gem.Onyx]: 6,
-      [Gem.Emerald]: 6
+      [Gem.Emerald]: 6,
+      [Gem.Star]: 6
     }
   }
 

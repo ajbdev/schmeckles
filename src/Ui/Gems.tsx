@@ -34,6 +34,8 @@ fill: var(--emerald);
 
 const DiamondIcon = styled(DiamondSvg)`
   fill: var(--diamond);
+  stroke-width: 10;
+  stroke: #666;
 `;
 
 const SapphireIcon = styled(SapphireSvg)`
@@ -96,7 +98,8 @@ export const GemUI = (props: GemUIProps) => {
     [Gem.Emerald]: Emerald,
     [Gem.Onyx]: Onyx,
     [Gem.Ruby]: Ruby,
-    [Gem.Sapphire]: Sapphire
+    [Gem.Sapphire]: Sapphire,
+    [Gem.Star]: Star
   }
 
   const GemIconType = map[props.gem];
