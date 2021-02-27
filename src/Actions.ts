@@ -1,15 +1,24 @@
-import { GameState, Player, GemStash, Card, Gem } from './Game';
+import Game, { GameState, Player, GemStash, Card, Gem } from './Game';
 import { Rule, isPlayersTurn, Result, hasEnoughGems, gameIsFull } from './Rules';
 
-enum Action {
-  JoinGame = 0,
+export enum Action {
+  JoinGame = 'join_game',
 //  ExitGame = 1,
-  TakeGems = 2,
+  TakeGems = 'take_gems',
 //  ReserveCard = 3,
 //  PurchaseCard = 4,
 }
 
-export abstract class BaseAction {
+export interface IAction {
+  type?: Action
+  player: Player
+  rules: Rule[]
+  failedRules: Result[]
+  checkRules: (gameState: Readonly<GameState>) => boolean
+  act(gameState: GameState): void;
+}
+
+export abstract class BaseAction implements IAction {
   type?: Action
   player: Player
   rules: Rule[]

@@ -37,7 +37,7 @@ const GemColumnUI = (props: GemColumnUIProps) => (
 )
 
 export const HudUI = (props: GemColumnUIProps) => {
-  const gems = Object.keys(Gem).filter(g => props.gems[g as Gem] > 0 && props.cards.cards.filter(c => c.gem == Gem[g as keyof typeof Gem]).length > 0);
+  const gems = Object.keys(Gem).filter(g => props.gems[g as Gem] > 0 && props.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
 
   return (
     <HudStyle>

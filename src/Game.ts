@@ -1,6 +1,6 @@
 import cardsJson from './cards.json';
 import noblesJson from './nobles.json';
-import { BaseAction } from './Actions';
+import { BaseAction, IAction, Action } from './Actions';
 
 interface NobleJsonValues {
   points: number;
@@ -179,6 +179,7 @@ export class GameState  {
 }
 
 export class Player {
+  id: string;
   name: string;
   position: PlayerTurn;
   gems: GemStash;
@@ -186,6 +187,7 @@ export class Player {
   nobles: Noble[];
 
   constructor(name: string, position: PlayerTurn) {    
+    this.id = name;
     this.name = name;
     this.position = position;
     this.gems = emptyGemStash();
@@ -202,7 +204,15 @@ export default class Game {
     this.gameState = new GameState();
   }
 
-  receive(action: BaseAction) {
+  sendAction(playerId: string, actionType: string, data: any) {
+    const action = BaseAction.create(
+      this.gameState.players.map(p => p.id === playerId)[0],
+      Action[actionType as keyof Action],
+      data
+    )
+  }
+
+  receiveAction(action: IAction) {
     if (action.checkRules(this.gameState)) {
       action.act(this.gameState);
     } else {

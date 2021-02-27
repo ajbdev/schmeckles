@@ -98,14 +98,31 @@ const SapphireSchmeckelStyle = styled(SchmeckelStyle)`
 
 const StarSchmeckelStyle = styled(SchmeckelStyle)`
   svg { border-color: var(--star); }
-`
+  cursor: default;
 
+  &:hover {
+    border: 0;
+    svg {
+      stroke-width: 0;
+      stroke: #000;
+    }
+  }
+`
 
 const SchmeckelGemStash = styled.div`
   display: flex;
   flex-direction: row;
   max-width: 80px;
   padding-right: 40px;
+
+  &:hover {
+    cursor: pointer;
+    svg {
+      border-color: #ffd900;
+      fill: #ffd900;
+      stroke: #ffd900;
+    }
+  }
 `
 
 interface SchmeckelUIProps {
