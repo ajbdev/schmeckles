@@ -50,70 +50,70 @@ const TilesStyle = styled.div`
 `
 
 const SchmeckelStyle = styled.div`
-  border-radius: 100%;
-  border: 2px solid #666;
+
   width: 46px;
   height: 46px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 2px;
+  margin: 2px 0;
   position: relative;
 
-  &:nth-child(2n) {
-    margin-left: 24px;
-  }
-
   svg {
+    background: #fff;
     position: absolute;
-    top: 6px;
-    left: 7px;
+    z-index: 100;
+    border: 2px solid #666;
+    border-radius: 100%;
+    padding: 5px;
   }
 `
 
 const RubySchmeckelStyle = styled(SchmeckelStyle)`
-  border-color: var(--ruby);
   svg {
-    top:  7px;
+    border-color: var(--ruby);
   }
 `
 
 const EmeraldSchmeckelStyle = styled(SchmeckelStyle)`
-  border-color: var(--emerald);
   svg {
-    top: 9px;
-    left: 9px;
+    border-color: var(--emerald);
     width: 28px;
     height: 28px;
   }
 `
 const DiamondSchmeckelStyle = styled(SchmeckelStyle)`
-  border-color: #999;
-  background: #fff;
   svg {
-    top: 9px;
+    border-color: #999;
+    background: #fff;
     stroke-width: 10;
     stroke: #666;
   }
 `
 
 const OnyxSchmeckelStyle = styled(SchmeckelStyle)`
-  border-color: var(--onyx);
+  svg { border-color: var(--onyx); }
 `
 
 const SapphireSchmeckelStyle = styled(SchmeckelStyle)`
-  border-color: var(--sapphire);
+  svg { border-color: var(--sapphire); }
 `
 
 const StarSchmeckelStyle = styled(SchmeckelStyle)`
-  border-color: var(--star);
+  svg { border-color: var(--star); }
+`
+
+
+const SchmeckelGemStash = styled.div`
+  display: flex;
+  flex-direction: row;
+  max-width: 80px;
+  padding-right: 40px;
 `
 
 interface SchmeckelUIProps {
   gem: Gem
+  amount: number
 }
 
-const SchmeckelUI = (props: SchmeckelUIProps) => {
+export const SchmeckelUI = (props: SchmeckelUIProps) => {
   const map = {
     [Gem.Diamond]: DiamondSchmeckelStyle,
     [Gem.Emerald]: EmeraldSchmeckelStyle,
@@ -123,14 +123,24 @@ const SchmeckelUI = (props: SchmeckelUIProps) => {
     [Gem.Star]: StarSchmeckelStyle
   }
 
-  const SchmeckelGemWrapper = map[props.gem];
+  const SchmeckelGemCoin = map[props.gem];
 
   return (
-    <SchmeckelGemWrapper>
-      <GemUI gem={props.gem} />
-    </SchmeckelGemWrapper>
+    <>
+      {[...Array(props.amount)].map(_ => 
+        <SchmeckelGemCoin>
+          <GemUI gem={props.gem} />
+        </SchmeckelGemCoin>
+      )}
+    </>
   )
 }
+
+const SchmeckelStackUI = (props: SchmeckelUIProps) => (
+  <SchmeckelGemStash>
+    <SchmeckelUI {...props} />
+  </SchmeckelGemStash>
+)
 
 interface GemBankProps {
   gems: GemStash
@@ -138,12 +148,12 @@ interface GemBankProps {
 
 const GemBankUI = (props: GemBankProps) => (
   <GemBankStyle>
-    {props.gems.diamond > 0 ? <SchmeckelUI gem={Gem.Diamond} /> : null}
-    {props.gems.ruby > 0 ? <SchmeckelUI gem={Gem.Ruby} />  : null}
-    {props.gems.emerald > 0 ? <SchmeckelUI gem={Gem.Emerald} />  : null}
-    {props.gems.onyx > 0 ? <SchmeckelUI gem={Gem.Onyx} />  : null}
-    {props.gems.sapphire > 0 ? <SchmeckelUI gem={Gem.Sapphire} />  : null}
-    {props.gems.star > 0 ? <SchmeckelUI gem={Gem.Star} />  : null}
+    {props.gems.diamond > 0 ? <SchmeckelStackUI gem={Gem.Diamond} amount={props.gems.diamond} /> : null}
+    {props.gems.ruby > 0 ? <SchmeckelStackUI gem={Gem.Ruby} amount={props.gems.ruby} />  : null}
+    {props.gems.emerald > 0 ? <SchmeckelStackUI gem={Gem.Emerald} amount={props.gems.emerald} />  : null}
+    {props.gems.onyx > 0 ? <SchmeckelStackUI gem={Gem.Onyx} amount={props.gems.onyx} />  : null}
+    {props.gems.sapphire > 0 ? <SchmeckelStackUI gem={Gem.Sapphire} amount={props.gems.sapphire} />  : null}
+    {props.gems.star > 0 ? <SchmeckelStackUI gem={Gem.Star} amount={props.gems.star} />  : null}
   </GemBankStyle>
 )
 

@@ -1,5 +1,6 @@
 import cardsJson from './cards.json';
 import noblesJson from './nobles.json';
+import { BaseAction } from './Actions';
 
 interface NobleJsonValues {
   points: number;
@@ -47,6 +48,17 @@ export interface GemStash {
   [Gem.Onyx]: number;
   [Gem.Emerald]: number;
   [Gem.Star]: number;
+}
+
+const emptyGemStash = () => {
+  return {
+    [Gem.Ruby]: 0,
+    [Gem.Sapphire]: 0,
+    [Gem.Diamond]: 0,
+    [Gem.Onyx]: 0,
+    [Gem.Emerald]: 0,
+    [Gem.Star]: 0
+  }
 }
 
 const mapNobleValuesJsonToNobleType = (noblesValues: NobleJsonValues[]) => noblesValues.map(
@@ -100,17 +112,24 @@ export class Card {
 
 export class CardPile {
   cards: Card[];
-  tier: Tier;
+  tier?: Tier;
   
-  constructor(tier: Tier, cards: Card[]) {
-    this.tier = tier;
-    this.cards = shuffle(cards);
+  constructor(tier?: Tier, cards?: Card[]) {
+    if (tier) this.tier = tier;
+
+    if (cards) {
+      this.cards = shuffle(cards);
+    } else {
+      this.cards = [];
+    }
   }
 
   draw(n: number, destination: CardPile) {
     this.cards.splice(0, n).forEach(c => destination.cards.push(c));
   }
 }
+
+export type PlayerTurn = number;
 
 export class GameState  {
   tierICards: CardPile;
@@ -121,11 +140,14 @@ export class GameState  {
   tierIIIDrawPile: CardPile;
   nobles: Noble[];
   gems: GemStash;
+  players: Player[];
+  turn: PlayerTurn
 
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
     const nobles = shuffle(mapNobleValuesJsonToNobleType(noblesJson));
 
+    this.players = [];
     this.nobles = nobles.splice(0, 3);
 
     this.tierICards = new CardPile(Tier.I, []);
@@ -137,6 +159,7 @@ export class GameState  {
     this.tierIIIDrawPile = new CardPile(Tier.III, cards.filter(c => c.tier = Tier.III));
 
     this.drawVisibleCards();
+    this.turn = 1;
 
     this.gems = {
       [Gem.Ruby]: 6,
@@ -155,38 +178,20 @@ export class GameState  {
   }
 }
 
-
 export class Player {
   name: string;
-  position: number;
+  position: PlayerTurn;
+  gems: GemStash;
+  cards: CardPile;
+  nobles: Noble[];
 
-  constructor(name: string, position: number) {    
+  constructor(name: string, position: PlayerTurn) {    
     this.name = name;
     this.position = position;
-  }
-}
+    this.gems = emptyGemStash();
+    this.cards = new CardPile();
+    this.nobles = [];
 
-enum Actions {
-  JoinGame = 0,
-  ExitGame = 1,
-  TakeGems = 2,
-  ReserveCard = 3,
-  PurchaseCard = 4
-}
-
-interface Action {
-  type: Actions
-}
-
-interface JoinGameAction extends Action {}
-interface ExitGameAction extends Action {}
-interface TakeGemsAction extends Action {}
-interface ReserveCardAction extends Action {}
-interface PurchaseCardAction extends Action {}
-
-class Actor {
-  act(action: Action, player: Player) {
-    
   }
 }
 
@@ -197,4 +202,11 @@ export default class Game {
     this.gameState = new GameState();
   }
 
+  receive(action: BaseAction) {
+    if (action.checkRules(this.gameState)) {
+      action.act(this.gameState);
+    } else {
+      action.failedRules.map(a => alert(a.message));
+    }
+  }
 }

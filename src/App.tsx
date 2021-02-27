@@ -1,14 +1,19 @@
 import React from 'react';
-import './App.css';
+import styled from 'styled-components';
 import GameUI from './Ui/Game';
-import { RubyCostUI, EmeraldCostUI, DiamondCostUI, OnyxCostUI, SapphireCostUI, GemCostsUI } from './Ui/Gems';
 
-function App() {
-  return (
-    <>
-      <GameUI />
-    </>
-  );
-}
 
-export default App;
+
+const App = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; 
+`
+
+
+export default () => (
+  <App>
+    <GameUI />
+  </App>
+);

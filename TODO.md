@@ -1,4 +1,4 @@
-A player can take 4 actions:
+A player can take 4 Action:
 
 - Take 3 gems of different colors
 - Take 2 gems of one color

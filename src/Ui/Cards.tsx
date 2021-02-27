@@ -78,7 +78,7 @@ export const CardUI = (props: CardUIProps) => (
 );
 
 interface DrawPileProps {
-  tier: Tier,
+  tier: Tier | undefined,
   numberOfCards: number
 }
 
@@ -93,15 +93,20 @@ const TierDots = styled.div`
 
 export const DrawPileUI = (props: DrawPileProps) => (
   <CardStyle>
-    <TierDots>
-    {props.tier === Tier.I
-      ? (<>•</>)
-      : (props.tier === Tier.II)
-        ? (<>• •</>)
-        : (props.tier === Tier.III) 
-          ? (<>• • •</>)
-          : null
-    }
-    </TierDots>
+    {props.tier ?
+      (
+        <TierDots>
+          {props.tier === Tier.I
+            ? (<>•</>)
+            : (props.tier === Tier.II)
+              ? (<>• •</>)
+              : (props.tier === Tier.III) 
+                ? (<>• • •</>)
+                : null
+          }
+        </TierDots>
+      )
+      : null
+    }    
   </CardStyle>
 );

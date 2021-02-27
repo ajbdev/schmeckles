@@ -1,15 +1,18 @@
 import React from 'react';
 import { BoardUI } from './Board';
-import { GameState } from '../Game';
+import Game, { Player } from '../Game';
+import { HudUI } from './Player';
 
 interface GameUIProps {}
 
 interface GameUIState {
-  gameState: GameState | null
+  game: Game | null
+  player: Player | null
 }
 
 const defaultState = {
-  gameState: null
+  game: null,
+  player: null
 }
 
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
@@ -20,18 +23,26 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
   }
 
   componentDidMount() {
-    const game = new GameState();
+    const game = new Game();
+
+    const player = new Player('Andy', 1);
 
     this.setState({
-      gameState: game
+      game: game,
+      player: player
     })
   }
 
   render() {
     return (
       <>
-        {this.state.gameState ?
-          <BoardUI gameState={this.state.gameState} />
+        {this.state.game ?
+          (
+            <>
+              <BoardUI gameState={this.state.game!.gameState} />
+              <HudUI cards={this.state.player!.cards} gems={this.state.player!.gems} />
+            </>
+          )
           : null
         }
       </>
