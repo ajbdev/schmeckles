@@ -199,15 +199,24 @@ export class Player {
 
 export default class Game {
   gameState: GameState;
+  private static instance: Game;
 
-  constructor() {
+  private constructor() {
     this.gameState = new GameState();
+  }
+
+  public static getInstance(): Game {
+    if (!Game.instance) {
+      Game.instance = new Game();
+    }
+
+    return Game.instance;
   }
 
   sendAction(playerId: string, actionType: string, data: any) {
     const action = BaseAction.create(
-      this.gameState.players.map(p => p.id === playerId)[0],
-      Action[actionType as keyof Action],
+      this.gameState.players.filter(p => p.id === playerId)[0],
+      Action[actionType as keyof typeof Action],
       data
     )
   }

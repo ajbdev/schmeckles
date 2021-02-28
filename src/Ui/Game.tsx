@@ -23,7 +23,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
   }
 
   componentDidMount() {
-    const game = new Game();
+    const game = Game.getInstance();
 
     const player = new Player('Andy', 1);
 
