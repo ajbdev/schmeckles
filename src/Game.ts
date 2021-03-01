@@ -197,12 +197,15 @@ export class Player {
   }
 }
 
+
 export default class Game {
   gameState: GameState;
   private static instance: Game;
+  private onStateUpdateCallback: ((gameState: GameState) => void) | null;
 
   private constructor() {
     this.gameState = new GameState();
+    this.onStateUpdateCallback = null;
   }
 
   public static getInstance(): Game {
@@ -213,12 +216,18 @@ export default class Game {
     return Game.instance;
   }
 
+  onStateUpdate(callback: (gameState: GameState) => void):void {
+    this.onStateUpdateCallback = callback;
+  }
+
   sendAction(playerId: string, actionType: string, data: any) {
     const action = BaseAction.create(
       this.gameState.players.filter(p => p.id === playerId)[0],
       Action[actionType as keyof typeof Action],
       data
     )
+
+    this.receiveAction(action);
   }
 
   receiveAction(action: IAction) {
@@ -226,6 +235,9 @@ export default class Game {
       action.act(this.gameState);
     } else {
       action.failedRules.map(a => alert(a.message));
+    }
+    if (this.onStateUpdateCallback) {
+      this.onStateUpdateCallback(this.gameState);
     }
   }
 }

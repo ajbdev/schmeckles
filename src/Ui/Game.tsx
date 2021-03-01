@@ -1,17 +1,17 @@
 import React from 'react';
 import { BoardUI } from './Board';
-import Game, { Player } from '../Game';
+import Game, { GameState, Player } from '../Game';
 import { HudUI } from './Player';
 
 interface GameUIProps {}
 
 interface GameUIState {
-  game: Game | null
+  gameState: GameState | null
   player: Player | null
 }
 
 const defaultState = {
-  game: null,
+  gameState: null,
   player: null
 }
 
@@ -25,10 +25,14 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
   componentDidMount() {
     const game = Game.getInstance();
 
+    game.onStateUpdate((gameState: GameState) => {
+      this.setState({ gameState: gameState })
+    })
+
     const player = new Player('Andy', 1);
 
     this.setState({
-      game: game,
+      gameState: game.gameState,
       player: player
     })
   }
@@ -41,10 +45,10 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
     //create(p: Player, t: Action, meta: any)
     return (
       <>
-        {this.state.game ?
+        {this.state.gameState ?
           (
             <>
-              <BoardUI gameState={this.state.game!.gameState} />
+              <BoardUI gameState={this.state.gameState} />
               <HudUI cards={this.state.player!.cards} gems={this.state.player!.gems} />
             </>
           )
