@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { DrawPileUI, CardUI } from './Cards';
-import { Tier, CardPile, Card, GameState, Gem, GemStash } from '../Game';
+import Game, { Tier, CardPile, Card, GameState, Gem, GemStash } from '../Game';
 import { NobleUI } from './Nobles';
 import { GemUI, Star } from './Gems';
 
@@ -130,6 +130,12 @@ interface SchmeckelUIProps {
   amount: number
 }
 
+const game = Game.getInstance();
+
+const selectGem = (gem: Gem) => {
+  game.sendAction('andy','take_gems',{ gems: [gem] })
+}
+
 export const SchmeckelUI = (props: SchmeckelUIProps) => {
   const map = {
     [Gem.Diamond]: DiamondSchmeckelStyle,
@@ -154,7 +160,7 @@ export const SchmeckelUI = (props: SchmeckelUIProps) => {
 }
 
 const SchmeckelStackUI = (props: SchmeckelUIProps) => (
-  <SchmeckelGemStash>
+  <SchmeckelGemStash onClick={() => selectGem(props.gem)} >
     <SchmeckelUI {...props} />
   </SchmeckelGemStash>
 )

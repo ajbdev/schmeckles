@@ -37,10 +37,6 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
     })
   }
 
-  sendAction() {
-    
-  }
-
   render() {
     //create(p: Player, t: Action, meta: any)
     return (
