@@ -9,6 +9,8 @@ import { Action } from '../Actions';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
 
+const game = Game.getInstance();
+
 const CardRowStyle = styled.div`
   display: flex;
   flex-direction: row;
@@ -20,17 +22,77 @@ const NobleRowStyle = styled.div`
   justify-content: flex-end;
 `
 
+const InteractiveCardStyle = styled.div`
+  position: relative;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid transparent;
+
+  &:hover {
+    border-color: #999;
+    background: #999;
+
+    & > div {
+      display: block;
+    }
+  }
+
+`
+
+const CardButtonGutter = styled.div`
+  position: absolute;
+  display: none;
+  background: #999;
+  z-index: 101;
+  border-radius: 4px;
+  border: 1px solid #999;
+  margin-top: -4px;
+  padding: 4px;
+  margin-left: -1px;
+  margin-right: -1px;
+
+  & button {
+    width: 100%;
+    padding: 5px;
+
+    &:first-child {
+      margin-bottom: 4px;
+    }
+  }
+`
+
+interface InteractiveCardUIProps {
+  card: Card
+  player: Player
+  index: number
+}
+
+const purchaseCard = (player: Player, card: Card, ix: number) => {
+  game.sendAction(player, Action.TakeGems, { tier: card.tier, index: ix });
+}
+
+const InteractiveCardUI = (props: InteractiveCardUIProps) => (
+  <InteractiveCardStyle>
+    <CardUI card={props.card} /> 
+    <CardButtonGutter>
+      <button onClick={() => purchaseCard(props.player, props.card, props.index)}>Buy</button>
+      <button>Reserve</button>
+    </CardButtonGutter>
+  </InteractiveCardStyle>
+);
+
 interface CardRowUIProps {
-  tier: Tier,
-  drawPile: CardPile,
+  tier: Tier
+  drawPile: CardPile
   visibleCards: Card[]
+  player: Player
 }
 
 export const CardRowUI = (props: CardRowUIProps ) => (
   <CardRowStyle>
     <DrawPileUI tier={props.drawPile.tier} numberOfCards={props.drawPile.cards.length}></DrawPileUI>
     {props.visibleCards.map((card, i) => 
-      <CardUI card={card} key={i} />  
+      <InteractiveCardUI card={card} index={i} key={i} player={props.player} />  
     )}
   </CardRowStyle>
 )
@@ -49,7 +111,6 @@ const TilesStyle = styled.div`
 `
 
 const SchmeckelStyle = styled.div`
-
   width: 46px;
   height: 46px;
   margin: 2px 0;
@@ -121,8 +182,6 @@ const SchmeckelGemStash = styled.div`
     }
   }
 `
-
-const game = Game.getInstance();
 
 export const SchmeckelGemCoinUI = (props: { gem: Gem }) => {
   const map = {
@@ -281,6 +340,8 @@ const HoldGemUI = (props: HoldGemUIProps) => {
     })
 
     game.sendAction(props.player, Action.TakeGems, { gems });
+
+    props.setHeldGems([]);
   }
 
   return ReactDOM.createPortal(
@@ -292,7 +353,7 @@ const HoldGemUI = (props: HoldGemUIProps) => {
               <SchmeckelGemCoinUI gem={g} />
             </GemSlotStyle>)
           }
-          {[...Array(3-props.gems.length)].map(s => <GemSlotStyle />)}
+          {[...Array(3-props.gems.length)].map((s,i) => <GemSlotStyle key={i} />)}
           <ConfirmButtonStyle><ConfirmSvg onClick={() => confirmTakeGems()} /></ConfirmButtonStyle>
           <CancelButtonStyle onClick={() => props.setHeldGems([])}><CancelSvg /></CancelButtonStyle>
         </HoldGemSlotsStyle>       
@@ -336,9 +397,9 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
               <NobleUI noble={noble} key={i} />
             )}
           </NobleRowStyle>
-          <CardRowUI tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards}></CardRowUI>
-          <CardRowUI tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards}></CardRowUI>
-          <CardRowUI tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards}></CardRowUI>
+          <CardRowUI player={this.props.gameState.contextPlayer!} tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards}></CardRowUI>
+          <CardRowUI player={this.props.gameState.contextPlayer!} tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards}></CardRowUI>
+          <CardRowUI player={this.props.gameState.contextPlayer!} tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards}></CardRowUI>
         </TilesStyle>
         {this.state.heldGems.length > 0 ? <HoldGemUI player={this.props.gameState.contextPlayer!} gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}
       </BoardStyle>

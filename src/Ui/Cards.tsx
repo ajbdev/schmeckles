@@ -30,6 +30,7 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   height ${props => CardSizes[props.size][1]};
   border: 1px solid #000;
   border-radius: 5px;
+  background: #fff;
   margin: 5px;
   position: relative;
 `

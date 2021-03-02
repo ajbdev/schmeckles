@@ -28,7 +28,7 @@ interface HudUIProps {
 
 
 export const HudUI = (props: HudUIProps) => {
-  const gems = Object.keys(Gem).filter(g => props.player.gems[g as Gem] > 0 && props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
+  const gems = Object.keys(Gem).filter(g => props.player.gems[Gem[g as keyof typeof Gem]] > 0 || props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
 
   return (
     <HudStyle>

@@ -172,6 +172,19 @@ export class GameState  {
     }
   }
 
+  getCardPileByTier(tier: Tier) {
+    switch (tier) {
+      case Tier.I:
+        return this.tierICards;
+      case Tier.II:
+        return this.tierIICards;
+      case Tier.III:
+        return this.tierIIICards;
+      default:
+        break;
+    }
+  }
+
   drawVisibleCards() {
     this.tierIDrawPile.draw(4-this.tierICards.cards.length, this.tierICards);
     this.tierIIDrawPile.draw(4-this.tierIICards.cards.length, this.tierIICards);
