@@ -22,9 +22,13 @@ const HudStyle = styled.div`
   z-index: 101;
 `;
 
+interface HudUIProps {
+  player: Player
+}
 
-export const HudUI = (props: GemColumnUIProps) => {
-  const gems = Object.keys(Gem).filter(g => props.gems[g as Gem] > 0 && props.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
+
+export const HudUI = (props: HudUIProps) => {
+  const gems = Object.keys(Gem).filter(g => props.player.gems[g as Gem] > 0 && props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
 
   return (
     <HudStyle>

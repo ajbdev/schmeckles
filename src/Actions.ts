@@ -60,9 +60,11 @@ export abstract class BaseAction implements IAction {
 }
 
 export class JoinGame extends BaseAction {
-  constructor(p: Player) {
+  isContextPlayer: boolean;
+  constructor(p: Player, isContextPlayer: boolean) {
     super(p)
     this.type = Action.JoinGame;
+    this.isContextPlayer = isContextPlayer;
     this.rules = [
       (g: Readonly<GameState>) => gameIsFull(g.players)
     ]
@@ -70,6 +72,10 @@ export class JoinGame extends BaseAction {
 
   act(gameState: GameState) {
     gameState.players.push(this.player);
+
+    if (this.isContextPlayer) {
+      gameState.contextPlayer = this.player;
+    }
   }
 }
 

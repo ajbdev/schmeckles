@@ -50,7 +50,7 @@ export interface GemStash {
   [Gem.Star]: number;
 }
 
-const emptyGemStash = () => {
+export const emptyGemStash = () => {
   return {
     [Gem.Ruby]: 0,
     [Gem.Sapphire]: 0,
@@ -141,6 +141,7 @@ export class GameState  {
   nobles: Noble[];
   gems: GemStash;
   players: Player[];
+  contextPlayer: Player | undefined;
   turn: PlayerTurn
 
   constructor() {

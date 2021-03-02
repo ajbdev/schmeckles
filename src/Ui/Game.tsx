@@ -8,15 +8,13 @@ interface GameUIProps {}
 
 interface GameUIState {
   gameState: GameState | null
-  player: Player | null
 }
 
 const game = Game.getInstance();
 const player = new Player('Andy', 1);
 
 const defaultState = {
-  gameState: null,
-  player: player
+  gameState: null
 }
 
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
@@ -30,7 +28,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
     game.onStateUpdate((gameState: GameState) => {
       this.setState({ gameState: gameState })
     })
-    game.sendAction(player, Action.JoinGame, {});
+    game.sendAction(player, Action.JoinGame, { isContextPlayer: true });
   }
 
   render() {
@@ -40,7 +38,11 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
           (
             <>
               <BoardUI gameState={this.state.gameState} />
-              <HudUI cards={this.state.player!.cards} gems={this.state.player!.gems} />
+              {this.state.gameState.contextPlayer 
+                ? <HudUI player={this.state.gameState.contextPlayer} />
+                : null
+              }
+              
             </>
           )
           : null

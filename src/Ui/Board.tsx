@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { DrawPileUI, CardUI } from './Cards';
-import Game, { Tier, CardPile, Card, GameState, Gem, GemStash } from '../Game';
+import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, Player, emptyGemStash } from '../Game';
 import { NobleUI } from './Nobles';
 import { GemUI, Sapphire, Onyx } from './Gems';
 import { Action } from '../Actions';
@@ -203,14 +203,14 @@ const HoldUIStyle = styled.div`
 const HoldGemSlotsStyle = styled.div`
   display: flex;
   border-radius: 40px;
-  background: #aaa;
+  background: #ddd;
   padding: 5px;
   margin-top: 20px;
 `
 
 const GemSlotStyle = styled.div`
   border-radius: 100%;
-  background: #777;
+  background: #aaa;
   width: 40px;
   height: 40px;
   padding: 5px;
@@ -260,6 +260,7 @@ const CancelButtonStyle = styled.div`
 
 interface HoldGemUIProps {
   gems: Gem[]
+  player: Player
   setHeldGems: (gems:Gem[]) => void
 }
 
@@ -272,6 +273,16 @@ const HoldGemUI = (props: HoldGemUIProps) => {
     props.setHeldGems(gems);
   }
 
+  const confirmTakeGems = () => {
+    const gems = emptyGemStash();
+
+    props.gems.forEach(g => {
+      gems[g as Gem]++;
+    })
+
+    game.sendAction(props.player, Action.TakeGems, { gems });
+  }
+
   return ReactDOM.createPortal(
     <>
       <HoldUIStyle>
@@ -282,7 +293,7 @@ const HoldGemUI = (props: HoldGemUIProps) => {
             </GemSlotStyle>)
           }
           {[...Array(3-props.gems.length)].map(s => <GemSlotStyle />)}
-          <ConfirmButtonStyle><ConfirmSvg /></ConfirmButtonStyle>
+          <ConfirmButtonStyle><ConfirmSvg onClick={() => confirmTakeGems()} /></ConfirmButtonStyle>
           <CancelButtonStyle onClick={() => props.setHeldGems([])}><CancelSvg /></CancelButtonStyle>
         </HoldGemSlotsStyle>       
       </HoldUIStyle>
@@ -329,7 +340,7 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
           <CardRowUI tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards}></CardRowUI>
           <CardRowUI tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards}></CardRowUI>
         </TilesStyle>
-        {this.state.heldGems.length > 0 ? <HoldGemUI gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}
+        {this.state.heldGems.length > 0 ? <HoldGemUI player={this.props.gameState.contextPlayer!} gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}
       </BoardStyle>
     )
   }

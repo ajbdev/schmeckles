@@ -31,6 +31,9 @@ export const gameIsFull = (players: Player[]): Result => {
 }
 
 export const hasEnoughGems = (desired: GemStash, from: GemStash): Result => {
+
+  console.log(Object.keys(from));
+
   const overdrawn = Object.keys(desired).filter(gemType => desired[gemType as Gem] > from[gemType as Gem]).length;
 
   return {
