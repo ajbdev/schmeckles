@@ -68,7 +68,7 @@ interface InteractiveCardUIProps {
 }
 
 const purchaseCard = (player: Player, card: Card, ix: number) => {
-  game.sendAction(player, Action.TakeGems, { tier: card.tier, index: ix });
+  game.sendAction(player, Action.PurchaseCard, { tier: card.tier, index: ix });
 }
 
 const InteractiveCardUI = (props: InteractiveCardUIProps) => (
