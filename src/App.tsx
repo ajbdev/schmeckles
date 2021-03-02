@@ -4,16 +4,17 @@ import GameUI from './Ui/Game';
 
 
 
-const App = styled.div`
+const AppStyle = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%; 
 `
-
-
-export default () => (
-  <App>
+const App = () => (
+  <AppStyle>
     <GameUI />
-  </App>
+  </AppStyle>
 );
+
+
+export default App;

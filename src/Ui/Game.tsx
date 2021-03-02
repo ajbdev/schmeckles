@@ -2,6 +2,7 @@ import React from 'react';
 import { BoardUI } from './Board';
 import Game, { GameState, Player } from '../Game';
 import { HudUI } from './Player';
+import { Action } from '../Actions';
 
 interface GameUIProps {}
 
@@ -10,9 +11,12 @@ interface GameUIState {
   player: Player | null
 }
 
+const game = Game.getInstance();
+const player = new Player('Andy', 1);
+
 const defaultState = {
   gameState: null,
-  player: null
+  player: player
 }
 
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
@@ -23,22 +27,13 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
   }
 
   componentDidMount() {
-    const game = Game.getInstance();
-
     game.onStateUpdate((gameState: GameState) => {
       this.setState({ gameState: gameState })
     })
-
-    const player = new Player('Andy', 1);
-
-    this.setState({
-      gameState: game.gameState,
-      player: player
-    })
+    game.sendAction(player, Action.JoinGame, {});
   }
 
   render() {
-    //create(p: Player, t: Action, meta: any)
     return (
       <>
         {this.state.gameState ?

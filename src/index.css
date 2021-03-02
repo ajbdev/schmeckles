@@ -18,4 +18,9 @@ code {
   --sapphire: #2a55e6;
   --onyx: #222222;
   --star: #ffdb63;
+
+  --confirm: #00a030;
+  --confirm-hover: #00d33f;
+  --cancel: #bd0000;
+  --cancel-hover: #f30000;
 }

@@ -1,9 +1,13 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { DrawPileUI, CardUI } from './Cards';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash } from '../Game';
 import { NobleUI } from './Nobles';
-import { GemUI, Star } from './Gems';
+import { GemUI, Sapphire, Onyx } from './Gems';
+import { Action } from '../Actions';
+import { ReactComponent as CancelSvg } from './svg/cancel.svg';
+import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
 
 const CardRowStyle = styled.div`
   display: flex;
@@ -25,16 +29,11 @@ interface CardRowUIProps {
 export const CardRowUI = (props: CardRowUIProps ) => (
   <CardRowStyle>
     <DrawPileUI tier={props.drawPile.tier} numberOfCards={props.drawPile.cards.length}></DrawPileUI>
-    {props.visibleCards.map((card) => 
-      <CardUI card={card} />  
+    {props.visibleCards.map((card, i) => 
+      <CardUI card={card} key={i} />  
     )}
   </CardRowStyle>
 )
-
-interface BoardUIProps {
-  gameState: GameState
-}
-
 const BoardStyle = styled.div`
   display: flex;
   flex-direction: row;
@@ -75,8 +74,6 @@ const RubySchmeckelStyle = styled(SchmeckelStyle)`
 const EmeraldSchmeckelStyle = styled(SchmeckelStyle)`
   svg {
     border-color: var(--emerald);
-    width: 28px;
-    height: 28px;
   }
 `
 const DiamondSchmeckelStyle = styled(SchmeckelStyle)`
@@ -125,18 +122,9 @@ const SchmeckelGemStash = styled.div`
   }
 `
 
-interface SchmeckelUIProps {
-  gem: Gem
-  amount: number
-}
-
 const game = Game.getInstance();
 
-const selectGem = (gem: Gem) => {
-  game.sendAction('andy','take_gems',{ gems: [gem] })
-}
-
-export const SchmeckelUI = (props: SchmeckelUIProps) => {
+export const SchmeckelGemCoinUI = (props: { gem: Gem }) => {
   const map = {
     [Gem.Diamond]: DiamondSchmeckelStyle,
     [Gem.Emerald]: EmeraldSchmeckelStyle,
@@ -146,53 +134,203 @@ export const SchmeckelUI = (props: SchmeckelUIProps) => {
     [Gem.Star]: StarSchmeckelStyle
   }
 
-  const SchmeckelGemCoin = map[props.gem];
+  const SchmeckelCoinWrapUI = map[props.gem]
 
-  return (
-    <>
-      {[...Array(props.amount)].map(_ => 
-        <SchmeckelGemCoin>
-          <GemUI gem={props.gem} />
-        </SchmeckelGemCoin>
-      )}
-    </>
+  return(
+    <SchmeckelCoinWrapUI>
+      <GemUI gem={props.gem} />
+    </SchmeckelCoinWrapUI>
   )
 }
 
-const SchmeckelStackUI = (props: SchmeckelUIProps) => (
-  <SchmeckelGemStash onClick={() => selectGem(props.gem)} >
-    <SchmeckelUI {...props} />
+interface SchmeckelStackUIProps {
+  gem: Gem
+  amount: number
+  holdGem: (gem:Gem) => void
+}
+
+const SchmeckelStackUI = (props: SchmeckelStackUIProps) => (
+  <SchmeckelGemStash onClick={() => props.holdGem(props.gem)} >
+    {[...Array(props.amount)].map((a, i) => 
+        <SchmeckelGemCoinUI gem={props.gem} key={i} />
+    )}
   </SchmeckelGemStash>
 )
 
 interface GemBankProps {
   gems: GemStash
+  setHeldGems: (gems:Gem[]) => void
+  heldGems: Gem[]
 }
 
-const GemBankUI = (props: GemBankProps) => (
-  <GemBankStyle>
-    {props.gems.diamond > 0 ? <SchmeckelStackUI gem={Gem.Diamond} amount={props.gems.diamond} /> : null}
-    {props.gems.ruby > 0 ? <SchmeckelStackUI gem={Gem.Ruby} amount={props.gems.ruby} />  : null}
-    {props.gems.emerald > 0 ? <SchmeckelStackUI gem={Gem.Emerald} amount={props.gems.emerald} />  : null}
-    {props.gems.onyx > 0 ? <SchmeckelStackUI gem={Gem.Onyx} amount={props.gems.onyx} />  : null}
-    {props.gems.sapphire > 0 ? <SchmeckelStackUI gem={Gem.Sapphire} amount={props.gems.sapphire} />  : null}
-    {props.gems.star > 0 ? <SchmeckelStackUI gem={Gem.Star} amount={props.gems.star} />  : null}
-  </GemBankStyle>
-)
+const GemBankUI = (props: GemBankProps) => {
 
+  const subtracted = {
+    diamond: props.heldGems.filter((g) => g === Gem.Diamond).length,
+    ruby: props.heldGems.filter((g) => g === Gem.Ruby).length,
+    emerald: props.heldGems.filter((g) => g === Gem.Emerald).length,
+    onyx: props.heldGems.filter((g) => g === Gem.Onyx).length,
+    sapphire: props.heldGems.filter((g) => g === Gem.Sapphire).length,
+    star: props.heldGems.filter((g) => g === Gem.Star).length,
+  }
 
-export const BoardUI = (props: BoardUIProps) => (
-  <BoardStyle>
-    <GemBankUI gems={props.gameState.gems} />
-    <TilesStyle>
-      <NobleRowStyle>
-        {props.gameState.nobles.map(noble => 
-          <NobleUI noble={noble} />
-        )}
-      </NobleRowStyle>
-      <CardRowUI tier={Tier.III} drawPile={props.gameState.tierIIIDrawPile} visibleCards={props.gameState.tierIIICards.cards}></CardRowUI>
-      <CardRowUI tier={Tier.II} drawPile={props.gameState.tierIIDrawPile} visibleCards={props.gameState.tierIICards.cards}></CardRowUI>
-      <CardRowUI tier={Tier.I} drawPile={props.gameState.tierIDrawPile} visibleCards={props.gameState.tierICards.cards}></CardRowUI>
-    </TilesStyle>
-  </BoardStyle>
-)
+  const holdGem = (gem: Gem) => {
+    if (props.heldGems.length < 3) {
+      const gems = props.heldGems;
+      
+      gems.push(gem);
+
+      props.setHeldGems(gems);
+    }
+  }
+
+  return (
+    <GemBankStyle>
+      {props.gems.diamond > 0 ? <SchmeckelStackUI gem={Gem.Diamond} amount={props.gems.diamond-subtracted.diamond} holdGem={holdGem} /> : null}
+      {props.gems.ruby > 0 ? <SchmeckelStackUI gem={Gem.Ruby} amount={props.gems.ruby-subtracted.ruby} holdGem={holdGem} />  : null}
+      {props.gems.emerald > 0 ? <SchmeckelStackUI gem={Gem.Emerald} amount={props.gems.emerald-subtracted.emerald} holdGem={holdGem} />  : null}
+      {props.gems.onyx > 0 ? <SchmeckelStackUI gem={Gem.Onyx} amount={props.gems.onyx-subtracted.onyx} holdGem={holdGem} />  : null}
+      {props.gems.sapphire > 0 ? <SchmeckelStackUI gem={Gem.Sapphire} amount={props.gems.sapphire-subtracted.sapphire} holdGem={holdGem} />  : null}
+      {props.gems.star > 0 ? <SchmeckelStackUI gem={Gem.Star} amount={props.gems.star-subtracted.star} holdGem={holdGem} />  : null}
+    </GemBankStyle>
+  )
+}
+
+const HoldUIStyle = styled.div`
+  display: flex;
+  justify-content: center;
+`
+const HoldGemSlotsStyle = styled.div`
+  display: flex;
+  border-radius: 40px;
+  background: #aaa;
+  padding: 5px;
+  margin-top: 20px;
+`
+
+const GemSlotStyle = styled.div`
+  border-radius: 100%;
+  background: #777;
+  width: 40px;
+  height: 40px;
+  padding: 5px;
+  margin-right: 5px;
+
+  svg {
+    top: -5px;
+    left: -3px;
+    cursor: pointer;
+  }
+`
+
+const ConfirmButtonStyle = styled.div`
+  width: 40px;
+  height: 40px;
+  padding: 5px;
+  cursor: pointer;
+
+  svg {
+    width: 40px;
+    height: 40px;
+    fill: var(--confirm);
+  }
+
+  &:hover {
+    svg { fill: var(--confirm-hover) }
+  }
+  `
+
+const CancelButtonStyle = styled.div`
+  width: 40px;
+  height: 40px;
+  padding: 5px;
+  cursor: pointer;
+
+  svg {
+    margin-top: 4px;
+    width: 32px;
+    height: 32px;
+    fill: var(--cancel);
+  }
+
+  &:hover {
+    svg { fill: var(--cancel-hover) }
+  }
+`
+
+interface HoldGemUIProps {
+  gems: Gem[]
+  setHeldGems: (gems:Gem[]) => void
+}
+
+const HoldGemUI = (props: HoldGemUIProps) => {
+  const removeGem = (ix: number) => {
+    const gems = props.gems.slice();
+
+    gems.splice(ix, 1);
+
+    props.setHeldGems(gems);
+  }
+
+  return ReactDOM.createPortal(
+    <>
+      <HoldUIStyle>
+        <HoldGemSlotsStyle>
+          {props.gems.map((g,i) => 
+            <GemSlotStyle key={i} onClick={() => removeGem(i)}>
+              <SchmeckelGemCoinUI gem={g} />
+            </GemSlotStyle>)
+          }
+          {[...Array(3-props.gems.length)].map(s => <GemSlotStyle />)}
+          <ConfirmButtonStyle><ConfirmSvg /></ConfirmButtonStyle>
+          <CancelButtonStyle onClick={() => props.setHeldGems([])}><CancelSvg /></CancelButtonStyle>
+        </HoldGemSlotsStyle>       
+      </HoldUIStyle>
+    </>,
+    document.getElementById('root') as HTMLElement
+  )
+}
+
+interface BoardUIProps {
+  gameState: GameState
+}
+
+interface BoardUIState {
+  heldGems: Gem[]
+}
+
+const defaultState = {
+  heldGems: []
+}
+
+export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
+
+  constructor(props: BoardUIProps) {
+    super(props)
+
+    this.state = defaultState;
+  }
+
+  setHeldGems(gems: Gem[]) {
+    this.setState({ heldGems: gems })
+  }
+
+  render() {
+    return (
+      <BoardStyle>
+        <GemBankUI gems={this.props.gameState.gems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} heldGems={this.state.heldGems} />
+        <TilesStyle>
+          <NobleRowStyle>
+            {this.props.gameState.nobles.map((noble, i) => 
+              <NobleUI noble={noble} key={i} />
+            )}
+          </NobleRowStyle>
+          <CardRowUI tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards}></CardRowUI>
+          <CardRowUI tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards}></CardRowUI>
+          <CardRowUI tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards}></CardRowUI>
+        </TilesStyle>
+        {this.state.heldGems.length > 0 ? <HoldGemUI gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}
+      </BoardStyle>
+    )
+  }
+}

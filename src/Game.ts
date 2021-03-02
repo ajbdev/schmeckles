@@ -216,16 +216,20 @@ export default class Game {
     return Game.instance;
   }
 
+  getPlayer(playerId: string) {
+    return this.gameState.players.filter(p => p.id === playerId)[0];
+  }
+
   onStateUpdate(callback: (gameState: GameState) => void):void {
     this.onStateUpdateCallback = callback;
   }
 
-  sendAction(playerId: string, actionType: string, data: any) {
+  sendAction(player: Player, actionType: Action, data: any) {
     const action = BaseAction.create(
-      this.gameState.players.filter(p => p.id === playerId)[0],
-      Action[actionType as keyof typeof Action],
+      player,
+      actionType,
       data
-    )
+    );  
 
     this.receiveAction(action);
   }

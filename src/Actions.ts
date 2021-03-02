@@ -1,10 +1,10 @@
-import Game, { GameState, Player, GemStash, Card, Gem } from './Game';
+import { GameState, Player, GemStash, Gem } from './Game';
 import { Rule, isPlayersTurn, Result, hasEnoughGems, gameIsFull } from './Rules';
 
 export enum Action {
-  JoinGame = 'join_game',
+  JoinGame = 'JoinGame',
 //  ExitGame = 1,
-  TakeGems = 'take_gems',
+  TakeGems = 'TakeGems',
 //  ReserveCard = 3,
 //  PurchaseCard = 4,
 }
@@ -42,7 +42,7 @@ export abstract class BaseAction implements IAction {
   }
 
   checkRules(gameState: Readonly<GameState>): boolean {
-    this.rules.map(r => {
+    this.rules.forEach(r => {
       const result = r(gameState);
 
       if (!result.passed) {
@@ -88,7 +88,7 @@ export class TakeGems extends BaseAction {
   }
 
   act(gameState: GameState) {
-    Object.keys(this.gems).map(gemType => {
+    Object.keys(this.gems).forEach(gemType => {
       gameState.gems[gemType as Gem] -= this.gems[gemType as Gem];
       this.player.gems[gemType as Gem] += this.gems[gemType as Gem];
     })

@@ -1,6 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Player, Gem, Card, GemStash, CardPile } from '../Game';
+import { Player, Gem, GemStash, CardPile } from '../Game';
+
+
+interface GemColumnUIProps {
+  cards: CardPile
+  gems: GemStash
+}
 
 interface HudUIProps {
   player: Player
@@ -16,25 +22,6 @@ const HudStyle = styled.div`
   z-index: 101;
 `;
 
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-`
-
-const GemTotal = styled.div`
-  font-size: 30px;
-  font-weight: bold;
-`
-
-interface GemColumnUIProps {
-  cards: CardPile
-  gems: GemStash
-}
-
-const GemColumnUI = (props: GemColumnUIProps) => (
-  <>
-  </>
-)
 
 export const HudUI = (props: GemColumnUIProps) => {
   const gems = Object.keys(Gem).filter(g => props.gems[g as Gem] > 0 && props.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);

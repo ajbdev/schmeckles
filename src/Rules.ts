@@ -5,9 +5,14 @@ export interface Result {
   message: string;
 }
 
-interface Conditions {}
-
 export type Rule = (gameState: Readonly<GameState>) => Result
+
+export const playerHasJoinedGame = (player: Player, players: Player[]): Result => {
+  return {
+    passed: players.filter(p => p.id === player.id).length > 0,
+    message: 'Player has not joined game'
+  }
+}
 
 export const isPlayersTurn = (player: Player, turn: PlayerTurn): Result => {
   return {
