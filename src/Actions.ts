@@ -1,5 +1,5 @@
 import { GameState, Player, GemStash, Gem, Card, Tier } from './Game';
-import { Rule, isPlayersTurn, Result, gameIsFull, canAffordCard, bankHasEnoughGems } from './Rules';
+import { Rule, isPlayersTurn, Result, gameIsFull, canAffordCard, bankHasEnoughGems, isTakingOneOrTwoGems, canTakeThreeGems } from './Rules';
 
 export enum Action {
   JoinGame = 'JoinGame',
@@ -89,7 +89,7 @@ export class JoinGame extends BaseAction {
 
 export class TakeGems extends BaseAction {
   gems: GemStash;
-  
+
   constructor(p: Player, meta: { gems: GemStash }) {
     super(p);
 
@@ -97,7 +97,19 @@ export class TakeGems extends BaseAction {
     this.gems = meta.gems;
     this.rules = [
       (g: Readonly<GameState>) => isPlayersTurn(this.player, g.turn),
-      (g: Readonly<GameState>) => bankHasEnoughGems(this.gems, g.gems)
+      (g: Readonly<GameState>) => bankHasEnoughGems(this.gems, g.gems),
+      (g: Readonly<GameState>) => {
+        const totalGems = Object.values(this.gems).reduce((a,b) => a+b);
+
+        if (totalGems === 2) {
+          return canTakeTwoGems(this.gems);
+        }
+        if (totalGems === 3) {
+          return canTakeThreeGems(this.gems);
+        }
+
+        return isTakingOneOrTwoGems(totalGems);
+      }
     ];
   }
 
@@ -118,6 +130,7 @@ export class PurchaseCard extends BaseAction {
     this.index = meta.index;
 
     this.rules = [
+      (g: Readonly<GameState>) => isPlayersTurn(this.player, g.turn),
       (g: Readonly<GameState>) => { 
         const card = g.getCardPileByTier(this.tier)!.cards[this.index];
 
