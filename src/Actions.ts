@@ -121,7 +121,7 @@ export class PurchaseCard extends BaseAction {
       (g: Readonly<GameState>) => { 
         const card = g.getCardPileByTier(this.tier)!.cards[this.index];
 
-        return canAffordCard(card, this.player.gems);
+        return canAffordCard(card, this.player);
       }
     ]
   }

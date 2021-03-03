@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Tier, Card } from '../Game';
 import { GemCostsUI, GemUI } from './Gems';
 
-enum CardSize {
+export enum CardSize {
   xs = 'xs',
   sm = 'sm',
   md = 'md',
@@ -13,7 +13,7 @@ enum CardSize {
 
 const CardSizes: { [key:string]: string[] } = {
   xs: ['50px', '72x'],
-  sm: ['68px', '97x'],
+  sm: ['68px', '97px'],
   md: ['90px', '129px'],
   lg: ['120px', '172px'],
   xl: ['160px', '230px']
@@ -33,6 +33,7 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   background: #fff;
   margin: 5px;
   position: relative;
+  user-select: none;
 `
 
 
@@ -45,6 +46,7 @@ export const VictoryPointsStyle = styled.div`
 
 interface CardUIProps {
   card: Card
+  size?: CardSize
 }
 
 const GemAwardStyle = styled.div`
@@ -58,7 +60,7 @@ const GemAwardStyle = styled.div`
 `
 
 export const CardUI = (props: CardUIProps) => (
-  <CardStyle>
+  <CardStyle size={props.size ? props.size : CardSize.md}>
     {props.card.points ? <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle> : null}
     {props.card.costs 
       ? (
@@ -83,29 +85,41 @@ interface DrawPileProps {
   numberOfCards: number
 }
 
-const TierDots = styled.div`
-  font-size: 30px;
+const TierCardStyle = styled.div`
+  display: flex;
   height: 100%;
   width: 100%;
+  align-items: stretch;
+`
+
+const TierDots = styled.div`
+  font-size: 36px;
+  background: #715027;
+  margin: 10px;
+  width: 100%;
+  border-radius: 2px;
   justify-content: center;
-  display: flex;
   align-items: center;
+  color: #fff;
+  display: flex;
 `
 
 export const DrawPileUI = (props: DrawPileProps) => (
   <CardStyle>
     {props.tier ?
       (
-        <TierDots>
-          {props.tier === Tier.I
-            ? (<>•</>)
-            : (props.tier === Tier.II)
-              ? (<>• •</>)
-              : (props.tier === Tier.III) 
-                ? (<>• • •</>)
-                : null
-          }
-        </TierDots>
+        <TierCardStyle>
+          <TierDots>
+            {props.tier === Tier.I
+              ? (<>•</>)
+              : (props.tier === Tier.II)
+                ? (<>••</>)
+                : (props.tier === Tier.III) 
+                  ? (<>•••</>)
+                  : null
+            }
+          </TierDots>
+        </TierCardStyle>
       )
       : null
     }    

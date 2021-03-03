@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { DrawPileUI, CardUI } from './Cards';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, Player, emptyGemStash } from '../Game';
 import { NobleUI } from './Nobles';
-import { GemUI, Sapphire, Onyx } from './Gems';
+import { GemUI, Sapphire, Onyx, IconSize } from './Gems';
 import { Action } from '../Actions';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
@@ -36,7 +36,6 @@ const InteractiveCardStyle = styled.div`
       display: block;
     }
   }
-
 `
 
 const CardButtonGutter = styled.div`
@@ -201,7 +200,7 @@ const SchmeckleGemStash = styled.div`
   }
 `
 
-export const SchmeckleGemCoinUI = (props: { gem: Gem }) => {
+export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize }) => {
   const map = {
     [Gem.Diamond]: DiamondSchmeckleStyle,
     [Gem.Emerald]: EmeraldSchmeckleStyle,
@@ -215,7 +214,7 @@ export const SchmeckleGemCoinUI = (props: { gem: Gem }) => {
 
   return(
     <SchmeckleCoinWrapUI>
-      <GemUI gem={props.gem} />
+      <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
     </SchmeckleCoinWrapUI>
   )
 }

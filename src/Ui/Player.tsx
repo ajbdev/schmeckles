@@ -2,9 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { Player, Gem, GemStash, CardPile } from '../Game';
 import { SchmeckleGemCoinUI } from './Board';
-import { CardUI } from './Cards';
+import { CardUI, CardSize } from './Cards';
 import { GemUI, IconSize } from './Gems';
-
 
 interface GemColumnUIProps {
   cards: CardPile
@@ -16,17 +15,19 @@ interface HudUIProps {
 }
 
 const HudStyle = styled.div`
-  background: #fff;
   z-index: 101;
   display: flex;
   justify-content: center;
-  width: 640px;
-  min-height: 200px;
+  min-height: 230px;
+  align-self: center;
+`;
+
+const DashChromeStyle = styled.div`
   border-radius: 4px;
   background: rgb(25,25,25,0.7);
   border: 4px solid #FFDC73;
   box-shadow: -1px -1px 1px #BF9B30;
-  align-self: center;
+  display: flex;
 `;
 
 interface HudUIProps {
@@ -36,8 +37,8 @@ interface HudUIProps {
 const GemColumnStyle = styled.div`
   width: 110px;
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 `
 
 const GemSchmeckleStashStyle = styled.div`
@@ -45,16 +46,17 @@ const GemSchmeckleStashStyle = styled.div`
   flex-direction: row;
   justify-content: center;
   width: 80px;
-  margin-left: -24px;
+  margin-left: -10px;
   
   & > div:nth-child(2n) {
-    margin-top: 14px;
+    margin-top: 8px;
   }
 `
 
 const CardStackStyle = styled.div`
-  position: relative;
-  
+  position: absolute;
+  margin-left: -80px;
+  margin-top: 45px;
 `
 
 const StackedCardStyle = styled.div`
@@ -82,9 +84,35 @@ const GemHudIndicatorStyle = styled.div`
 
   svg {
     margin-right: 10px;
-    stroke-width: 10;
-    stroke: #222;
   }
+`
+
+const ArcedText = (props: { text: string, arc: number, radius: number}) => {
+  const characters = props.text.split('');
+  const degree = props.arc / characters.length;
+
+  return (
+    <>
+      {characters.map((char, i) => (
+        <span
+          key={`arc-${i}`}
+          style={{
+            position: 'absolute',
+            height: `${props.radius}px`,
+            transform: `rotate(${degree * i - props.arc / 2}deg)`,
+            transformOrigin: `0 ${props.radius}px 0`
+          }}>
+            {char}
+          </span>
+      ))}
+    </>
+  )
+}
+
+
+const VictoryPointsHudStyle = styled.div`
+  width: 200px;
+
 `
 
 
@@ -92,27 +120,35 @@ export const HudUI = (props: HudUIProps) => {
   const gems = Object.keys(Gem).filter(g => props.player.gems[Gem[g as keyof typeof Gem]] > 0 || props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
 
   return (
-    <HudStyle>
-      {Object.keys(Gem).map(g =>
-        <>
-        <GemColumnStyle>
-          <GemHudIndicatorStyle>
-            <GemUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />
-            {props.player.gems[Gem[g as keyof typeof Gem]]}
-          </GemHudIndicatorStyle>
-          <GemSchmeckleStashStyle>
-            {[...Array(props.player.gems[Gem[g as keyof typeof Gem]])].map(_ => <SchmeckleGemCoinUI gem={Gem[g as keyof typeof Gem]} />)}
-          </GemSchmeckleStashStyle>
-          <CardStackStyle>
-            {props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).filter(c => c.gem === Gem[g as keyof typeof Gem]).map(c => 
-              <StackedCardStyle>
-                <CardUI card={c} />
-              </StackedCardStyle>
-            )}
-          </CardStackStyle>
-        </GemColumnStyle>  
-        </>
-      )}    
-    </HudStyle>
+    <>
+      <VictoryPointsHudStyle>
+        <ArcedText text="Victory" arc={160} radius={65} />
+        <ArcedText text="Points" arc={380} radius={65} />
+      </VictoryPointsHudStyle>
+      <HudStyle>
+        <DashChromeStyle>
+        {Object.keys(Gem).map(g =>
+          <>
+          <GemColumnStyle>
+            <GemHudIndicatorStyle>
+              <GemUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />
+              {props.player.gems[Gem[g as keyof typeof Gem]] + props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length}
+            </GemHudIndicatorStyle>
+            <GemSchmeckleStashStyle>
+              {[...Array(props.player.gems[Gem[g as keyof typeof Gem]])].map(_ => <SchmeckleGemCoinUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />)}
+            </GemSchmeckleStashStyle>
+            <CardStackStyle>
+              {props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).filter(c => c.gem === Gem[g as keyof typeof Gem]).map(c => 
+                <StackedCardStyle>
+                  <CardUI card={c} size={CardSize.sm} />
+                </StackedCardStyle>
+              )}
+            </CardStackStyle>
+          </GemColumnStyle>  
+          </>
+        )}    
+        </DashChromeStyle>
+      </HudStyle>
+    </>
   )
 }

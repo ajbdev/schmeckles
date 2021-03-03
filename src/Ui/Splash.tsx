@@ -3,10 +3,10 @@ import FastAverageColor from 'fast-average-color';
 
 
 const SplashScreenStyle = styled.div`
-    width: 100%;
-    background: #999;
-    text-align: center;
-    height: 100%;
+  width: 100%;
+  background: #999;
+  text-align: center;
+  height: 100%;
 `
 
 interface SplashScreenProps {
@@ -24,6 +24,14 @@ export const SplashBackground = styled.div.attrs((props: SplashScreenProps) => (
 
 const SplashTitle = styled.h1`
   font-size: 70px;
+  color: #FFDC73;
+  -webkit-text-stroke: 2px #BF9B30;
+  margin: 0;
+  padding: 20px 0 50px 0;
+`
+
+export const GameTitle = styled.h2`
+  font-size: 30px;
   color: #FFDC73;
   -webkit-text-stroke: 2px #BF9B30;
   margin: 0;

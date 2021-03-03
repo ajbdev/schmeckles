@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import GameUI from './Ui/Game';
-import Splash, { SplashBackground, getRandomSplashBackground } from './Ui/Splash';
+import Splash, { SplashBackground, getRandomSplashBackground, GameTitle } from './Ui/Splash';
 
 
 
@@ -22,6 +22,7 @@ const bgImg = getRandomSplashBackground();
 const App = () => (
   <SplashBackground imageSrc={bgImg}>
     <AppStyle>
+      <GameTitle />
       <GameUI />
     </AppStyle>
   </SplashBackground>
