@@ -31,7 +31,7 @@ export const gameIsFull = (players: Player[]): Result => {
 }
 
 export const canAffordCard = (card: Card, gems: GemStash): Result => {
-  const overdrawn = Object.keys(card.costs).filter(gemType => card.costs[gemType as Gem] >= gems[gemType as Gem]).length;
+  const overdrawn = Object.keys(card.costs).filter(gemType => card.costs[gemType as Gem] > gems[gemType as Gem]).length;
 
   return {
     passed: overdrawn === 0,

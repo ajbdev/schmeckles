@@ -1,14 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Courgette&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=ABeeZee&family=Akaya+Telivigala&display=swap');
+html { height: 100%; }
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  font-family: 'ABeeZee';
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+#root {  height: 100%; }
+
+h1,h2,h3,h4,h5 {
+  font-family: 'Akaya Telivigala';
 }
 
 :root {
@@ -19,8 +23,8 @@ code {
   --onyx: #222222;
   --star: #ffdb63;
 
-  --confirm: #00a030;
-  --confirm-hover: #00d33f;
+  --confirm: #14dd50;
+  --confirm-hover: #22fc63;
   --cancel: #bd0000;
   --cancel-hover: #f30000;
 }

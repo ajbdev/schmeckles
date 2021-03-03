@@ -19,6 +19,7 @@ const NobleStyle = styled.div.attrs((props: NobleSizeProps) => ({
   border: 1px solid #000;
   border-radius: 4px;
   margin: 5px;
+  background: #fff;
   position: relative;
 `;
 

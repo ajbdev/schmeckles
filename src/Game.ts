@@ -155,9 +155,9 @@ export class GameState  {
     this.tierIICards = new CardPile(Tier.II, []);
     this.tierIIICards = new CardPile(Tier.III, []);
 
-    this.tierIDrawPile = new CardPile(Tier.I, cards.filter(c => c.tier = Tier.I));
-    this.tierIIDrawPile = new CardPile(Tier.II, cards.filter(c => c.tier = Tier.II));
-    this.tierIIIDrawPile = new CardPile(Tier.III, cards.filter(c => c.tier = Tier.III));
+    this.tierIDrawPile = new CardPile(Tier.I, cards.filter(c => c.tier === Tier.I));
+    this.tierIIDrawPile = new CardPile(Tier.II, cards.filter(c => c.tier === Tier.II));
+    this.tierIIIDrawPile = new CardPile(Tier.III, cards.filter(c => c.tier === Tier.III));
 
     this.drawVisibleCards();
     this.turn = 1;
