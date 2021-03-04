@@ -142,8 +142,9 @@ export class GameState  {
   nobles: Noble[];
   gems: GemStash;
   players: Player[];
+  started: boolean;
   contextPlayer: Player | undefined;
-  turn: PlayerTurn
+  turn: PlayerTurn;
 
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
@@ -162,6 +163,7 @@ export class GameState  {
 
     this.drawVisibleCards();
     this.turn = 1;
+    this.started = false;
 
     this.gems = {
       [Gem.Ruby]: 6,
@@ -183,16 +185,14 @@ export class GameState  {
 export class Player {
   id: string;
   name: string;
-  position: PlayerTurn;
   gems: GemStash;
   cards: CardPile;
   reservedCards: Card[];
   nobles: Noble[];
 
-  constructor(name: string, position: PlayerTurn) {    
+  constructor(name: string) {    
     this.id = name;
     this.name = name;
-    this.position = position;
     this.gems = emptyGemStash();
     this.cards = new CardPile();
     this.reservedCards = [];
@@ -203,7 +203,7 @@ export class Player {
 
 export default class Game {
   gameState: GameState;
-  private static instance: Game;
+  private static instance: Game | undefined;
   private onStateUpdateCallback: ((gameState: GameState) => void) | null;
 
   private constructor() {
@@ -218,6 +218,7 @@ export default class Game {
 
     return Game.instance;
   }
+
 
   getPlayer(playerId: string) {
     return this.gameState.players.filter(p => p.id === playerId)[0];
@@ -235,6 +236,12 @@ export default class Game {
     );  
 
     this.receiveAction(action);
+  }
+
+  public static reset(): Game {
+    Game.instance = undefined;
+
+    return this.getInstance();
   }
 
   receiveAction(action: IAction) {

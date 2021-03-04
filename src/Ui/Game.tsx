@@ -3,6 +3,7 @@ import { BoardUI } from './Board';
 import Game, { GameState, Player } from '../Game';
 import { HudUI } from './Player';
 import { Action } from '../Actions';
+import styled from 'styled-components';
 
 interface GameUIProps {}
 
@@ -11,11 +12,18 @@ interface GameUIState {
 }
 
 const game = Game.getInstance();
-const player = new Player('Andy', 1);
+const player1 = new Player('Andy');
+const player2 = new Player('Megan')
 
 const defaultState = {
   gameState: null
 }
+
+const PlayerListStyle = styled.ul`
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+`
 
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
   constructor(props: any) {
@@ -28,7 +36,9 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
     game.onStateUpdate((gameState: GameState) => {
       this.setState({ gameState: gameState })
     })
-    game.sendAction(player, Action.JoinGame, { isContextPlayer: true });
+    game.sendAction(player1, Action.JoinGame, { isContextPlayer: true });
+    game.sendAction(player2, Action.JoinGame, {});
+    game.sendAction(player1, Action.StartGame, {});
   }
 
   render() {
@@ -42,7 +52,11 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                 ? <HudUI player={this.state.gameState.contextPlayer} />
                 : null
               }
-              
+              <PlayerListStyle>
+                {this.state.gameState.players.map((p,i) =>
+                  <li key={p.id}>{this.state.gameState!.turn === (i+1) ? '*' : null}{p.name}</li>  
+                )}
+              </PlayerListStyle>
             </>
           )
           : null

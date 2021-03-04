@@ -1,9 +1,9 @@
-import { GameState, Player, GemStash, Gem, Card, Tier, CardPile } from './Game';
-import { Rule, isPlayersTurn, Result, gameIsFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard } from './Rules';
+import { GameState, Player, GemStash, Gem, Card, Tier, CardPile, emptyGemStash } from './Game';
+import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted } from './Rules';
 
 export enum Action {
   JoinGame = 'JoinGame',
-//  ExitGame = 1,
+  StartGame = 'StartGame',
   TakeGems = 'TakeGems',
   ReserveCard = 'ReserveCard',
   PurchaseCard = 'PurchaseCard',
@@ -33,6 +33,7 @@ export abstract class BaseAction implements IAction {
   static create(p: Player, t: Action, meta: any) {
     const actionFactoryMap = {
       [Action.JoinGame]: JoinGame,
+      [Action.StartGame]: StartGame,
       [Action.TakeGems]: TakeGems,
       [Action.PurchaseCard]: PurchaseCard,
       [Action.ReserveCard]: ReserveCard
@@ -58,6 +59,16 @@ export abstract class BaseAction implements IAction {
     return true;
   }
 
+  nextTurn(gameState: GameState) {
+    let turn = gameState.turn + 1;
+
+    if (turn > gameState.players.length) {
+      turn = 1;
+    }
+
+    gameState.turn = turn;
+  }
+
   abstract act(gameState: GameState): void;
 }
 
@@ -68,6 +79,24 @@ const moveGems = (from: GemStash, to: GemStash, amount: GemStash) => {
   })
 }
 
+export class StartGame extends BaseAction {
+  constructor(p: Player, meta: {}) {
+    super(p);
+    this.type = Action.StartGame;
+
+    this.rules = [
+      (g: Readonly<GameState>) => gameHasEnoughPlayers(g.players),
+      (g: Readonly<GameState>) => gameHasNotStarted(g.started)
+    ]
+  }
+
+
+  act(gameState: GameState) {
+    gameState.started = true;
+    gameState.turn = 1;
+  }
+}
+
 export class JoinGame extends BaseAction {
   isContextPlayer: boolean;
   constructor(p: Player, meta: { isContextPlayer: boolean }) {
@@ -75,7 +104,8 @@ export class JoinGame extends BaseAction {
     this.type = Action.JoinGame;
     this.isContextPlayer = meta.isContextPlayer;
     this.rules = [
-      (g: Readonly<GameState>) => gameIsFull(g.players)
+      (g: Readonly<GameState>) => gameIsNotFull(g.players),
+      (g: Readonly<GameState>) => gameHasNotStarted(g.started)
     ]
   }
 
@@ -97,7 +127,9 @@ export class TakeGems extends BaseAction {
     this.type = Action.TakeGems;
     this.gems = meta.gems;
     this.rules = [
-      (g: Readonly<GameState>) => isPlayersTurn(this.player, g.turn),
+      (g: Readonly<GameState>) => gameHasStarted(g.started),
+      (g: Readonly<GameState>) => gameHasEnoughPlayers(g.players),
+      (g: Readonly<GameState>) => isPlayersTurn(this.player, g.players, g.turn),
       (g: Readonly<GameState>) => bankHasEnoughGems(this.gems, g.gems),
       (g: Readonly<GameState>) => {
         const totalGems = Object.values(this.gems).reduce((a,b) => a+b);
@@ -124,6 +156,7 @@ export class TakeGems extends BaseAction {
 
   act(gameState: GameState) {
     moveGems(gameState.gems, this.player.gems, this.gems);
+    this.nextTurn(gameState);
   }
 }
 
@@ -139,7 +172,9 @@ export class PurchaseCard extends BaseAction {
     this.cards = meta.cards;
 
     this.rules = [
-      (g: Readonly<GameState>) => isPlayersTurn(this.player, g.turn),
+      (g: Readonly<GameState>) => gameHasStarted(g.started),
+      (g: Readonly<GameState>) => gameHasEnoughPlayers(g.players),
+      (g: Readonly<GameState>) => isPlayersTurn(this.player, g.players, g.turn),
       (g: Readonly<GameState>) => { 
         const card = this.cards[this.index];
 
@@ -158,6 +193,7 @@ export class PurchaseCard extends BaseAction {
     }
 
     this.player.cards.cards.push(card);
+    this.nextTurn(gameState);
   }
 }
 
@@ -173,6 +209,9 @@ export class ReserveCard extends BaseAction {
     this.index = meta.index;
 
     this.rules = [
+      (g: Readonly<GameState>) => gameHasStarted(g.started),
+      (g: Readonly<GameState>) => gameHasEnoughPlayers(g.players),
+      (g: Readonly<GameState>) => isPlayersTurn(this.player, g.players, g.turn),
       (g: Readonly<GameState>) => canReserveCard(this.player)
     ];
   }
@@ -180,8 +219,14 @@ export class ReserveCard extends BaseAction {
   act(gameState: GameState) {
     const card = this.cards.splice(this.index,1)[0];
 
+    const gems = emptyGemStash();
+    gems.star = 1;
+
+    moveGems(gameState.gems, this.player.gems, gems);
+
     card.reserved = true;
 
     this.player.reservedCards.push(card);
+    this.nextTurn(gameState);
   }
 }

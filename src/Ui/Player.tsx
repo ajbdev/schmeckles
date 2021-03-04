@@ -109,12 +109,9 @@ const ArcedText = (props: { text: string, arc: number, radius: number}) => {
   )
 }
 
-
 const VictoryPointsHudStyle = styled.div`
   width: 200px;
-
 `
-
 
 export const HudUI = (props: HudUIProps) => {
   const [isReservedCardFacing, setIsReservedCardFacing] = useState(false);
@@ -122,48 +119,40 @@ export const HudUI = (props: HudUIProps) => {
   const gems = Object.keys(Gem).filter(g => props.player.gems[Gem[g as keyof typeof Gem]] > 0 || props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
 
   return (
-    <>
-      <VictoryPointsHudStyle>
-        <ArcedText text="Victory" arc={160} radius={65} />
-        <ArcedText text="Points" arc={380} radius={65} />
-      </VictoryPointsHudStyle>
-      <HudStyle>
-        <DashChromeStyle>
-        {Object.keys(Gem).map(g =>
-          <>
-          <GemColumnStyle>
-            <GemHudIndicatorStyle>
-              <GemUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />
-              {props.player.gems[Gem[g as keyof typeof Gem]] + props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length}
-            </GemHudIndicatorStyle>
-            <GemSchmeckleStashStyle>
-              {[...Array(props.player.gems[Gem[g as keyof typeof Gem]])].map(_ => <SchmeckleGemCoinUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />)}
-            </GemSchmeckleStashStyle>
-            <CardStackStyle>
-              {props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).filter(c => c.gem === Gem[g as keyof typeof Gem]).map(c => 
-                <StackedCardStyle>
-                  <CardUI card={c} size={CardSize.sm} />
-                </StackedCardStyle>
-              )}
-              {
-                Gem[g as keyof typeof Gem] === Gem.Star
-                ? (
-                  <>
-                    {props.player.reservedCards.map((c, i) => 
-                      <StackedCardStyle onMouseEnter={() => setIsReservedCardFacing(true)} onMouseLeave={() => setIsReservedCardFacing(false)}>
-                        <InteractiveCardUI player={props.player} index={i} card={c} size={CardSize.sm} flipped={!isReservedCardFacing} cards={props.player.reservedCards} />
-                      </StackedCardStyle>
-                    )}
-                  </>
-                )
-                : null
-              }
-            </CardStackStyle>
-          </GemColumnStyle>  
-          </>
-        )}    
-        </DashChromeStyle>
-      </HudStyle>
-    </>
+    <HudStyle>
+      <DashChromeStyle>
+      {Object.keys(Gem).map((g,i) =>
+        <GemColumnStyle key={i}>
+          <GemHudIndicatorStyle>
+            <GemUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />
+            {props.player.gems[Gem[g as keyof typeof Gem]] + props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length}
+          </GemHudIndicatorStyle>
+          <GemSchmeckleStashStyle>
+            {[...Array(props.player.gems[Gem[g as keyof typeof Gem]])].map(_ => <SchmeckleGemCoinUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />)}
+          </GemSchmeckleStashStyle>
+          <CardStackStyle>
+            {props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).filter(c => c.gem === Gem[g as keyof typeof Gem]).map(c => 
+              <StackedCardStyle>
+                <CardUI card={c} size={CardSize.sm} />
+              </StackedCardStyle>
+            )}
+            {
+              Gem[g as keyof typeof Gem] === Gem.Star
+              ? (
+                <>
+                  {props.player.reservedCards.map((c, i) => 
+                    <StackedCardStyle onMouseEnter={() => setIsReservedCardFacing(true)} onMouseLeave={() => setIsReservedCardFacing(false)}>
+                      <InteractiveCardUI player={props.player} index={i} card={c} size={CardSize.sm} flipped={!isReservedCardFacing} cards={props.player.reservedCards} />
+                    </StackedCardStyle>
+                  )}
+                </>
+              )
+              : null
+            }
+          </CardStackStyle>
+        </GemColumnStyle>  
+      )}    
+      </DashChromeStyle>
+    </HudStyle>
   )
 }

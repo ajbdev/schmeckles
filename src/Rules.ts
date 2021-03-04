@@ -14,14 +14,35 @@ export const playerHasJoinedGame = (player: Player, players: Player[]): Result =
   }
 }
 
-export const isPlayersTurn = (player: Player, turn: PlayerTurn): Result => {
+export const gameHasEnoughPlayers = (players: Player[]): Result => {
   return {
-    passed: player.position === turn,
+    passed: players.length > 1,
+    message: 'There must be at least two players to start'
+  }
+}
+
+export const gameHasNotStarted = (started: boolean): Result => {
+  return {
+    passed: !started,
+    message: 'Game has already started.'
+  }
+}
+
+export const gameHasStarted = (started: boolean): Result => {
+  return {
+    passed: started,
+    message: 'Game must be started first.'
+  }
+}
+
+export const isPlayersTurn = (player: Player, players: Player[], turn: PlayerTurn): Result => {
+  return {
+    passed: (players.indexOf(player)+1) === turn,
     message: 'Players can only act when it is their turn.'
   }
 }
 
-export const gameIsFull = (players: Player[]): Result => {
+export const gameIsNotFull = (players: Player[]): Result => {
   const PLAYER_LIMIT = 4;
 
   return {

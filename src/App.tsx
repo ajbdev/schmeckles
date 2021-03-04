@@ -15,7 +15,6 @@ const AppStyle = styled.div`
 const App = () => (
   <SplashBackground>
     <AppStyle>
-      <GameTitle />
       <GameUI />
     </AppStyle>
   </SplashBackground>

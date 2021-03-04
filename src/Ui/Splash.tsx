@@ -82,7 +82,7 @@ interface SplashBackgroundState {
   background: {
     src: string;
     color: string;
-  } | null
+  }
 }
 
 export class SplashBackground extends React.Component<SplashBackgroundProps, SplashBackgroundState> {
@@ -92,35 +92,31 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
     super(props);
 
     this.state = {
-      background: null
+      background: {
+        src: '',
+        color: ''
+      }
     }
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.loadBackground();
+  }
+
+  async loadBackground() {
     const src = `/splash/splash${Math.floor(Math.random() * 16)+1}.jpg`;
     const fac = new FastAverageColor();
 
-    const color = await fac.getColorAsync(src, {
-      ignoredColor: [
-        [255, 255, 255, 255], // white
-        [0, 0, 0, 255] // black
-      ]
-    });
+    const color = await fac.getColorAsync(src);
 
     this.setState({ background: { src: src, color: color.hex } });
   }
 
   render() {
-    if (this.state.background) {
-      return (
-        <SplashBackgroundStyle imageSrc={this.state.background.src} bgColor={this.state.background.color}>
-          {this.props.children}
-        </SplashBackgroundStyle>
-      )
-    }
-
     return (
-      <>{this.props.children}</>
+      <SplashBackgroundStyle imageSrc={this.state.background.src} bgColor={this.state.background.color}>
+        {this.props.children}
+      </SplashBackgroundStyle>
     );
   }
 }
