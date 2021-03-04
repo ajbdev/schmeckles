@@ -198,6 +198,7 @@ export class Player {
   position: PlayerTurn;
   gems: GemStash;
   cards: CardPile;
+  reservedCards: CardPile;
   nobles: Noble[];
 
   constructor(name: string, position: PlayerTurn) {    
@@ -206,8 +207,8 @@ export class Player {
     this.position = position;
     this.gems = emptyGemStash();
     this.cards = new CardPile();
+    this.reservedCards = new CardPile();
     this.nobles = [];
-
   }
 }
 

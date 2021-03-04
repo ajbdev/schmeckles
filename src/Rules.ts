@@ -39,27 +39,36 @@ export const canAffordCard = (card: Card, player: Player): Result => {
   }
 }
 
-export const canTakeThreeGems = (desired: GemStash): Result => {
-  return {
-    passed: Object.keys(desired).filter(g => desired[g as Gem] > 1).length > 0,
-    message: 'Gems must be of different types.'
-  }
-}
 
-export const isTakingTwoGemsOfSameType = (desired: GemStash): Result => {
+export const gemsAreOfSameType = (desired: GemStash): Result => {
   return {
-    passed: true,
+    passed: Object.values(desired).filter(v => v > 0).length === 1,
     message: 'Gems must be of the same type when taking two gems.'
   }
 }
 
 export const canTakeTwoGems = (gem: Gem, bank: GemStash): Result => {
   return {
-
+    passed: bank[gem] >= 4,
+    message: 'There must be at least four gems of the desired type in the bank to take two gems.'
   }
 }
 
-export const isTakingOneOrTwoGems = (totalGems:number): Result => {
+export const canTakeThreeGems = (desired: GemStash): Result => {
+  return {
+    passed: Object.keys(desired).filter(g => desired[g as Gem] > 1).length === 0,
+    message: 'Gems must be of different types to take three gems.'
+  }
+}
+
+export const canReserveCard = (player: Player): Result => {
+  return {
+    passed: player.reservedCards.cards.length < 3,
+    message: 'A maximum of three cards may be reserved.'
+  }
+}
+
+export const isTakingTwoOrThreeGems = (totalGems:number): Result => {
   return {
     passed: totalGems >= 2 && totalGems <= 3,
     message: 'Only two or three gems can be taken per turn.'

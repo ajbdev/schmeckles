@@ -70,12 +70,16 @@ const purchaseCard = (player: Player, card: Card, ix: number) => {
   game.sendAction(player, Action.PurchaseCard, { tier: card.tier, index: ix });
 }
 
+const reserveCard = (player: Player, card: Card, ix: number) => {
+  game.sendAction(player, Action.ReserveCard, { tier: card.tier, index: ix });
+}
+
 const InteractiveCardUI = (props: InteractiveCardUIProps) => (
   <InteractiveCardStyle>
     <CardUI card={props.card} /> 
     <CardButtonGutter>
       <button onClick={() => purchaseCard(props.player, props.card, props.index)}>Buy</button>
-      <button>Reserve</button>
+      <button onClick={() => reserveCard(props.player, props.card, props.index)}>Reserve</button>
     </CardButtonGutter>
   </InteractiveCardStyle>
 );

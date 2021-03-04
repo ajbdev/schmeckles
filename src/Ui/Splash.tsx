@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import React from 'react';
 import FastAverageColor from 'fast-average-color';
 
 
@@ -11,13 +12,17 @@ const SplashScreenStyle = styled.div`
 
 interface SplashScreenProps {
   imageSrc: string;
+  bgColor?: string;
 }
 
-export const SplashBackground = styled.div.attrs((props: SplashScreenProps) => ({
-  imageSrc: props.imageSrc
+export const SplashBackgroundStyle = styled.div.attrs((props: SplashScreenProps) => ({
+  imageSrc: props.imageSrc,
+  bgColor: props.bgColor || '#555555'
 }))`
   background-image: url(${props => props.imageSrc});
-  background-size: cover;
+  background-color: ${props => props.bgColor};
+  background-size: contain;
+  background-position: center center;
   background-repeat: no-repeat;
   height: 100%;
 `
@@ -70,19 +75,63 @@ const JoinGameButton = styled.button`
   margin-left: 20px;
   width: 230px;
 `
-
-
-
-export const getRandomSplashBackground = () => {
-  return `/splash/splash${Math.floor(Math.random() * 16)+1}.jpg`
+interface SplashBackgroundProps {
+  children: React.ReactNode
+}
+interface SplashBackgroundState {
+  background: {
+    src: string;
+    color: string;
+  } | null
 }
 
-const bgImg = getRandomSplashBackground();
+export class SplashBackground extends React.Component<SplashBackgroundProps, SplashBackgroundState> {
+  state: SplashBackgroundState;
+
+  constructor(props: SplashBackgroundProps) {
+    super(props);
+
+    this.state = {
+      background: null
+    }
+  }
+
+  async componentDidMount() {
+    const src = `/splash/splash${Math.floor(Math.random() * 16)+1}.jpg`;
+    const fac = new FastAverageColor();
+
+    const color = await fac.getColorAsync(src, {
+      ignoredColor: [
+        [255, 255, 255, 255], // white
+        [0, 0, 0, 255] // black
+      ]
+    });
+
+    console.log(color);
+
+    this.setState({ background: { src: src, color: color.hex } });
+  }
+
+  render() {
+    if (this.state.background) {
+      return (
+        <SplashBackgroundStyle imageSrc={this.state.background.src} bgColor={this.state.background.color}>
+          {this.props.children}
+        </SplashBackgroundStyle>
+      )
+    }
+
+    return (
+      <>{this.props.children}</>
+    );
+  }
+}
+
 
 export default function Splash() {
   return (
     <SplashScreenStyle>
-      <SplashBackground imageSrc={bgImg}>
+      <SplashBackground>
         <SplashTitle>Schmeckles</SplashTitle>
         <HostButton>
           Host a game

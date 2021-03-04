@@ -1,11 +1,11 @@
 import { GameState, Player, GemStash, Gem, Card, Tier } from './Game';
-import { Rule, isPlayersTurn, Result, gameIsFull, canAffordCard, bankHasEnoughGems, isTakingOneOrTwoGems, canTakeThreeGems } from './Rules';
+import { Rule, isPlayersTurn, Result, gameIsFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard } from './Rules';
 
 export enum Action {
   JoinGame = 'JoinGame',
 //  ExitGame = 1,
   TakeGems = 'TakeGems',
-//  ReserveCard = 3,
+  ReserveCard = 'ReserveCard',
   PurchaseCard = 'PurchaseCard',
 }
 
@@ -34,7 +34,8 @@ export abstract class BaseAction implements IAction {
     const actionFactoryMap = {
       [Action.JoinGame]: JoinGame,
       [Action.TakeGems]: TakeGems,
-      [Action.PurchaseCard]: PurchaseCard
+      [Action.PurchaseCard]: PurchaseCard,
+      [Action.ReserveCard]: ReserveCard
     }
 
     const ActionToBePerformed = actionFactoryMap[t];
@@ -102,13 +103,21 @@ export class TakeGems extends BaseAction {
         const totalGems = Object.values(this.gems).reduce((a,b) => a+b);
 
         if (totalGems === 2) {
-          return canTakeTwoGems(this.gems);
+          const result1 = gemsAreOfSameType(this.gems);
+
+          if (!result1.passed) {
+            return result1;
+          }
+
+          const gem = Object.keys(this.gems).filter(g => this.gems[g as Gem] == 2)[0]
+
+          return canTakeTwoGems(gem as Gem, g.gems);
         }
         if (totalGems === 3) {
           return canTakeThreeGems(this.gems);
         }
 
-        return isTakingOneOrTwoGems(totalGems);
+        return isTakingTwoOrThreeGems(totalGems);
       }
     ];
   }
@@ -145,5 +154,27 @@ export class PurchaseCard extends BaseAction {
     moveGems(this.player.gems, gameState.gems, card.costs);
 
     this.player.cards.cards.push(card);
+  }
+}
+
+export class ReserveCard extends BaseAction {
+  tier: Tier;
+  index: number;
+  constructor(p: Player, meta: { tier: Tier, index: number }) {
+    super(p);
+
+    this.type = Action.ReserveCard;
+    this.tier = meta.tier;
+    this.index = meta.index;
+
+    this.rules = [
+      (g: Readonly<GameState>) => canReserveCard(this.player)
+    ];
+  }
+
+  act(gameState: GameState) {
+    const card = gameState.getCardPileByTier(this.tier)!.cards.splice(this.index,1)[0];
+
+    this.player.reservedCards.cards.push(card);
   }
 }
