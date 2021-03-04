@@ -30,18 +30,23 @@ export const SplashBackgroundStyle = styled.div.attrs((props: SplashScreenProps)
 const SplashTitle = styled.h1`
   font-size: 70px;
   color: #FFDC73;
-  -webkit-text-stroke: 2px #BF9B30;
+  -webkit-text-stroke: 1px #BF9B30;
   margin: 0;
   padding: 20px 0 50px 0;
 `
 
-export const GameTitle = styled.h2`
-  font-size: 30px;
+const GameTitleStyle = styled.h2`
+  font-size: 36px;
   color: #FFDC73;
-  -webkit-text-stroke: 2px #BF9B30;
+  -webkit-text-stroke: 0.5px #BF9B30;
+  text-shadow: 1px 1px 1px #000;
   margin: 0;
-  padding: 20px 0 50px 0;
+  text-align: center;
 `
+
+export const GameTitle = () => (
+  <GameTitleStyle>Schmeckles</GameTitleStyle>
+)
 
 const HostButton = styled.button`
   border-radius: 0;
@@ -154,7 +159,7 @@ const names = ['Helgi','Finnbogi','Abu','Jean','Samo','Giovanni','Luís','Jeanne
 const randomName = names[Math.floor(Math.random()*names.length)];
 
 interface SplashProps {
-
+  hostLobby: (playerName: string) => void;
 }
 
 export default function Splash(props: SplashProps) {
@@ -187,10 +192,8 @@ export default function Splash(props: SplashProps) {
               </>
             )
             }
-          
-
         </WelcomeStyle>
-        <HostButton>
+        <HostButton onClick={() => props.hostLobby(name)}>
           Host a game
         </HostButton>
         <JoinGameArea>
