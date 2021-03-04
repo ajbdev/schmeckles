@@ -105,7 +105,7 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
   }
 
   async loadBackground() {
-    const src = this.props.src || `/splash/splash${Math.floor(Math.random() * 16)+1}.jpg`;
+    const src = this.props.src || `${process.env.PUBLIC_URL}/splash/splash${Math.floor(Math.random() * 16)+1}.jpg`;
     const fac = new FastAverageColor();
 
     const color = await fac.getColorAsync(src);
@@ -170,7 +170,7 @@ export default function Splash(props: SplashProps) {
   
   return (
     <SplashScreenStyle>
-      <SplashBackground src={`/splash/splash6.jpg`}>
+      <SplashBackground src={`${process.env.PUBLIC_URL}/splash/splash6.jpg`}>
         <SplashTitle>Schmeckles</SplashTitle>
         <WelcomeStyle>
           Welcome, 
