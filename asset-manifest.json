@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/schmeckles/static/css/main.1e8ec10f.chunk.css",
+    "main.js": "/schmeckles/static/js/main.deb1be0f.chunk.js",
+    "main.js.map": "/schmeckles/static/js/main.deb1be0f.chunk.js.map",
+    "runtime-main.js": "/schmeckles/static/js/runtime-main.e2a9318d.js",
+    "runtime-main.js.map": "/schmeckles/static/js/runtime-main.e2a9318d.js.map",
+    "static/js/2.cb2ca57a.chunk.js": "/schmeckles/static/js/2.cb2ca57a.chunk.js",
+    "static/js/2.cb2ca57a.chunk.js.map": "/schmeckles/static/js/2.cb2ca57a.chunk.js.map",
+    "static/js/3.3aafd920.chunk.js": "/schmeckles/static/js/3.3aafd920.chunk.js",
+    "static/js/3.3aafd920.chunk.js.map": "/schmeckles/static/js/3.3aafd920.chunk.js.map",
+    "index.html": "/schmeckles/index.html",
+    "static/css/main.1e8ec10f.chunk.css.map": "/schmeckles/static/css/main.1e8ec10f.chunk.css.map",
+    "static/js/2.cb2ca57a.chunk.js.LICENSE.txt": "/schmeckles/static/js/2.cb2ca57a.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.e2a9318d.js",
+    "static/js/2.cb2ca57a.chunk.js",
+    "static/css/main.1e8ec10f.chunk.css",
+    "static/js/main.deb1be0f.chunk.js"
+  ]
+}
