@@ -82,6 +82,13 @@ export const canTakeThreeGems = (desired: GemStash): Result => {
   }
 }
 
+export const isValidGems = (desired: GemStash): Result => {
+  return {
+    passed: desired.star === 0,
+    message: 'Only valid gems can be selected.'
+  }
+}
+
 export const canReserveCard = (player: Player): Result => {
   return {
     passed: player.reservedCards.length < 3,

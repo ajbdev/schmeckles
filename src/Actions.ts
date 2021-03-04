@@ -1,5 +1,5 @@
 import { GameState, Player, GemStash, Gem, Card, Tier, CardPile, emptyGemStash } from './Game';
-import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted } from './Rules';
+import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted, isValidGems } from './Rules';
 
 export enum Action {
   JoinGame = 'JoinGame',
@@ -131,6 +131,7 @@ export class TakeGems extends BaseAction {
       (g: Readonly<GameState>) => gameHasEnoughPlayers(g.players),
       (g: Readonly<GameState>) => isPlayersTurn(this.player, g.players, g.turn),
       (g: Readonly<GameState>) => bankHasEnoughGems(this.gems, g.gems),
+      (g: Readonly<GameState>) => isValidGems(this.gems),
       (g: Readonly<GameState>) => {
         const totalGems = Object.values(this.gems).reduce((a,b) => a+b);
 

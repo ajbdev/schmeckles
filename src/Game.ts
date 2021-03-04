@@ -166,12 +166,12 @@ export class GameState  {
     this.started = false;
 
     this.gems = {
-      [Gem.Ruby]: 6,
-      [Gem.Sapphire]: 6,
-      [Gem.Diamond]: 6,
-      [Gem.Onyx]: 6,
-      [Gem.Emerald]: 6,
-      [Gem.Star]: 6
+      [Gem.Ruby]: 7,
+      [Gem.Sapphire]: 7,
+      [Gem.Diamond]: 7,
+      [Gem.Onyx]: 7,
+      [Gem.Emerald]: 7,
+      [Gem.Star]: 5
     }
   }
 

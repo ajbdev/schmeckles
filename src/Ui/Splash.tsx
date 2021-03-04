@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React from 'react';
+import React, { useState } from 'react';
 import FastAverageColor from 'fast-average-color';
 
 
@@ -76,7 +76,8 @@ const JoinGameButton = styled.button`
   width: 230px;
 `
 interface SplashBackgroundProps {
-  children: React.ReactNode
+  children: React.ReactNode,
+  src?: string
 }
 interface SplashBackgroundState {
   background: {
@@ -93,7 +94,7 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
 
     this.state = {
       background: {
-        src: '',
+        src: props.src || '',
         color: ''
       }
     }
@@ -104,7 +105,7 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
   }
 
   async loadBackground() {
-    const src = `/splash/splash${Math.floor(Math.random() * 16)+1}.jpg`;
+    const src = this.props.src || `/splash/splash${Math.floor(Math.random() * 16)+1}.jpg`;
     const fac = new FastAverageColor();
 
     const color = await fac.getColorAsync(src);
@@ -121,12 +122,74 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
   }
 }
 
+const ChangeNameLink = styled.a`
+  color: #00d9ff;
+  text-decoration: underline;
+  cursor: pointer;
+`
 
-export default function Splash() {
+const WelcomeStyle = styled.p`
+  color: #fff;
+  font-size: 24px;
+  text-shadow: 1px 1px 1px #000;
+  font-weight: bold;
+  user-select: none;
+`
+
+const ChosenNameStyle = styled.a`
+  border-bottom: 1px dashed #fff;
+  cursor: pointer;
+`
+
+const ChangeNameInput = styled.input`
+  padding: 2px;
+  font-size: 20px;
+  text-align: center;
+  margin-left: 10px;
+  width: 140px;
+`
+
+const names = ['Helgi','Finnbogi','Abu','Jean','Samo','Giovanni','Luís','Jeanne','Gregorio','Domini','Andres','Guglielmo','Hugo','Muhammad', 'Eldad', 'Wulfstan', 'Joseph', 'Aldo', 'Alessio', 'Cosimo', 'Fabritio', 'Francesca', 'Galileo', 'Isabetta', 'Lavinia', 'Madalena', 'Minerva', 'Nencia', 'Vinci'];
+
+const randomName = names[Math.floor(Math.random()*names.length)];
+
+interface SplashProps {
+
+}
+
+export default function Splash(props: SplashProps) {
+  const [isChangingName, setIsChangingName] = useState(false);
+
+  const [name, setName] = useState(randomName);
+
+  const handleEnter = (i: any) => { 
+    if (i.which === 13) {
+      setIsChangingName(false);
+    }
+  }
+  
   return (
     <SplashScreenStyle>
-      <SplashBackground>
+      <SplashBackground src={`/splash/splash6.jpg`}>
         <SplashTitle>Schmeckles</SplashTitle>
+        <WelcomeStyle>
+          Welcome, 
+          {isChangingName 
+            ? (
+              <ChangeNameInput type="text" placeholder={name} autoFocus={true} onChange={v => setName(v.target.value)} onKeyPress={handleEnter} />
+            )
+            : (
+              <>
+                &nbsp;
+                <ChosenNameStyle onClick={() => setIsChangingName(true)}>{name}</ChosenNameStyle>! 
+                &nbsp;
+                <ChangeNameLink onClick={() => setIsChangingName(true)}>Change Name</ChangeNameLink>
+              </>
+            )
+            }
+          
+
+        </WelcomeStyle>
         <HostButton>
           Host a game
         </HostButton>
