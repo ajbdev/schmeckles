@@ -1,4 +1,4 @@
-import { GameState, Player, GemStash, Gem, Card, Tier } from './Game';
+import { GameState, Player, GemStash, Gem, Card, Tier, CardPile } from './Game';
 import { Rule, isPlayersTurn, Result, gameIsFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard } from './Rules';
 
 export enum Action {
@@ -128,20 +128,20 @@ export class TakeGems extends BaseAction {
 }
 
 export class PurchaseCard extends BaseAction {
-  tier: Tier;
+  cards: Card[];
   index: number;
 
-  constructor(p: Player, meta: { tier: Tier, index: number }) {
+  constructor(p: Player, meta: { cards: Card[], index: number }) {
     super(p);
 
     this.type = Action.PurchaseCard;
-    this.tier = meta.tier;
     this.index = meta.index;
+    this.cards = meta.cards;
 
     this.rules = [
       (g: Readonly<GameState>) => isPlayersTurn(this.player, g.turn),
       (g: Readonly<GameState>) => { 
-        const card = g.getCardPileByTier(this.tier)!.cards[this.index];
+        const card = this.cards[this.index];
 
         return canAffordCard(card, this.player);
       }
@@ -149,22 +149,27 @@ export class PurchaseCard extends BaseAction {
   }
 
   act(gameState: GameState) {
-    const card = gameState.getCardPileByTier(this.tier)!.cards.splice(this.index,1)[0];
+    const card = this.cards.splice(this.index,1)[0];
 
     moveGems(this.player.gems, gameState.gems, card.costs);
+
+    if (card.reserved) {
+      card.reserved = false;
+    }
 
     this.player.cards.cards.push(card);
   }
 }
 
 export class ReserveCard extends BaseAction {
-  tier: Tier;
+  cards: Card[];
   index: number;
-  constructor(p: Player, meta: { tier: Tier, index: number }) {
+
+  constructor(p: Player, meta: { cards: Card[], index: number }) {
     super(p);
 
     this.type = Action.ReserveCard;
-    this.tier = meta.tier;
+    this.cards = meta.cards;
     this.index = meta.index;
 
     this.rules = [
@@ -173,8 +178,10 @@ export class ReserveCard extends BaseAction {
   }
 
   act(gameState: GameState) {
-    const card = gameState.getCardPileByTier(this.tier)!.cards.splice(this.index,1)[0];
+    const card = this.cards.splice(this.index,1)[0];
 
-    this.player.reservedCards.cards.push(card);
+    card.reserved = true;
+
+    this.player.reservedCards.push(card);
   }
 }

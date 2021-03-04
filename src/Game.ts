@@ -101,6 +101,7 @@ export class Card {
   gem: Gem;
   tier: Tier;
   costs: GemStash;
+  reserved?: boolean
 
   constructor(points: number, gem: Gem, tier: Tier, costs: GemStash) {
     this.points = points;
@@ -172,19 +173,6 @@ export class GameState  {
     }
   }
 
-  getCardPileByTier(tier: Tier) {
-    switch (tier) {
-      case Tier.I:
-        return this.tierICards;
-      case Tier.II:
-        return this.tierIICards;
-      case Tier.III:
-        return this.tierIIICards;
-      default:
-        break;
-    }
-  }
-
   drawVisibleCards() {
     this.tierIDrawPile.draw(4-this.tierICards.cards.length, this.tierICards);
     this.tierIIDrawPile.draw(4-this.tierIICards.cards.length, this.tierIICards);
@@ -198,7 +186,7 @@ export class Player {
   position: PlayerTurn;
   gems: GemStash;
   cards: CardPile;
-  reservedCards: CardPile;
+  reservedCards: Card[];
   nobles: Noble[];
 
   constructor(name: string, position: PlayerTurn) {    
@@ -207,7 +195,7 @@ export class Player {
     this.position = position;
     this.gems = emptyGemStash();
     this.cards = new CardPile();
-    this.reservedCards = new CardPile();
+    this.reservedCards = [];
     this.nobles = [];
   }
 }

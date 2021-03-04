@@ -63,7 +63,7 @@ export const canTakeThreeGems = (desired: GemStash): Result => {
 
 export const canReserveCard = (player: Player): Result => {
   return {
-    passed: player.reservedCards.cards.length < 3,
+    passed: player.reservedCards.length < 3,
     message: 'A maximum of three cards may be reserved.'
   }
 }

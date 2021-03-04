@@ -47,6 +47,7 @@ export const VictoryPointsStyle = styled.div`
 interface CardUIProps {
   card: Card
   size?: CardSize
+  flipped?: boolean
 }
 
 const GemAwardStyle = styled.div`
@@ -59,40 +60,47 @@ const GemAwardStyle = styled.div`
   }
 `
 
-export const CardUI = (props: CardUIProps) => (
-  <CardStyle size={props.size ? props.size : CardSize.md}>
-    {props.card.points ? <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle> : null}
-    {props.card.costs 
-      ? (
-        <GemCostsUI gems={props.card.costs} />
-      )
-      : null
-    }
-    {
-      props.card.gem
-      ? (
-        <GemAwardStyle>
-          <GemUI gem={props.card.gem} />
-        </GemAwardStyle>
-      )
-      : null
-    }
-  </CardStyle>
-);
+export const CardUI = (props: CardUIProps) => {
+  if (props.flipped) {
+    return <FlippedCardUI {...props} />
+  }
+
+  return (
+    <CardStyle size={props.size ? props.size : CardSize.md}>
+      {props.card.points ? <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle> : null}
+      {props.card.costs 
+        ? (
+          <GemCostsUI gems={props.card.costs} />
+        )
+        : null
+      }
+      {
+        props.card.gem
+        ? (
+          <GemAwardStyle>
+            <GemUI gem={props.card.gem} />
+          </GemAwardStyle>
+        )
+        : null
+      }
+    </CardStyle>
+  );
+} 
 
 interface DrawPileProps {
   tier: Tier | undefined,
-  numberOfCards: number
+  numberOfCards: number,
+  size?: CardSize
 }
 
-const TierCardStyle = styled.div`
+const FlippedCardStyle = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
   align-items: stretch;
 `
 
-const TierDots = styled.div`
+const FlippedCardInnerStyle = styled.div`
   font-size: 36px;
   background: #715027;
   margin: 10px;
@@ -104,24 +112,32 @@ const TierDots = styled.div`
   display: flex;
 `
 
+export const FlippedCardUI = (props: { children?: React.ReactNode, size?: CardSize }) => (
+  <CardStyle size={props.size}>
+    <FlippedCardStyle>
+      <FlippedCardInnerStyle>
+        {props.children}
+      </FlippedCardInnerStyle>
+    </FlippedCardStyle>
+  </CardStyle>
+)
+
 export const DrawPileUI = (props: DrawPileProps) => (
-  <CardStyle>
+  <FlippedCardUI>
     {props.tier ?
       (
-        <TierCardStyle>
-          <TierDots>
-            {props.tier === Tier.I
-              ? (<>•</>)
-              : (props.tier === Tier.II)
-                ? (<>••</>)
-                : (props.tier === Tier.III) 
-                  ? (<>•••</>)
-                  : null
-            }
-          </TierDots>
-        </TierCardStyle>
-      )
+        <>
+          {props.tier === Tier.I
+            ? (<>•</>)
+            : (props.tier === Tier.II)
+              ? (<>••</>)
+              : (props.tier === Tier.III) 
+                ? (<>•••</>)
+              : null}
+
+        </>
+      ) 
       : null
     }    
-  </CardStyle>
+  </FlippedCardUI>
 );

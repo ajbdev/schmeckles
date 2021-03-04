@@ -107,8 +107,6 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
       ]
     });
 
-    console.log(color);
-
     this.setState({ background: { src: src, color: color.hex } });
   }
 

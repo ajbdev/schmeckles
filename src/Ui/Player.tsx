@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Player, Gem, GemStash, CardPile } from '../Game';
-import { SchmeckleGemCoinUI } from './Board';
+import { SchmeckleGemCoinUI, InteractiveCardUI } from './Board';
 import { CardUI, CardSize } from './Cards';
 import { GemUI, IconSize } from './Gems';
 
@@ -117,6 +117,8 @@ const VictoryPointsHudStyle = styled.div`
 
 
 export const HudUI = (props: HudUIProps) => {
+  const [isReservedCardFacing, setIsReservedCardFacing] = useState(false);
+
   const gems = Object.keys(Gem).filter(g => props.player.gems[Gem[g as keyof typeof Gem]] > 0 || props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
 
   return (
@@ -143,6 +145,19 @@ export const HudUI = (props: HudUIProps) => {
                   <CardUI card={c} size={CardSize.sm} />
                 </StackedCardStyle>
               )}
+              {
+                Gem[g as keyof typeof Gem] === Gem.Star
+                ? (
+                  <>
+                    {props.player.reservedCards.map((c, i) => 
+                      <StackedCardStyle onMouseEnter={() => setIsReservedCardFacing(true)} onMouseLeave={() => setIsReservedCardFacing(false)}>
+                        <InteractiveCardUI player={props.player} index={i} card={c} size={CardSize.sm} flipped={!isReservedCardFacing} cards={props.player.reservedCards} />
+                      </StackedCardStyle>
+                    )}
+                  </>
+                )
+                : null
+              }
             </CardStackStyle>
           </GemColumnStyle>  
           </>

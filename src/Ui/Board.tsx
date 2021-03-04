@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { DrawPileUI, CardUI } from './Cards';
+import { DrawPileUI, CardUI, CardSize } from './Cards';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, Player, emptyGemStash } from '../Game';
 import { NobleUI } from './Nobles';
 import { GemUI, Sapphire, Onyx, IconSize } from './Gems';
@@ -64,23 +64,27 @@ interface InteractiveCardUIProps {
   card: Card
   player: Player
   index: number
+  cards: Card[]
+  disableReserve?: boolean
+  flipped?: boolean
+  size?: CardSize
 }
 
-const purchaseCard = (player: Player, card: Card, ix: number) => {
-  game.sendAction(player, Action.PurchaseCard, { tier: card.tier, index: ix });
+const purchaseCard = (player: Player, cards: Card[], ix: number) => {
+  game.sendAction(player, Action.PurchaseCard, { cards, index: ix });
 }
 
-const reserveCard = (player: Player, card: Card, ix: number) => {
-  game.sendAction(player, Action.ReserveCard, { tier: card.tier, index: ix });
+const reserveCard = (player: Player, cards: Card[], ix: number) => {
+  game.sendAction(player, Action.ReserveCard, { cards, index: ix });
 }
 
-const InteractiveCardUI = (props: InteractiveCardUIProps) => (
+export const InteractiveCardUI = (props: InteractiveCardUIProps) => (
   <InteractiveCardStyle>
-    <CardUI card={props.card} /> 
-    <CardButtonGutter>
-      <button onClick={() => purchaseCard(props.player, props.card, props.index)}>Buy</button>
-      <button onClick={() => reserveCard(props.player, props.card, props.index)}>Reserve</button>
-    </CardButtonGutter>
+    <CardUI {...props} /> 
+      <CardButtonGutter>
+        <button onClick={() => purchaseCard(props.player, props.cards, props.index)}>Buy</button>
+        {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)}>Reserve</button> : null}
+      </CardButtonGutter>
   </InteractiveCardStyle>
 );
 
@@ -95,7 +99,7 @@ export const CardRowUI = (props: CardRowUIProps ) => (
   <CardRowStyle>
     <DrawPileUI tier={props.drawPile.tier} numberOfCards={props.drawPile.cards.length}></DrawPileUI>
     {props.visibleCards.map((card, i) => 
-      <InteractiveCardUI card={card} index={i} key={i} player={props.player} />  
+      <InteractiveCardUI card={card} index={i} key={i} player={props.player} cards={props.visibleCards} />  
     )}
   </CardRowStyle>
 )
