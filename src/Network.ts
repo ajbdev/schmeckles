@@ -1,13 +1,24 @@
 import Peer from 'peerjs';
 import { Player } from './Game';
 
-enum MessageType {
+export enum HostBroadcastType {
   DISBANDED = 'DISBANDED',
+  DISCONNECTED = 'DISCONNECTED',
+  LOBBY_PLAYERS = 'LOBBY_PLAYERS'
 }
 
-interface NetworkMessage {
-  type: MessageType,
+interface HostNetworkMessage {
+  type: HostBroadcastType,
   meta?: any;
+}
+
+enum ClientMessageType {
+  DISCONNECTING = 'DISCONNECTING'
+}
+
+interface ClientNetworkMessage {
+  type: ClientMessageType
+  meta?: any
 }
 
 export abstract class Network {
@@ -30,27 +41,48 @@ export abstract class Network {
     return  `schmeckles_${code}`;
   }
 
-
   abstract createConnectionId(): string;
 }
 
 export class Host extends Network {
   clients: Peer.DataConnection[] = [];
+  players: Player[] = [];
 
   createConnectionId() {
     return Math.random().toString(20).substr(2, 4).toUpperCase();
   }
 
-  host(onConnect: (code: string) => void) {
+  host(onConnect: (code: string) => void, onPlayerUpdate: (p: Player[]) => void) {
+    this.player.connected = true;
+    this.players = [this.player];
+
     this.peer.on('open', (id) => {
       onConnect(this.connectionId);
 
       this.peer.on('connection', (client) => {
-        this.clients.push(client);
   
         const player = client.metadata;
+        if (this.players.length < 4 && player.name.length > 0) {
+          this.players.push(player);
+          this.clients.push(client);
 
-        console.log(player);
+          onPlayerUpdate(this.players);
+          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, meta: this.players });
+        }
+
+        client.on('open', () => {
+          client.metadata.connected = true;
+          // Send players when the connection is ready
+          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, meta: this.players });
+          onPlayerUpdate(this.players);
+        });
+
+        client.on('close', () => {
+          console.log('closed connection with ' + client.metadata.name);
+          this.players.splice(this.players.findIndex(p => p.connectionId === client.peer), 1)
+          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, meta: this.players });
+          onPlayerUpdate(this.players);
+        })
     
         // Receive data from clients:
         client.on('data', function(data) {
@@ -60,41 +92,49 @@ export class Host extends Network {
     });
   }
 
-  broadcast(m: NetworkMessage) {
+  broadcast(m: HostNetworkMessage) {
+    console.log('Broadcasting: ', m);
+
     this.clients.forEach(c => {
       c.send(m);
     })
   }
 
   disconnect() {
-    this.broadcast({ type: MessageType.DISBANDED });
+    this.broadcast({ type: HostBroadcastType.DISBANDED });
     this.peer.disconnect();
   }
 }
 
 export class Client extends Network {
+  code: string = ''
+
   createConnectionId() {
     return Math.random().toString(20).substr(2, 10);
   }
 
-  join(code: string, onDisband: () => void) {
+  join(code: string, onHostBroadcast: (message: HostNetworkMessage) => void) {
     this.peer.on('open', (id:string) => {
+      this.player.connectionId = this.fullyQualifiedId(this.connectionId);
+
       const conn = this.peer.connect(this.fullyQualifiedId(code), { metadata: this.player });
+      this.code = code;
 
       conn.on('open', () => {
         // Receive data from host
         conn.on('data', (data) => {
-          console.log('received ', data);
+          console.log('Received broadcast: ', data);
+          onHostBroadcast(data);
+        })
 
-          if (data.type === MessageType.DISBANDED) {
-            onDisband();
-          }
+        conn.on('close', () => {
+          onHostBroadcast({ type: HostBroadcastType.DISCONNECTED });
         })
       })
     })
   }
 
   disconnect() {
-    this.peer.disconnect();
+    this.peer.connections[this.fullyQualifiedId(this.code)][0].close();
   }
 }

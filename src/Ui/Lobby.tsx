@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState } from "react"
+import React from "react"
 import styled from "styled-components"
 import { GameTitle } from "./Splash"
-import { Network, Host, Client } from '../Network';
+import { Network, Host, Client, HostBroadcastType } from '../Network';
 import { Player } from '../Game';
 
 
@@ -71,6 +71,19 @@ const ExitLink = styled.a`
   padding: 4px;
 `
 
+const StartGameButtonStyle = styled.button`
+  border-radius: 0;
+  font-size: 28px;
+  padding: 10px;
+  background: #91a4e6;
+  border: 2px solid #3451b3;
+  margin: 10px;
+  width: auto;
+`
+
+const PlayerNameConnectingStyle = styled.span`
+  color: #aaa;
+`
 
 interface LobbyHostProps {
   playerName: string;
@@ -100,10 +113,15 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   }
 
   componentDidMount() {
+    this.setState({
+      players: [this.player]
+    });
+
     this.setWindowCloseDialog();
+    window.onunload = () => this.host.disconnect();
 
-
-    this.host.host(c => this.setState({ code: c }))
+    this.host.host(c => this.setState({ code: c }), p => this.setState({ players: p }));
+    
   }
 
   disbandLobby() {
@@ -124,7 +142,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   }
 
   setWindowCloseDialog() {
-    window.onbeforeunload = (e) => {
+    window.onbeforeunload = (e: any) => {
       const message = 'Are you sure you want to disband this lobby?';
       e = e || window.event;
 
@@ -136,12 +154,16 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     }
   }
 
+  startGame() {
+
+  }
+
   networkErrorHandler(error: any) {
   }
 
   render() {
     return (
-      <Lobby code={this.state.code} players={this.state.players} disbandLobby={() => this.disbandLobby()} />
+      <Lobby code={this.state.code} players={this.state.players} disbandLobby={() => this.disbandLobby()} startGame={() => this.startGame()} />
     )
   }
 }
@@ -175,8 +197,26 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
   }
 
   componentDidMount() {
-    this.setState({ code: this.props.joinLobbyCode });
-    this.client.join(this.props.joinLobbyCode, () => this.exitWithErrorMessage('Lobby was disbanded by host'));
+    this.setState({ 
+      code: this.props.joinLobbyCode 
+    });
+
+    window.onunload = () => this.client.disconnect();
+
+    this.client.join(this.props.joinLobbyCode, (msg) => {
+      switch (msg.type) {
+        case HostBroadcastType.DISBANDED:
+          this.exitWithErrorMessage('Lobby was disbanded by host');
+          break;
+        case HostBroadcastType.DISCONNECTED:
+          this.exitWithErrorMessage('Disconnected');
+          break;
+        case HostBroadcastType.LOBBY_PLAYERS:
+          this.setState({ players: msg.meta });
+          break;
+
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -215,6 +255,7 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
 interface LobbyProps {
   code: string;
   players: Player[];
+  startGame?: () => void;
   disbandLobby?: () => void;
   exitLobby?: () => void;
 }
@@ -234,8 +275,8 @@ class Lobby extends React.Component<LobbyProps> {
   }
 
   updateBrowserLocation = (c: string) => {
-    window.history.pushState({}, `Schmeckles #${c}`, `/${c}`)
-    document.title = `Schmeckles #${c}`
+    window.history.pushState({}, `[${c}] Schmeckles`, `/${c}`)
+    document.title = `[${c}] Schmeckles`
   }
 
   copyCodeToClipboard = () => {
@@ -282,13 +323,30 @@ class Lobby extends React.Component<LobbyProps> {
           {[...Array(4)].map((p,i) =>
             <PlayerBoxStyle key={i}>
               {this.props.players[i] 
-                ? (<>{this.props.players[i].name}</>)
-                : (<>Waiting for {this.props.code ? 'host' : 'players'}...</>)
+                ? (
+                  <>
+                    {!this.props.players[i].connected 
+                      ? <PlayerNameConnectingStyle>{this.props.players[i].name}</PlayerNameConnectingStyle>
+                      : <>{this.props.players[i].name}</>
+                    }
+                  </>
+                )
+                : (<>Waiting for players...</>)
               }
               
             </PlayerBoxStyle>
           )}
           </PlayerBoxes>
+          {this.props.players.length < 2
+            ? <p>At least two players needed to start game.</p>
+            : null}
+
+          {this.props.startGame 
+            ? (
+              <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startGame && this.props.startGame()}>Start Game</StartGameButtonStyle>
+            )
+            : null
+          }
         </ContentColumnStyle>
       </LobbyPageStyle>
     )

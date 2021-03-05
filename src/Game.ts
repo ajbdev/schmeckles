@@ -189,6 +189,8 @@ export class Player {
   cards: CardPile;
   reservedCards: Card[];
   nobles: Noble[];
+  connected: boolean;
+  connectionId: string;
 
   constructor(name: string) {    
     this.id = name;
@@ -197,6 +199,8 @@ export class Player {
     this.cards = new CardPile();
     this.reservedCards = [];
     this.nobles = [];
+    this.connected = false;
+    this.connectionId = '';
   }
 }
 
@@ -218,7 +222,6 @@ export default class Game {
 
     return Game.instance;
   }
-
 
   getPlayer(playerId: string) {
     return this.gameState.players.filter(p => p.id === playerId)[0];
