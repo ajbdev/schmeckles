@@ -24,7 +24,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>Schmeckles</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -41,5 +41,27 @@
     -->
     <script data-goatcounter="https://schmeckles.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+
+    <% if (process.env.REACT_APP_DISABLE_LIVE_RELOAD === "true") { %>
+      <!-- 
+        Live Reload was causing issues for us. Disable it by starting the app with
+        REACT_APP_DISABLE_LIVE_RELOAD=true
+      -->
+      <script>
+        {
+          var WS = window.WebSocket;
+          function DevWebSocket(s) {
+            if (s === "ws://localhost:3000/sockjs-node") {
+              console.info("[DEV NOTICE] Live Reload Has Been Disabled");
+              return {};
+            } else {
+              // Pass through other usage of sockets
+              return new WS(s);
+            }
+          }
+          window.WebSocket = DevWebSocket;
+        }
+      </script>
+      <% } %>
   </body>
 </html>

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FastAverageColor from 'fast-average-color';
 
 
@@ -68,6 +68,7 @@ const JoinGameInput = styled.input`
   padding: 10px;
   border: 2px solid #ccc;
   text-align: center;
+  text-transform: uppercase;
   width: 150px;
 `
 
@@ -154,12 +155,23 @@ const ChangeNameInput = styled.input`
   width: 140px;
 `
 
+const ErrorMessage = styled.div`
+  font-size: 20px;
+  color: #fff;
+  display: inline-block;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 0, 0, 0.5);
+`
+
 const names = ['Helgi','Finnbogi','Abu','Jean','Samo','Giovanni','Luís','Jeanne','Gregorio','Domini','Andres','Guglielmo','Hugo','Muhammad', 'Eldad', 'Wulfstan', 'Joseph', 'Aldo', 'Alessio', 'Cosimo', 'Fabritio', 'Francesca', 'Galileo', 'Isabetta', 'Lavinia', 'Madalena', 'Minerva', 'Nencia', 'Vinci'];
 
 const randomName = names[Math.floor(Math.random()*names.length)];
 
 interface SplashProps {
   hostLobby: (playerName: string) => void;
+  joinLobby: (code: string, playerName: string) => void;
+  errorMessage: string;
 }
 
 export default function Splash(props: SplashProps) {
@@ -167,16 +179,29 @@ export default function Splash(props: SplashProps) {
 
   const [name, setName] = useState(randomName);
 
+  const [code, setCode] = useState('');
+
   const handleEnter = (i: any) => { 
     if (i.which === 13) {
       setIsChangingName(false);
     }
   }
+
+  useEffect(() => {
+    if (window.location.pathname.length > 1) {
+      const c = window.location.pathname.replace('/','');
+
+      if (c.length === 4) {
+        setCode(c)
+      }
+    }
+  }, [])
   
   return (
     <SplashScreenStyle>
-      <SplashBackground src={`${process.env.PUBLIC_URL}/splash/splash6.jpg`}>
+      <SplashBackground src={`${process.env.PUBLIC_URL}/splash/splash17.jpg`}>
         <SplashTitle>Schmeckles</SplashTitle>
+        { props.errorMessage ? <ErrorMessage>{props.errorMessage}</ErrorMessage> : null}
         <WelcomeStyle>
           Welcome, 
           {isChangingName 
@@ -197,9 +222,8 @@ export default function Splash(props: SplashProps) {
           Host a game
         </HostButton>
         <JoinGameArea>
-          <JoinGameInput type="text" placeholder="Code" />
-          <JoinGameButton>Join Game</JoinGameButton>
-
+          <JoinGameInput type="text" placeholder="Code" value={code} onChange={(e) => setCode(e.target.value)} />
+          <JoinGameButton disabled={code.length !== 4} onClick={() => props.joinLobby(code, name)}>Join Game</JoinGameButton>
         </JoinGameArea>
       </SplashBackground>
     </SplashScreenStyle>
