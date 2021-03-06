@@ -37,12 +37,6 @@ export abstract class Network {
     this.peer.on('error', onError);
   }
 
-  destroy() {
-    this.peer.connections.forEach((c:any) => c.disconnect());
-    this.peer.disconnect();
-    this.peer.destroy();
-  }
-
   fullyQualifiedId(code: string) {
     return  `schmeckles_${code}`;
   }
@@ -56,12 +50,6 @@ export class Host extends Network {
 
   createConnectionId() {
     return Math.random().toString(20).substr(2, 4).toUpperCase();
-  }
-
-  destroy() {
-    this.peer.connections.forEach((c:any) => c.disconnect());
-    this.peer.disconnect();
-    this.peer.destroy();
   }
 
   host(onConnect: (code: string) => void, onPlayerUpdate: (p: Player[]) => void) {

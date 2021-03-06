@@ -1,7 +1,6 @@
 import cardsJson from './cards.json';
 import noblesJson from './nobles.json';
 import { BaseAction, IAction, Action } from './Actions';
-import { Client, Host } from './Network';
 
 interface NobleJsonValues {
   points: number;
@@ -146,13 +145,11 @@ export class GameState  {
   started: boolean;
   contextPlayer: Player | undefined;
   turn: PlayerTurn;
-  background: string;
 
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
     const nobles = shuffle(mapNobleValuesJsonToNobleType(noblesJson));
 
-    this.background = '';
     this.players = [];
     this.nobles = nobles.splice(0, 3);
 
@@ -210,8 +207,6 @@ export class Player {
 
 export default class Game {
   gameState: GameState;
-  host: Host | undefined;
-  client: Client | undefined;
   private static instance: Game | undefined;
   private onStateUpdateCallback: ((gameState: GameState) => void) | null;
 
@@ -226,24 +221,6 @@ export default class Game {
     }
 
     return Game.instance;
-  }
-
-  newClient(p:Player, onError: (err:any) => void):Client {
-    if (this.client) {
-      this.client.destroy();
-    }
-    this.client = new Client(p, onError);
-
-    return this.client;
-  }
-
-  newHost(p:Player, onError: (err:any) => void):Host {
-    if (this.host) {
-      this.host.destroy();
-    }
-    this.host = new Host(p, onError);
-
-    return this.host;
   }
 
   getPlayer(playerId: string) {
