@@ -2,7 +2,7 @@ import React from "react"
 import styled from "styled-components"
 import { GameTitle } from "./Splash"
 import { Network, Host, Client, HostBroadcastType } from '../Network';
-import { Player } from '../Game';
+import Game, { Player } from '../Game';
 
 
 const LobbyPageStyle = styled.div`
@@ -101,24 +101,28 @@ const defaultLobbyHostState = {
   code: ''
 }
 
+const game = Game.getInstance();
+
 export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   player: Player
-  host: Host
+  host: Host | null = null
 
   constructor(props: LobbyHostProps) {
     super(props);
     this.player = new Player(props.playerName);
     this.state = defaultLobbyHostState;
-    this.host = new Host(this.player, (err) => this.networkErrorHandler(err));
   }
 
   componentDidMount() {
     this.setState({
       players: [this.player]
     });
+    this.host = game.newHost(this.player, (err) => this.props.setErrorMessage(err));
 
     this.setWindowCloseDialog();
-    window.onunload = () => this.host.disconnect();
+    window.onunload = () => {
+      this.disconnectHost();
+    }
 
     this.host.host(c => this.setState({ code: c }), p => this.setState({ players: p }));
     
@@ -132,9 +136,15 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     }
   }
 
+  disconnectHost() {
+    if (this.host) {
+      this.host.disconnect();
+    }
+  }
+
   cleanupLobby() {
     window.onbeforeunload = null;
-    this.host.disconnect();
+    this.disconnectHost();
   }
 
   componentWillUnmount() {
@@ -154,16 +164,9 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     }
   }
 
-  startGame() {
-
-  }
-
-  networkErrorHandler(error: any) {
-  }
-
   render() {
     return (
-      <Lobby code={this.state.code} players={this.state.players} disbandLobby={() => this.disbandLobby()} startGame={() => this.startGame()} />
+      <Lobby code={this.state.code} players={this.state.players} disbandLobby={() => this.disbandLobby()} />
     )
   }
 }
@@ -187,13 +190,12 @@ const defaultLobbyClientState = {
 
 export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientState> {
   player: Player
-  client: Client
+  client: Client | null = null
 
   constructor(props: LobbyClientProps) {
     super(props);
     this.state = defaultLobbyClientState;
     this.player = new Player(props.playerName);
-    this.client = new Client(this.player, (err) => this.networkErrorHandler(err));
   }
 
   componentDidMount() {
@@ -201,9 +203,10 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
       code: this.props.joinLobbyCode 
     });
 
-    window.onunload = () => this.client.disconnect();
+    this.client = game.newClient(this.player, (err) => this.networkErrorHandler(err));
+    window.onunload = () => this.disconnectClient();
 
-    this.client.join(this.props.joinLobbyCode, (msg) => {
+    this.client!.join(this.props.joinLobbyCode, (msg) => {
       switch (msg.type) {
         case HostBroadcastType.DISBANDED:
           this.exitWithErrorMessage('Lobby was disbanded by host');
@@ -217,6 +220,12 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
 
       }
     });
+  }
+
+  disconnectClient() {
+    if (this.client) {
+      this.client.disconnect();
+    }
   }
 
   componentWillUnmount() {
@@ -236,7 +245,7 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
 
   cleanupLobbyAndExit() {
     this.cleanupLobby();
-    this.client.disconnect();
+    this.disconnectClient();
     this.props.setJoinLobbyCode('');
   }
 

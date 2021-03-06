@@ -5,19 +5,14 @@ import { HudUI } from './Player';
 import { Action } from '../Actions';
 import styled from 'styled-components';
 
-interface GameUIProps {}
+interface GameUIProps {
+  gameState: GameState
+}
 
 interface GameUIState {
-  gameState: GameState | null
 }
 
-const game = Game.getInstance();
-const player1 = new Player('Andy');
-const player2 = new Player('Megan')
-
-const defaultState = {
-  gameState: null
-}
+const defaultState = {}
 
 const PlayerListStyle = styled.ul`
   list-style-type: none;
@@ -28,33 +23,22 @@ const PlayerListStyle = styled.ul`
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
   constructor(props: any) {
     super(props);
-
-    this.state = defaultState;
-  }
-
-  componentDidMount() {
-    game.onStateUpdate((gameState: GameState) => {
-      this.setState({ gameState: gameState })
-    })
-    game.sendAction(player1, Action.JoinGame, { isContextPlayer: true });
-    game.sendAction(player2, Action.JoinGame, {});
-    game.sendAction(player1, Action.StartGame, {});
   }
 
   render() {
     return (
       <>
-        {this.state.gameState ?
+        {this.props.gameState ?
           (
             <>
-              <BoardUI gameState={this.state.gameState} />
-              {this.state.gameState.contextPlayer 
-                ? <HudUI player={this.state.gameState.contextPlayer} />
+              <BoardUI gameState={this.props.gameState} />
+              {this.props.gameState.contextPlayer 
+                ? <HudUI player={this.props.gameState.contextPlayer} />
                 : null
               }
               <PlayerListStyle>
-                {this.state.gameState.players.map((p,i) =>
-                  <li key={p.id}>{this.state.gameState!.turn === (i+1) ? '*' : null}{p.name}</li>  
+                {this.props.gameState.players.map((p,i) =>
+                  <li key={p.id}>{this.props.gameState!.turn === (i+1) ? '*' : null}{p.name}</li>  
                 )}
               </PlayerListStyle>
             </>
