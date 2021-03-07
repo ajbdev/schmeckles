@@ -136,8 +136,8 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
       this.setState({ gameState: gameState })
     })
     game.onAction((a: BaseAction) => {
-      this.broadcastAction(a.player, a.type!, a.meta);
-    });
+      this.broadcastAction(a.player, a.type!, a.meta)
+    })
   }
 
   componentWillUnmount() {
@@ -252,6 +252,9 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
           break;
         case HostBroadcastType.ACTION:
           game.sendAction(msg.payload.player, Action[msg.payload.action as Action], msg.payload.meta)
+          break;
+        case HostBroadcastType.GAMESTATE:
+          game.updateGameState(Game.unserialize(msg.payload))
           break;
       }
     });

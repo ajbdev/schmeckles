@@ -86,7 +86,7 @@ export class Host extends Network {
           // Send players when the connection is ready
           this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
           onPlayerUpdate(this.players);
-        });
+        })
 
         client.on('close', () => {
           console.log('closed connection with ' + client.metadata.name);

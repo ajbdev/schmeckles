@@ -1,6 +1,7 @@
 import cardsJson from './cards.json';
 import noblesJson from './nobles.json';
 import { BaseAction, IAction, Action } from './Actions';
+import { serialize as _serialize, plainToClass } from 'class-transformer';
 
 interface NobleJsonValues {
   points: number;
@@ -146,14 +147,6 @@ export class GameState  {
   contextPlayer: Player | undefined;
   turn: PlayerTurn;
 
-  serialize() {
-    
-  }
-
-  static unserialize(serializedGameState: any) {
-
-  }
-
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
     const nobles = shuffle(mapNobleValuesJsonToNobleType(noblesJson));
@@ -231,6 +224,21 @@ export default class Game {
     }
 
     return Game.instance;
+  }
+
+  serialize() {
+    return _serialize(this);
+  }
+
+  public static unserialize(serializedGameState: any) {
+     return plainToClass(GameState, serializedGameState);
+  }
+
+  updateGameState(gs: GameState) {
+    this.gameState = gs;
+    if (this.onStateUpdateCallback) {
+      this.onStateUpdateCallback(gs);
+    }
   }
 
   getPlayer(playerId: string) {
