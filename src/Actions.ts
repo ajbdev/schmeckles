@@ -10,7 +10,7 @@ export enum Action {
 }
 
 export interface IAction {
-  type?: Action
+  type: Action | null
   player: Player
   rules: Rule[]
   failedRules: Result[]
@@ -19,14 +19,17 @@ export interface IAction {
 }
 
 export abstract class BaseAction implements IAction {
-  type?: Action
+  type: Action | null
   player: Player
   rules: Rule[]
   failedRules: Result[]
+  meta: any
 
-  constructor(p: Player) {
+  constructor(p: Player, meta: any) {
+    this.type = null;
     this.player = p;
     this.rules = [];
+    this.meta = meta;
     this.failedRules = [];
   }
 
@@ -81,7 +84,7 @@ const moveGems = (from: GemStash, to: GemStash, amount: GemStash) => {
 
 export class StartGame extends BaseAction {
   constructor(p: Player, meta: {}) {
-    super(p);
+    super(p, meta);
     this.type = Action.StartGame;
 
     this.rules = [
@@ -100,7 +103,7 @@ export class StartGame extends BaseAction {
 export class JoinGame extends BaseAction {
   isContextPlayer: boolean;
   constructor(p: Player, meta: { isContextPlayer: boolean }) {
-    super(p)
+    super(p, meta)
     this.type = Action.JoinGame;
     this.isContextPlayer = meta.isContextPlayer;
     this.rules = [
@@ -122,7 +125,7 @@ export class TakeGems extends BaseAction {
   gems: GemStash;
 
   constructor(p: Player, meta: { gems: GemStash }) {
-    super(p);
+    super(p, meta);
 
     this.type = Action.TakeGems;
     this.gems = meta.gems;
@@ -166,7 +169,7 @@ export class PurchaseCard extends BaseAction {
   index: number;
 
   constructor(p: Player, meta: { cards: Card[], index: number }) {
-    super(p);
+    super(p, meta);
 
     this.type = Action.PurchaseCard;
     this.index = meta.index;
@@ -203,7 +206,7 @@ export class ReserveCard extends BaseAction {
   index: number;
 
   constructor(p: Player, meta: { cards: Card[], index: number }) {
-    super(p);
+    super(p, meta);
 
     this.type = Action.ReserveCard;
     this.cards = meta.cards;

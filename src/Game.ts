@@ -209,10 +209,12 @@ export default class Game {
   gameState: GameState;
   private static instance: Game | undefined;
   private onStateUpdateCallback: ((gameState: GameState) => void) | null;
+  private onActionCallback: ((a: BaseAction) => void) | null;
 
   private constructor() {
     this.gameState = new GameState();
     this.onStateUpdateCallback = null;
+    this.onActionCallback = null;
   }
 
   public static getInstance(): Game {
@@ -227,18 +229,33 @@ export default class Game {
     return this.gameState.players.filter(p => p.id === playerId)[0];
   }
 
-  onStateUpdate(callback: (gameState: GameState) => void):void {
+  onStateUpdate(callback: (gameState: GameState) => void | null):void {
     this.onStateUpdateCallback = callback;
   }
 
-  sendAction(player: Player, actionType: Action, data: any) {
+  onAction(callback: (a: BaseAction) => void | null):void {
+    this.onActionCallback = callback;
+  }
+
+  cleanup() {
+    this.onStateUpdateCallback = null;
+    this.onActionCallback = null;
+  }
+
+  sendAction(player: Player, actionType: Action, data: any): BaseAction {
     const action = BaseAction.create(
       player,
       actionType,
       data
     );  
 
+    if (this.onActionCallback) {
+      this.onActionCallback(action);
+    }
+
     this.receiveAction(action);
+
+    return action;
   }
 
   public static reset(): Game {

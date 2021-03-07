@@ -4,12 +4,13 @@ import { Player } from './Game';
 export enum HostBroadcastType {
   DISBANDED = 'DISBANDED',
   DISCONNECTED = 'DISCONNECTED',
-  LOBBY_PLAYERS = 'LOBBY_PLAYERS'
+  LOBBY_PLAYERS = 'LOBBY_PLAYERS',
+  ACTION = 'ACTION'
 }
 
 interface HostNetworkMessage {
   type: HostBroadcastType,
-  meta?: any;
+  payload?: any;
 }
 
 enum ClientMessageType {
@@ -18,7 +19,7 @@ enum ClientMessageType {
 
 interface ClientNetworkMessage {
   type: ClientMessageType
-  meta?: any
+  payload?: any
 }
 
 export abstract class Network {
@@ -67,20 +68,20 @@ export class Host extends Network {
           this.clients.push(client);
 
           onPlayerUpdate(this.players);
-          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, meta: this.players });
+          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
         }
 
         client.on('open', () => {
           client.metadata.connected = true;
           // Send players when the connection is ready
-          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, meta: this.players });
+          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
           onPlayerUpdate(this.players);
         });
 
         client.on('close', () => {
           console.log('closed connection with ' + client.metadata.name);
           this.players.splice(this.players.findIndex(p => p.connectionId === client.peer), 1)
-          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, meta: this.players });
+          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
           onPlayerUpdate(this.players);
         })
     
