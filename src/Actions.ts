@@ -10,7 +10,7 @@ export enum Action {
 }
 
 export interface IAction {
-  type: Action | null
+  type?: Action
   player: Player
   rules: Rule[]
   failedRules: Result[]
@@ -19,14 +19,13 @@ export interface IAction {
 }
 
 export abstract class BaseAction implements IAction {
-  type: Action | null
+  type?: Action
   player: Player
   rules: Rule[]
-  failedRules: Result[]
   meta: any
+  failedRules: Result[]
 
   constructor(p: Player, meta: any) {
-    this.type = null;
     this.player = p;
     this.rules = [];
     this.meta = meta;
@@ -145,7 +144,7 @@ export class TakeGems extends BaseAction {
             return result1;
           }
 
-          const gem = Object.keys(this.gems).filter(g => this.gems[g as Gem] == 2)[0]
+          const gem = Object.keys(this.gems).filter(g => this.gems[g as Gem] === 2)[0]
 
           return canTakeTwoGems(gem as Gem, g.gems);
         }

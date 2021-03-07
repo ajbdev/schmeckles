@@ -171,7 +171,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     }
   }
 
-  broadcastAction(p: Player, a: Action, meta: {}) {
+  broadcastAction(p: Player, a: Action, meta: any) {
     this.host.broadcast({ type: HostBroadcastType.ACTION, payload: { player: p, action: a, meta } })
   }
 
@@ -230,7 +230,7 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
 
   componentDidMount() {
     this.setState({ 
-      code: this.props.joinLobbyCode 
+      code: this.props.joinLobbyCode.toUpperCase()
     });
 
     game.onStateUpdate((gameState: GameState) => {
@@ -270,6 +270,8 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
     if (error.type === 'peer-unavailable') {
       this.exitWithErrorMessage('Lobby not found');
     }
+    this.exitWithErrorMessage('Network error');
+    console.error(error);
   }
 
   cleanupLobbyAndExit() {

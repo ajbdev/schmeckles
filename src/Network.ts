@@ -5,7 +5,8 @@ export enum HostBroadcastType {
   DISBANDED = 'DISBANDED',
   DISCONNECTED = 'DISCONNECTED',
   LOBBY_PLAYERS = 'LOBBY_PLAYERS',
-  ACTION = 'ACTION'
+  ACTION = 'ACTION',
+  GAMESTATE = 'GAMESTATE'
 }
 
 interface HostNetworkMessage {
@@ -34,8 +35,9 @@ export abstract class Network {
     this.debugLevel = 3;
     this.connectionId = this.createConnectionId();
     this.peer = new Peer(this.fullyQualifiedId(this.connectionId), { debug: this.debugLevel });
+    this.onError = onError;
 
-    this.peer.on('error', onError);
+    this.peer.on('error', this.onError);
   }
 
   fullyQualifiedId(code: string) {
@@ -61,6 +63,14 @@ export class Host extends Network {
       onConnect(this.connectionId);
 
       this.peer.on('connection', (client) => {
+
+        client.peerConnection.onconnectionstatechange = (ev: any) => {
+          if (ev.target.connectionState === 'failed') {
+            this.players.splice(this.players.findIndex(p => p.connectionId === client.metadata.connectionId))
+            this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
+            onPlayerUpdate(this.players);
+          }
+        };
   
         const player = client.metadata;
         if (this.players.length < 4 && player.name.length > 0) {
@@ -121,17 +131,31 @@ export class Client extends Network {
       const conn = this.peer.connect(this.fullyQualifiedId(code), { metadata: this.player });
       this.code = code;
 
+      conn.peerConnection.onconnectionstatechange = (ev: any) => {
+        if (ev.target.connectionState === 'failed') {
+          this.onError(ev.target)
+        }
+      };
+
       conn.on('open', () => {
         // Receive data from host
-        conn.on('data', (data) => {
-          console.log('Received broadcast: ', data);
-          onHostBroadcast(data);
-        })
 
-        conn.on('close', () => {
-          onHostBroadcast({ type: HostBroadcastType.DISCONNECTED });
-        })
       })
+      conn.on('data', (data) => {
+        console.log('Received broadcast: ', data);
+        onHostBroadcast(data);
+      })
+      conn.on('close', () => {
+        console.log('closed');
+        onHostBroadcast({ type: HostBroadcastType.DISCONNECTED });
+      })
+
+      conn.on('error', (err:any) => {
+        console.log(err);
+      });
+    });
+    this.peer.on('disconnected', () => {
+      console.log('disconnected');
     })
   }
 

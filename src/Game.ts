@@ -146,6 +146,14 @@ export class GameState  {
   contextPlayer: Player | undefined;
   turn: PlayerTurn;
 
+  serialize() {
+    
+  }
+
+  static unserialize(serializedGameState: any) {
+
+  }
+
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
     const nobles = shuffle(mapNobleValuesJsonToNobleType(noblesJson));
