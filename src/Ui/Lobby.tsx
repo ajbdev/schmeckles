@@ -171,6 +171,10 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     }
   }
 
+  sendGameState() {
+    this.host.broadcast({ type: HostBroadcastType.GAMESTATE, payload: game.serialize() });
+  }
+
   broadcastAction(p: Player, a: Action, meta: any) {
     this.host.broadcast({ type: HostBroadcastType.ACTION, payload: { player: p, action: a, meta } })
   }
@@ -182,6 +186,8 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
       game.sendAction(p, Action.JoinGame, { isContextPlayer });
     });
     game.sendAction(this.player, Action.StartGame, {});
+
+    this.sendGameState();
   }
 
   networkErrorHandler(error: any) {
@@ -254,6 +260,7 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
           game.sendAction(msg.payload.player, Action[msg.payload.action as Action], msg.payload.meta)
           break;
         case HostBroadcastType.GAMESTATE:
+          console.log('UPDATING GAME STATE WITH: ', msg.payload);
           game.updateGameState(Game.unserialize(msg.payload))
           break;
       }

@@ -1,7 +1,7 @@
 import cardsJson from './cards.json';
 import noblesJson from './nobles.json';
 import { BaseAction, IAction, Action } from './Actions';
-import { serialize as _serialize, plainToClass } from 'class-transformer';
+import { classToPlain, plainToClass } from 'class-transformer';
 
 interface NobleJsonValues {
   points: number;
@@ -227,7 +227,7 @@ export default class Game {
   }
 
   serialize() {
-    return _serialize(this);
+    return classToPlain(this.gameState);
   }
 
   public static unserialize(serializedGameState: any) {

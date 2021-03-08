@@ -37,7 +37,7 @@ export const gameHasStarted = (started: boolean): Result => {
 
 export const isPlayersTurn = (player: Player, players: Player[], turn: PlayerTurn): Result => {
   return {
-    passed: (players.indexOf(player)+1) === turn,
+    passed: (players.findIndex((p) => p.id === player.id)+1) === turn,
     message: 'Players can only act when it is their turn.'
   }
 }
