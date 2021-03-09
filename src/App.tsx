@@ -14,7 +14,7 @@ const App = () => {
   const [playerName, setPlayerName] = useState('');
   const [joinLobbyCode, setJoinLobbyCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  
+  const [bgSrc, setBgSrc] = useState('');
 
   const hostLobby = (playerName: string) => {
     setIsHostingLobby(true);
@@ -27,10 +27,10 @@ const App = () => {
   }
 
   return (
-    <SplashBackground type={BackgroundType.Board}>
+    <SplashBackground type={BackgroundType.Board} src={bgSrc}>
       <AppStyle>
-        {isHostingLobby ? <LobbyHost playerName={playerName} setIsHostingLobby={setIsHostingLobby} setErrorMessage={setErrorMessage} /> : null}
-        {joinLobbyCode ? <LobbyClient playerName={playerName} joinLobbyCode={joinLobbyCode} setErrorMessage={setErrorMessage} setJoinLobbyCode={setJoinLobbyCode} /> : null}
+        {isHostingLobby ? <LobbyHost playerName={playerName} setIsHostingLobby={setIsHostingLobby} setErrorMessage={setErrorMessage} setBgSrc={setBgSrc} /> : null}
+        {joinLobbyCode ? <LobbyClient playerName={playerName} joinLobbyCode={joinLobbyCode} setErrorMessage={setErrorMessage} setJoinLobbyCode={setJoinLobbyCode} setBgSrc={setBgSrc} /> : null}
         {!isHostingLobby && !joinLobbyCode ? <Splash hostLobby={hostLobby} joinLobby={joinLobby} errorMessage={errorMessage} /> : null}
       </AppStyle>
     </SplashBackground>

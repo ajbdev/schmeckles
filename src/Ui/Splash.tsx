@@ -96,6 +96,10 @@ interface SplashBackgroundState {
   }
 }
 
+export function getRandomBackground(type: BackgroundType) {
+  return `${process.env.PUBLIC_URL}/splash/${type}${Math.floor(Math.random() * 8)+1}.jpg`;
+}
+
 export class SplashBackground extends React.Component<SplashBackgroundProps, SplashBackgroundState> {
   state: SplashBackgroundState;
 
@@ -115,7 +119,7 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
   }
 
   async loadBackground() {
-    const src = this.props.src || `${process.env.PUBLIC_URL}/splash/${this.props.type}${Math.floor(Math.random() * 8)+1}.jpg`;
+    const src = this.props.src || getRandomBackground(this.props.type);
     const fac = new FastAverageColor();
 
     const color = await fac.getColorAsync(src);
@@ -125,7 +129,7 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
 
   render() {
     return (
-      <SplashBackgroundStyle imageSrc={this.state.background.src} bgColor={this.state.background.color}>
+      <SplashBackgroundStyle imageSrc={this.props.src || this.state.background.src} bgColor={this.state.background.color}>
         {this.props.children}
       </SplashBackgroundStyle>
     );

@@ -1,6 +1,6 @@
 import React from "react"
 import styled from "styled-components"
-import { GameTitle, BackgroundType } from './Splash';
+import { GameTitle, BackgroundType, getRandomBackground } from './Splash';
 import { Network, Host, Client, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
 import { Player, GameState } from '../Game';
 import Game from '../Game';
@@ -92,6 +92,7 @@ interface LobbyHostProps {
   playerName: string
   setIsHostingLobby: (t: boolean) => void
   setErrorMessage: (err: string) => void
+  setBgSrc: (bgSrc: string) => void
 }
 
 interface LobbyHostState {
@@ -129,6 +130,11 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
       contextPlayer: this.player
     });
 
+    const bgSrc = getRandomBackground(BackgroundType.Board);
+    this.props.setBgSrc(bgSrc);
+    
+    game.gameState.background = bgSrc;
+
     this.setWindowCloseDialog();
 
     window.onunload = () => this.host.disconnect();
@@ -152,10 +158,10 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     );
     
     game.onStateUpdate((gameState: GameState) => {
-      this.setState({ gameState: gameState })
+      this.setState({ gameState: gameState });
     })
     game.onAction((a: BaseAction) => {
-      this.broadcastAction(a.player, a.type!, a.meta, [a.player])
+      this.broadcastAction(a.player, a.type!, a.meta, [a.player]);
     })
   }
 
@@ -226,6 +232,7 @@ interface LobbyClientProps {
   joinLobbyCode: string
   setJoinLobbyCode: (c: string) => void
   setErrorMessage: (err: string) => void
+  setBgSrc: (bgSrc: string) => void
 }
 
 interface LobbyClientState {
@@ -289,7 +296,10 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
           break;
         case HostBroadcastType.GAMESTATE:
           console.log('Updating game state: ', msg.payload);
-          game.updateGameState(Game.unserialize(msg.payload))
+          game.updateGameState(Game.unserialize(msg.payload));
+          if (game.gameState.background) {
+            this.props.setBgSrc(game.gameState.background);
+          }
           break;
       }
     });
