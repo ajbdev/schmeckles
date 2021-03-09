@@ -88,6 +88,11 @@ const PlayerNameConnectingStyle = styled.span`
   color: #aaa;
 `
 
+const PlayerTypeDropdownStyle = styled.select`
+  display: inline;
+  width: auto;
+`
+
 interface LobbyHostProps {
   playerName: string
   setIsHostingLobby: (t: boolean) => void
@@ -196,6 +201,10 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     }
   }
 
+  addBot() {
+    
+  }
+
   sendGameState() {
     this.host.broadcast({ type: HostBroadcastType.GAMESTATE, payload: game.serialize() });
   }
@@ -222,7 +231,12 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
       return <GameUI gameState={this.state.gameState} contextPlayer={this.state.contextPlayer!} />
     }
     return (
-      <Lobby code={this.state.code} players={this.state.players} disbandLobby={() => this.disbandLobby()} startGame={() => this.startGame()} />
+      <Lobby 
+        code={this.state.code} 
+        players={this.state.players}
+        disbandLobby={() => this.disbandLobby()} 
+        startGame={() => this.startGame()} 
+      />
     )
   }
 }
@@ -423,7 +437,13 @@ class Lobby extends React.Component<LobbyProps> {
                     }
                   </>
                 )
-                : (<>Waiting for players...</>)
+                : this.props.startGame 
+                    ? (
+                      <span>
+                        Waiting for <PlayerTypeDropdownStyle><option>Player</option><option>Computer</option></PlayerTypeDropdownStyle>
+                      </span>
+                    )
+                    : (<>Waiting for players...</>)
               }
               
             </PlayerBoxStyle>
