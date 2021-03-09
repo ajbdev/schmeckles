@@ -100,11 +100,12 @@ export class StartGame extends BaseAction {
 }
 
 export class JoinGame extends BaseAction {
-  isContextPlayer: boolean;
-  constructor(p: Player, meta: { isContextPlayer: boolean }) {
+  joiningPlayer: Player;
+
+  constructor(p: Player, meta: { joiningPlayer?: Player }) {
     super(p, meta)
     this.type = Action.JoinGame;
-    this.isContextPlayer = meta.isContextPlayer;
+    this.joiningPlayer = meta.joiningPlayer ? meta.joiningPlayer : p;
     this.rules = [
       (g: Readonly<GameState>) => gameIsNotFull(g.players),
       (g: Readonly<GameState>) => gameHasNotStarted(g.started)
@@ -112,11 +113,7 @@ export class JoinGame extends BaseAction {
   }
 
   act(gameState: GameState) {
-    gameState.players.push(this.player);
-
-    if (this.isContextPlayer) {
-      gameState.contextPlayer = this.player;
-    }
+    gameState.players.push(this.joiningPlayer);
   }
 }
 

@@ -14,11 +14,12 @@ interface HostNetworkMessage {
   payload?: any;
 }
 
-enum ClientMessageType {
-  DISCONNECTING = 'DISCONNECTING'
+export enum ClientMessageType {
+  DISCONNECTING = 'DISCONNECTING',
+  ACTION = 'ACTION'
 }
 
-interface ClientNetworkMessage {
+export interface ClientNetworkMessage {
   type: ClientMessageType
   payload?: any
 }
@@ -55,7 +56,7 @@ export class Host extends Network {
     return Math.random().toString(20).substr(2, 4).toUpperCase();
   }
 
-  host(onConnect: (code: string) => void, onPlayerUpdate: (p: Player[]) => void) {
+  host(onConnect: (code: string) => void, onPlayerUpdate: (p: Player[]) => void, onClientAction: (m: ClientNetworkMessage) => void) {
     this.player.connected = true;
     this.players = [this.player];
 
@@ -66,7 +67,7 @@ export class Host extends Network {
 
         client.peerConnection.onconnectionstatechange = (ev: any) => {
           if (ev.target.connectionState === 'failed') {
-            this.players.splice(this.players.findIndex(p => p.connectionId === client.metadata.connectionId))
+            this.players.splice(this.players.findIndex(p => p.id === client.metadata.id))
             this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
             onPlayerUpdate(this.players);
           }
@@ -90,23 +91,33 @@ export class Host extends Network {
 
         client.on('close', () => {
           console.log('closed connection with ' + client.metadata.name);
-          this.players.splice(this.players.findIndex(p => p.connectionId === client.peer), 1)
+          this.players.splice(this.players.findIndex(p => p.id === client.peer), 1)
           this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
           onPlayerUpdate(this.players);
         })
     
         // Receive data from clients:
-        client.on('data', function(data) {
-          console.log('Received', data);
+        client.on('data', function(data: ClientNetworkMessage) {
+          console.log('Received from client: ', data);
+
+          onClientAction(data);
         });
       })
     });
   }
 
-  broadcast(m: HostNetworkMessage) {
-    console.log('Broadcasting: ', m);
+  broadcast(m: HostNetworkMessage, exclude?: Player[]) {
+    let clients = this.clients;
 
-    this.clients.forEach(c => {
+    const ids = exclude?.map(p => p.id);
+
+    if (exclude && ids!.length > 0) {
+      clients = this.clients.filter(c => ids!.indexOf(c.metadata.id) === -1)
+    }
+
+    console.log('Broadcasting to ' + clients.length + ' clients: ', m);
+
+    clients.forEach(c => {
       c.send(m);
     })
   }
@@ -119,38 +130,44 @@ export class Host extends Network {
 
 export class Client extends Network {
   code: string = ''
+  host: Peer.DataConnection | null = null
 
   createConnectionId() {
     return Math.random().toString(20).substr(2, 10);
   }
 
+  send(m: ClientNetworkMessage) {
+    console.log('Sending to host: ', m);
+
+    this.host?.send(m);
+  }
+
   join(code: string, onHostBroadcast: (message: HostNetworkMessage) => void) {
     this.peer.on('open', (id:string) => {
-      this.player.connectionId = this.fullyQualifiedId(this.connectionId);
+      this.player.id = this.fullyQualifiedId(this.connectionId);
 
-      const conn = this.peer.connect(this.fullyQualifiedId(code), { metadata: this.player });
+      this.host = this.peer.connect(this.fullyQualifiedId(code), { metadata: this.player });
       this.code = code;
 
-      conn.peerConnection.onconnectionstatechange = (ev: any) => {
+      this.host.peerConnection.onconnectionstatechange = (ev: any) => {
         if (ev.target.connectionState === 'failed') {
           this.onError(ev.target)
         }
       };
 
-      conn.on('open', () => {
-        // Receive data from host
-
+      this.host.on('open', () => {
+        
       })
-      conn.on('data', (data) => {
+      this.host.on('data', (data) => {
         console.log('Received broadcast: ', data);
         onHostBroadcast(data);
       })
-      conn.on('close', () => {
+      this.host.on('close', () => {
         console.log('closed');
         onHostBroadcast({ type: HostBroadcastType.DISCONNECTED });
       })
 
-      conn.on('error', (err:any) => {
+      this.host.on('error', (err:any) => {
         console.log(err);
       });
     });
@@ -160,6 +177,8 @@ export class Client extends Network {
   }
 
   disconnect() {
-    this.peer.connections[this.fullyQualifiedId(this.code)][0].close();
+    if (this.host) {
+      this.host.close();
+    }
   }
 }

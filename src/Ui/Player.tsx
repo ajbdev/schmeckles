@@ -128,7 +128,7 @@ export const HudUI = (props: HudUIProps) => {
             {props.player.gems[Gem[g as keyof typeof Gem]] + props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length}
           </GemHudIndicatorStyle>
           <GemSchmeckleStashStyle>
-            {[...Array(props.player.gems[Gem[g as keyof typeof Gem]])].map(_ => <SchmeckleGemCoinUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />)}
+            {[...Array(props.player.gems[Gem[g as keyof typeof Gem]])].map((_,ix) => <SchmeckleGemCoinUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} key={`${props.player.id}_${g}_${ix}`} />)}
           </GemSchmeckleStashStyle>
           <CardStackStyle>
             {props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).filter(c => c.gem === Gem[g as keyof typeof Gem]).map(c => 

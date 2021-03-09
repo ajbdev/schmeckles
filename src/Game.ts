@@ -144,7 +144,6 @@ export class GameState  {
   gems: GemStash;
   players: Player[];
   started: boolean;
-  contextPlayer: Player | undefined;
   turn: PlayerTurn;
 
   constructor() {

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { DrawPileUI, CardUI, CardSize } from './Cards';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, Player, emptyGemStash } from '../Game';
 import { NobleUI } from './Nobles';
-import { GemUI, Sapphire, Onyx, IconSize } from './Gems';
+import { GemUI, IconSize } from './Gems';
 import { Action } from '../Actions';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
@@ -121,10 +121,11 @@ const GemBankHolderStyle = styled.div`
   padding: 6px;
 `
 
-
 const TilesStyle = styled.div`
   display: flex;
   flex-direction: column;
+  background: rgba(55,55,55,0.5);
+  border-radius: 4px;
 `
 
 const SchmeckleStyle = styled.div`
@@ -394,6 +395,7 @@ const HoldGemUI = (props: HoldGemUIProps) => {
 
 interface BoardUIProps {
   gameState: GameState
+  contextPlayer: Player
 }
 
 interface BoardUIState {
@@ -427,13 +429,13 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
                 <NobleUI noble={noble} key={i} />
               )}
             </NobleRowStyle>
-            <CardRowUI player={this.props.gameState.contextPlayer!} tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards}></CardRowUI>
-            <CardRowUI player={this.props.gameState.contextPlayer!} tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards}></CardRowUI>
-            <CardRowUI player={this.props.gameState.contextPlayer!} tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards}></CardRowUI>
           </TilesStyle>
         </BoardStyle>
         <HudGutterAreaStyle>
-          {this.state.heldGems.length > 0 ? <HoldGemUI player={this.props.gameState.contextPlayer!} gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}
+          {this.state.heldGems.length > 0 ? <HoldGemUI player={this.props.contextPlayer!} gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}
         </HudGutterAreaStyle>
         
       </>

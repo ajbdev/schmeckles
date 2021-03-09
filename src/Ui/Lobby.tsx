@@ -1,7 +1,7 @@
 import React from "react"
 import styled from "styled-components"
 import { GameTitle } from "./Splash"
-import { Network, Host, Client, HostBroadcastType } from '../Network';
+import { Network, Host, Client, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
 import { Player, GameState } from '../Game';
 import Game from '../Game';
 import { Action, BaseAction } from '../Actions';
@@ -96,14 +96,16 @@ interface LobbyHostProps {
 
 interface LobbyHostState {
   players: Player[]
-  code: string,
+  code: string
+  contextPlayer: Player | null
   gameState: GameState | null
 }
 
 const defaultLobbyHostState = {
   players: [],
   code: '',
-  gameState: null
+  gameState: null,
+  contextPlayer: null
 }
 
 
@@ -122,21 +124,39 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   }
 
   componentDidMount() {
+
     this.setState({
-      players: [this.player]
+      players: [this.player],
+      contextPlayer: this.player
     });
 
     this.setWindowCloseDialog();
 
     window.onunload = () => this.host.disconnect();
 
-    this.host.host(c => this.setState({ code: c }), p => this.setState({ players: p }));
+    this.host.host(
+      c => this.setState({ code: c }), 
+      p => this.setState({ players: p }),
+      (msg: ClientNetworkMessage) => {
+        switch (msg.type) {
+          case ClientMessageType.DISCONNECTING:
+            break;
+          case ClientMessageType.ACTION:
+            game.sendAction(
+              msg.payload.player,
+              Action[msg.payload.action as Action],
+              msg.payload.meta
+            )
+            break;
+        }
+      }
+    );
     
     game.onStateUpdate((gameState: GameState) => {
       this.setState({ gameState: gameState })
     })
     game.onAction((a: BaseAction) => {
-      this.broadcastAction(a.player, a.type!, a.meta)
+      this.broadcastAction(a.player, a.type!, a.meta, [a.player])
     })
   }
 
@@ -175,15 +195,13 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     this.host.broadcast({ type: HostBroadcastType.GAMESTATE, payload: game.serialize() });
   }
 
-  broadcastAction(p: Player, a: Action, meta: any) {
-    this.host.broadcast({ type: HostBroadcastType.ACTION, payload: { player: p, action: a, meta } })
+  broadcastAction(p: Player, a: Action, meta: any, exclude?: Player[]) {
+    this.host.broadcast({ type: HostBroadcastType.ACTION, payload: { player: p, action: a, meta } }, exclude)
   }
 
   startGame() {
     this.host.players.forEach(p => {
-      const isContextPlayer = this.player.connectionId === p.connectionId;
-      
-      game.sendAction(p, Action.JoinGame, { isContextPlayer });
+      game.sendAction(this.player, Action.JoinGame, { joiningPlayer: p });
     });
     game.sendAction(this.player, Action.StartGame, {});
 
@@ -196,7 +214,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
 
   render() {
     if (this.state.gameState && this.state.gameState.started) {
-      return <GameUI gameState={this.state.gameState} />
+      return <GameUI gameState={this.state.gameState} contextPlayer={this.state.contextPlayer!} />
     }
     return (
       <Lobby code={this.state.code} players={this.state.players} disbandLobby={() => this.disbandLobby()} startGame={() => this.startGame()} />
@@ -214,12 +232,14 @@ interface LobbyClientProps {
 interface LobbyClientState {
   code: string
   players: Player[]
+  contextPlayer: Player | null
   gameState: GameState | null
 }
 
 const defaultLobbyClientState = {
   players: [],
   code: '',
+  contextPlayer: null,
   gameState: null
 }
 
@@ -236,12 +256,17 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
 
   componentDidMount() {
     this.setState({ 
-      code: this.props.joinLobbyCode.toUpperCase()
+      code: this.props.joinLobbyCode.toUpperCase(),
+      contextPlayer: this.player
     });
 
     game.onStateUpdate((gameState: GameState) => {
       this.setState({ gameState: gameState })
     });
+
+    game.onAction((a: BaseAction) => {
+      this.client.send({ type: ClientMessageType.ACTION, payload: { player: a.player, action: a.type, meta: a.meta }});
+    })
 
     window.onunload = () => this.client.disconnect();
 
@@ -257,10 +282,14 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
           this.setState({ players: msg.payload });
           break;
         case HostBroadcastType.ACTION:
-          game.sendAction(msg.payload.player, Action[msg.payload.action as Action], msg.payload.meta)
+          game.receiveAction(BaseAction.create(
+            msg.payload.player,
+            Action[msg.payload.action as Action],
+            msg.payload.meta
+          ));
           break;
         case HostBroadcastType.GAMESTATE:
-          console.log('UPDATING GAME STATE WITH: ', msg.payload);
+          console.log('Updating game state: ', msg.payload);
           game.updateGameState(Game.unserialize(msg.payload))
           break;
       }
@@ -297,7 +326,7 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
 
   render() {
     if (this.state.gameState && this.state.gameState.started) {
-      return <GameUI gameState={this.state.gameState} />
+      return <GameUI gameState={this.state.gameState} contextPlayer={this.state.contextPlayer!} />
     }
     return (
       <Lobby code={this.state.code} players={this.state.players} exitLobby={() => this.cleanupLobbyAndExit()} />
