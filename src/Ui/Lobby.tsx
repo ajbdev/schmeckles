@@ -1,6 +1,6 @@
 import React from "react"
 import styled from "styled-components"
-import { GameTitle } from "./Splash"
+import { GameTitle, BackgroundType } from './Splash';
 import { Network, Host, Client, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
 import { Player, GameState } from '../Game';
 import Game from '../Game';
@@ -89,9 +89,9 @@ const PlayerNameConnectingStyle = styled.span`
 `
 
 interface LobbyHostProps {
-  playerName: string;
-  setIsHostingLobby: (t: boolean) => void;
-  setErrorMessage: (err: string) => void;
+  playerName: string
+  setIsHostingLobby: (t: boolean) => void
+  setErrorMessage: (err: string) => void
 }
 
 interface LobbyHostState {
@@ -124,7 +124,6 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   }
 
   componentDidMount() {
-
     this.setState({
       players: [this.player],
       contextPlayer: this.player
@@ -223,10 +222,10 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
 }
 
 interface LobbyClientProps {
-  playerName: string;
-  joinLobbyCode: string;
-  setJoinLobbyCode: (c: string) => void;
-  setErrorMessage: (err: string) => void;
+  playerName: string
+  joinLobbyCode: string
+  setJoinLobbyCode: (c: string) => void
+  setErrorMessage: (err: string) => void
 }
 
 interface LobbyClientState {
@@ -328,6 +327,7 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
     if (this.state.gameState && this.state.gameState.started) {
       return <GameUI gameState={this.state.gameState} contextPlayer={this.state.contextPlayer!} />
     }
+
     return (
       <Lobby code={this.state.code} players={this.state.players} exitLobby={() => this.cleanupLobbyAndExit()} />
     )

@@ -145,6 +145,7 @@ export class GameState  {
   players: Player[];
   started: boolean;
   turn: PlayerTurn;
+  background?: string;
 
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);

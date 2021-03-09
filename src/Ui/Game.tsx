@@ -4,6 +4,7 @@ import Game, { GameState, Player } from '../Game';
 import { HudUI } from './Player';
 import { Action } from '../Actions';
 import styled from 'styled-components';
+import { BackgroundType } from './Splash';
 
 interface GameUIState {
 }

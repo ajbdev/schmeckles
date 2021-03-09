@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import GameUI from './Ui/Game';
 import { LobbyClient, LobbyHost } from './Ui/Lobby';
-import Splash, { SplashBackground } from './Ui/Splash';
+import Splash, { BackgroundType, SplashBackground } from './Ui/Splash';
 
 const AppStyle = styled.div`
   height: 100%;
@@ -27,7 +27,7 @@ const App = () => {
   }
 
   return (
-    <SplashBackground>
+    <SplashBackground type={BackgroundType.Board}>
       <AppStyle>
         {isHostingLobby ? <LobbyHost playerName={playerName} setIsHostingLobby={setIsHostingLobby} setErrorMessage={setErrorMessage} /> : null}
         {joinLobbyCode ? <LobbyClient playerName={playerName} joinLobbyCode={joinLobbyCode} setErrorMessage={setErrorMessage} setJoinLobbyCode={setJoinLobbyCode} /> : null}

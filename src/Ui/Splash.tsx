@@ -81,8 +81,12 @@ const JoinGameButton = styled.button`
   margin-left: 20px;
   width: 230px;
 `
+
+export enum BackgroundType { Menu = 'menu', Board = 'board'}
+
 interface SplashBackgroundProps {
-  children: React.ReactNode,
+  children: React.ReactNode
+  type: BackgroundType
   src?: string
 }
 interface SplashBackgroundState {
@@ -111,7 +115,7 @@ export class SplashBackground extends React.Component<SplashBackgroundProps, Spl
   }
 
   async loadBackground() {
-    const src = this.props.src || `${process.env.PUBLIC_URL}/splash/splash${Math.floor(Math.random() * 16)+1}.jpg`;
+    const src = this.props.src || `${process.env.PUBLIC_URL}/splash/${this.props.type}${Math.floor(Math.random() * 8)+1}.jpg`;
     const fac = new FastAverageColor();
 
     const color = await fac.getColorAsync(src);
@@ -164,6 +168,13 @@ const ErrorMessage = styled.div`
   background: rgba(255, 0, 0, 0.5);
 `
 
+const ColumnStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+`
+
 const names = ['Helgi','Finnbogi','Abu','Jean','Samo','Giovanni','Luís','Jeanne','Gregorio','Domini','Andres','Guglielmo','Hugo','Muhammad', 'Eldad', 'Wulfstan', 'Joseph', 'Aldo', 'Alessio', 'Cosimo', 'Fabritio', 'Francesca', 'Galileo', 'Isabetta', 'Lavinia', 'Madalena', 'Minerva', 'Nencia', 'Vinci'];
 
 const randomName = names[Math.floor(Math.random()*names.length)];
@@ -199,32 +210,38 @@ export default function Splash(props: SplashProps) {
   
   return (
     <SplashScreenStyle>
-      <SplashBackground src={`${process.env.PUBLIC_URL}/splash/splash17.jpg`}>
-        <SplashTitle>Schmeckles</SplashTitle>
-        { props.errorMessage ? <ErrorMessage>{props.errorMessage}</ErrorMessage> : null}
-        <WelcomeStyle>
-          Welcome, 
-          {isChangingName 
-            ? (
-              <ChangeNameInput type="text" placeholder={name} autoFocus={true} onChange={v => setName(v.target.value)} onKeyPress={handleEnter} />
-            )
-            : (
-              <>
-                &nbsp;
-                <ChosenNameStyle onClick={() => setIsChangingName(true)}>{name}</ChosenNameStyle>! 
-                &nbsp;
-                <ChangeNameLink onClick={() => setIsChangingName(true)}>Change Name</ChangeNameLink>
-              </>
-            )
-            }
-        </WelcomeStyle>
-        <HostButton onClick={() => props.hostLobby(name)}>
-          Host a game
-        </HostButton>
-        <JoinGameArea>
-          <JoinGameInput type="text" placeholder="Code" value={code} onChange={(e) => setCode(e.target.value)} />
-          <JoinGameButton disabled={code.length !== 4} onClick={() => props.joinLobby(code, name)}>Join Game</JoinGameButton>
-        </JoinGameArea>
+      <SplashBackground type={BackgroundType.Menu}>
+        <ColumnStyle>
+          <div>
+            <SplashTitle>Schmeckles</SplashTitle>
+          </div>
+          <div>
+            { props.errorMessage ? <ErrorMessage>{props.errorMessage}</ErrorMessage> : null}
+            <WelcomeStyle>
+              Welcome, 
+              {isChangingName 
+                ? (
+                  <ChangeNameInput type="text" placeholder={name} autoFocus={true} onChange={v => setName(v.target.value)} onKeyPress={handleEnter} />
+                )
+                : (
+                  <>
+                    &nbsp;
+                    <ChosenNameStyle onClick={() => setIsChangingName(true)}>{name}</ChosenNameStyle>! 
+                    &nbsp;
+                    <ChangeNameLink onClick={() => setIsChangingName(true)}>Change Name</ChangeNameLink>
+                  </>
+                )
+                }
+            </WelcomeStyle>
+            <HostButton onClick={() => props.hostLobby(name)}>
+              Host a game
+            </HostButton>
+            <JoinGameArea>
+              <JoinGameInput type="text" placeholder="Code" value={code} onChange={(e) => setCode(e.target.value)} />
+              <JoinGameButton disabled={code.length !== 4} onClick={() => props.joinLobby(code, name)}>Join Game</JoinGameButton>
+            </JoinGameArea>
+          </div>
+        </ColumnStyle>
       </SplashBackground>
     </SplashScreenStyle>
   )
