@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React, { useEffect, useState } from 'react';
 import FastAverageColor from 'fast-average-color';
+import { generateRandomName } from '../Game';
 
 
 const SplashScreenStyle = styled.div`
@@ -179,9 +180,7 @@ const ColumnStyle = styled.div`
   height: 100%;
 `
 
-const names = ['Helgi','Finnbogi','Abu','Jean','Samo','Giovanni','Luís','Jeanne','Gregorio','Domini','Andres','Guglielmo','Hugo','Muhammad', 'Eldad', 'Wulfstan', 'Joseph', 'Aldo', 'Alessio', 'Cosimo', 'Fabritio', 'Francesca', 'Galileo', 'Isabetta', 'Lavinia', 'Madalena', 'Minerva', 'Nencia', 'Vinci'];
-
-const randomName = names[Math.floor(Math.random()*names.length)];
+const randomName = generateRandomName();
 
 interface SplashProps {
   hostLobby: (playerName: string) => void;

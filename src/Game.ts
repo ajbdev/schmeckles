@@ -183,6 +183,13 @@ export class GameState  {
   }
 }
 
+
+const names = ['Helgi','Finnbogi','Abu','Jean','Samo','Giovanni','Luís','Jeanne','Gregorio','Domini','Andres','Guglielmo','Hugo','Muhammad', 'Eldad', 'Wulfstan', 'Joseph', 'Aldo', 'Alessio', 'Cosimo', 'Fabritio', 'Francesca', 'Galileo', 'Isabetta', 'Lavinia', 'Madalena', 'Minerva', 'Nencia', 'Vinci'];
+
+export function generateRandomName() {
+  return names[Math.floor(Math.random()*names.length)];;
+}
+
 export class Player {
   id: string;
   name: string;
@@ -192,6 +199,7 @@ export class Player {
   nobles: Noble[];
   connected: boolean;
   connectionId: string;
+  computer: boolean;
 
   constructor(name: string) {    
     this.id = name;
@@ -202,6 +210,7 @@ export class Player {
     this.nobles = [];
     this.connected = false;
     this.connectionId = '';
+    this.computer = false;
   }
 }
 
