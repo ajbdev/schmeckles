@@ -5,7 +5,7 @@ import { ReactComponent as DiamondSvg } from './svg/diamond.svg';
 import { ReactComponent as OnyxSvg } from './svg/onyx.svg';
 import { ReactComponent as SapphireSvg } from './svg/sapphire.svg';
 import { ReactComponent as StarSvg } from './svg/star.svg';
-import { GemStash, Gem } from '../Game';
+import { GemStash, Gem, Player } from '../Game';
 
 
 export enum IconSize { xs = '12px', sm = '24px', md = '32px', lg = '48px', xl = '64px' };
@@ -243,6 +243,7 @@ const GemGroupedCostStyle = styled.div`
   position: absolute;
   bottom: 0;
 `
+
 
 export interface GemCostsUIProps {
   gems: GemStash

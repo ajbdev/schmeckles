@@ -1,158 +1,157 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Player, Gem, GemStash, CardPile } from '../Game';
-import { SchmeckleGemCoinUI, InteractiveCardUI } from './Board';
-import { CardUI, CardSize } from './Cards';
+
+import { Card, emptyGemStash, Gem, GemStash, Player, PlayerTurn } from '../Game';
+import styled, { keyframes } from 'styled-components';
+import React from 'react';
 import { GemUI, IconSize } from './Gems';
 
-interface GemColumnUIProps {
-  cards: CardPile
-  gems: GemStash
-}
-
-interface HudUIProps {
-  player: Player
-}
-
-const HudStyle = styled.div`
-  z-index: 101;
-  display: flex;
-  justify-content: center;
-  min-height: 230px;
-  align-self: center;
-`;
-
-const DashChromeStyle = styled.div`
-  border-radius: 4px;
-  background: rgb(25,25,25,0.7);
-  border: 4px solid #FFDC73;
-  box-shadow: -1px -1px 1px #BF9B30;
-  display: flex;
-`;
-
-interface HudUIProps {
-  player: Player
-}
-
-const GemColumnStyle = styled.div`
-  width: 110px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`
-
-const GemSchmeckleStashStyle = styled.div`
+const PlayerGemsStyle = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  width: 80px;
-  margin-left: -10px;
-  
-  & > div:nth-child(2n) {
-    margin-top: 8px;
-  }
+`
+const NumberChangeAnimation = keyframes`  
+  from { opacity: 1; margin-top: 16px;  }
+  to { opacity: 0; margin-top: 0px; }
+`; 
+
+
+const PlayerGemValueStyle = styled.div`
+  margin-right: 10px;
+  display: flex;
+  vertical-align: middle;
 `
 
-const CardStackStyle = styled.div`
+const PlayerNumberStyle = styled.div`
+  margin-right: 5px;
+`
+
+const NumberChangeStyle = styled.div`
+  color: #fae100;
   position: absolute;
-  margin-left: -80px;
-  margin-top: 45px;
+  animation-name: ${NumberChangeAnimation};
+  animation-duration: 1.2s;
+  animation-timing-function: 'ease';
+  margin-top: 16px;
+  margin-left: -12px;
 `
 
-const StackedCardStyle = styled.div`
-  height: 35px;
-  & > div {
-    position: absolute;
-    z-index: 99;
+export const PlayerGemsUI = (props: { gems: GemStash, diff?: GemStash }) => (
+  <PlayerGemsStyle>
+    {Object.keys(props.gems).map(
+      g => (
+        <PlayerGemValueStyle>
+          <PlayerNumberStyle>
+            {props.gems[g as Gem]}
+          </PlayerNumberStyle>
+          {props.diff && props.diff[g as Gem] !== 0
+            ? <NumberChangeStyle>
+                {props.diff[g as Gem] > 0 ? '+' : ''}{props.diff[g as Gem]}
+              </NumberChangeStyle>
+            : null
+          }
+          <GemUI gem={g as Gem} size={IconSize.sm} />
+        </PlayerGemValueStyle>
+      )
+    )}
+  </PlayerGemsStyle>
+);
 
-    &:hover {
-      opacity: 1.0;
-      z-index: 101;
+const PlayerNameStyle = styled.span`
+`;
+
+const TurnMarkerStyle = styled.span`
+  font-size: 40px;
+  font-weight: bold;
+  position: absolute;
+  margin-left: -24px;
+  color: #fff;
+`
+
+const PlayerGemSpaceStyle = styled.div`
+  padding-top: 10px;
+`
+
+const PlayerListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) => ({
+  isContextPlayer: props.isContextPlayer || false
+}))`
+  color: ${props => props.isContextPlayer ? '#fff' : '#222'}; 
+  font-size: 20px;
+  font-weight: bold;
+  padding-left: 10px;
+  position: relative;
+`
+
+interface PlayerUIProps { 
+  player: Player
+  isPlayersTurn: boolean
+  isContextPlayer: boolean 
+}
+
+interface PlayerUIState {
+  gems: GemStash
+  diff?: GemStash
+}
+
+const defaultState = {
+  gems: emptyGemStash(),
+  diff: undefined
+}
+
+export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
+  constructor(props: PlayerUIProps) {
+    super(props);
+
+    this.state = defaultState;
+  }
+
+  componentDidMount() {
+    this.setState({ gems: { ...this.props.player.gems } });
+  }
+
+  addGemTotal() {
+    const gems = { ...this.props.player.gems };
+
+    Object.keys(gems).forEach(g => { 
+      gems[g as Gem] += this.props.player.cards.cards.filter(c => c.gem === (g as Gem)).length;
+    });
+
+    return gems;
+  }
+
+  componentDidUpdate(prevProps: PlayerUIProps) {
+    const gems = this.addGemTotal();
+
+    const diff = emptyGemStash();
+
+    const hasDiff = Object.keys(gems).map(g => { 
+      const v = (gems[g as Gem] - this.state.gems[g as Gem]);
+      diff[g as Gem] = v;
+      return v;
+    }).reduce((a:number, b:number) => a + b) > 0;
+
+    if (hasDiff) {
+      this.setState({
+        diff: diff,
+        gems: gems
+      });
+      setTimeout(() => this.setState({ diff: emptyGemStash() }), 1000);
     }
   }
-`
 
-const GemHudIndicatorStyle = styled.div`
-  position: absolute;
-  margin-top: -34px;
-  display: flex;
-  flex-direction: row;
-  color: #fff;
-  font-size: 28px;
-  -webkit-text-stroke: 1px #000;
-  font-weight: bold;
-
-  svg {
-    margin-right: 10px;
+  render() {
+    return (
+      <>
+        {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
+        <PlayerListItemStyle 
+          key={this.props.player.id}
+          isContextPlayer={this.props.isContextPlayer}
+        >
+          <PlayerNameStyle>{this.props.player.name}</PlayerNameStyle>
+          <PlayerGemSpaceStyle>
+            <PlayerGemsUI gems={this.state.gems} diff={this.state.diff} />
+          </PlayerGemSpaceStyle>
+        </PlayerListItemStyle>  
+      </>
+    )
   }
-`
-
-const ArcedText = (props: { text: string, arc: number, radius: number}) => {
-  const characters = props.text.split('');
-  const degree = props.arc / characters.length;
-
-  return (
-    <>
-      {characters.map((char, i) => (
-        <span
-          key={`arc-${i}`}
-          style={{
-            position: 'absolute',
-            height: `${props.radius}px`,
-            transform: `rotate(${degree * i - props.arc / 2}deg)`,
-            transformOrigin: `0 ${props.radius}px 0`
-          }}>
-            {char}
-          </span>
-      ))}
-    </>
-  )
 }
-
-const VictoryPointsHudStyle = styled.div`
-  width: 200px;
-`
-
-export const HudUI = (props: HudUIProps) => {
-  const [isReservedCardFacing, setIsReservedCardFacing] = useState(false);
-
-  const gems = Object.keys(Gem).filter(g => props.player.gems[Gem[g as keyof typeof Gem]] > 0 || props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length > 0);
-
-  return (
-    <HudStyle>
-      <DashChromeStyle>
-      {Object.keys(Gem).map((g,i) =>
-        <GemColumnStyle key={i}>
-          <GemHudIndicatorStyle>
-            <GemUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} />
-            {props.player.gems[Gem[g as keyof typeof Gem]] + props.player.cards.cards.filter(c => c.gem === Gem[g as keyof typeof Gem]).length}
-          </GemHudIndicatorStyle>
-          <GemSchmeckleStashStyle>
-            {[...Array(props.player.gems[Gem[g as keyof typeof Gem]])].map((_,ix) => <SchmeckleGemCoinUI gem={Gem[g as keyof typeof Gem]} size={IconSize.sm} key={`${props.player.id}_${g}_${ix}`} />)}
-          </GemSchmeckleStashStyle>
-          <CardStackStyle>
-            {props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).filter(c => c.gem === Gem[g as keyof typeof Gem]).map(c => 
-              <StackedCardStyle>
-                <CardUI card={c} size={CardSize.sm} />
-              </StackedCardStyle>
-            )}
-            {
-              Gem[g as keyof typeof Gem] === Gem.Star
-              ? (
-                <>
-                  {props.player.reservedCards.map((c, i) => 
-                    <StackedCardStyle onMouseEnter={() => setIsReservedCardFacing(true)} onMouseLeave={() => setIsReservedCardFacing(false)}>
-                      <InteractiveCardUI player={props.player} index={i} card={c} size={CardSize.sm} flipped={!isReservedCardFacing} cards={props.player.reservedCards} />
-                    </StackedCardStyle>
-                  )}
-                </>
-              )
-              : null
-            }
-          </CardStackStyle>
-        </GemColumnStyle>  
-      )}    
-      </DashChromeStyle>
-    </HudStyle>
-  )
-}
+ 

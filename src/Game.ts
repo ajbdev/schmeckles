@@ -2,6 +2,7 @@ import cardsJson from './cards.json';
 import noblesJson from './nobles.json';
 import { BaseAction, IAction, Action } from './Actions';
 import { classToPlain, plainToClass } from 'class-transformer';
+import { computeAction } from './Computer';
 
 interface NobleJsonValues {
   points: number;
@@ -62,6 +63,7 @@ export const emptyGemStash = () => {
   }
 }
 
+
 const mapNobleValuesJsonToNobleType = (noblesValues: NobleJsonValues[]) => noblesValues.map(
   n => {
     return {
@@ -93,7 +95,7 @@ const mapCardValuesJsonToCardType = (cardValues: CardJsonValues[]) => cardValues
   )
 )
 
-const shuffle = (arr:Array<any>) => 
+export const shuffle = (arr:Array<any>) => 
   [...arr].reduceRight((res,_,__,s) => 
     (res.push(s.splice(0|Math.random()*s.length,1)[0]), res), []);
 
@@ -176,6 +178,25 @@ export class GameState  {
     }
   }
 
+  addPlayer(p: Player) {
+    p.turn = this.players.length+1;
+    this.players.push(p);
+  }
+
+  getTierCards(t: Tier) {
+    switch (t) {
+      case Tier.I:
+        return this.tierICards;
+        break;
+      case Tier.II:
+        return this.tierIICards;
+        break;
+      case Tier.III:
+        return this.tierIIICards;
+        break;
+    }
+  }
+
   drawVisibleCards() {
     this.tierIDrawPile.draw(4-this.tierICards.cards.length, this.tierICards);
     this.tierIIDrawPile.draw(4-this.tierIICards.cards.length, this.tierIICards);
@@ -196,6 +217,7 @@ export class Player {
   gems: GemStash;
   cards: CardPile;
   reservedCards: Card[];
+  turn: PlayerTurn;
   nobles: Noble[];
   connected: boolean;
   connectionId: string;
@@ -211,12 +233,14 @@ export class Player {
     this.connected = false;
     this.connectionId = '';
     this.computer = false;
+    this.turn = 0;
   }
 }
 
 
 export default class Game {
   gameState: GameState;
+  actionLog: IAction[];
   private static instance: Game | undefined;
   private onStateUpdateCallback: ((gameState: GameState) => void) | null;
   private onActionCallback: ((a: BaseAction) => void) | null;
@@ -225,6 +249,7 @@ export default class Game {
     this.gameState = new GameState();
     this.onStateUpdateCallback = null;
     this.onActionCallback = null;
+    this.actionLog = [];
   }
 
   public static getInstance(): Game {
@@ -283,6 +308,16 @@ export default class Game {
     return action;
   }
 
+  computerAction(player: Player) {
+    const move = computeAction(player, this.gameState);
+
+    this.sendAction(
+      player, 
+      move.actionType,
+      move.data
+    )
+  }
+
   public static reset(): Game {
     Game.instance = undefined;
 
@@ -292,11 +327,15 @@ export default class Game {
   receiveAction(action: IAction) {
     if (action.checkRules(this.gameState)) {
       action.act(this.gameState);
-    } else {
-      action.failedRules.map(a => alert(a.message));
     }
+    this.actionLog.push(action);
     if (this.onStateUpdateCallback) {
       this.onStateUpdateCallback(this.gameState);
+    }
+
+    const nextPlayer = this.gameState.players[this.gameState.turn-1];
+    if (nextPlayer.computer) {
+      this.computerAction(nextPlayer);
     }
   }
 }

@@ -113,7 +113,7 @@ export class JoinGame extends BaseAction {
   }
 
   act(gameState: GameState) {
-    gameState.players.push(this.joiningPlayer);
+    gameState.addPlayer(this.joiningPlayer);
   }
 }
 

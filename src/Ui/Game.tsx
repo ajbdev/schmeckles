@@ -1,10 +1,10 @@
 import React from 'react';
 import { BoardUI } from './Board';
 import Game, { GameState, Player } from '../Game';
-import { HudUI } from './Player';
 import { Action } from '../Actions';
 import styled from 'styled-components';
 import { BackgroundType } from './Splash';
+import { PlayerUI } from './Player';
 
 interface GameUIState {
 }
@@ -12,20 +12,6 @@ interface GameUIState {
 const defaultState = {
   gameState: null
 }
-
-const PlayerListStyle = styled.ul`
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-`
-
-const PlayerListItemStyle = styled.li.attrs((props: { isContextPlayer: boolean }) => ({
-  isContextPlayer: props.isContextPlayer || false
-}))`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${props => props.isContextPlayer ? '#fff' : '#000'};
-`
 
 
 const GameStyle = styled.div`
@@ -37,14 +23,14 @@ const GameStyle = styled.div`
 const ColumnStyle = styled.div`
   display: flex;
   flex-direction: column;
-  width: 670px;
+  align-self: center;
 `
 
 const SideColumnStyle = styled.div`
   display: flex;
   flex-direction: column;
-  width: 200px;
   align-self: flex-start;
+  padding: 20px 0;
 `
 
 interface GameUIProps {
@@ -65,23 +51,32 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
         {this.props.gameState ?
           (
             <>
-              <SideColumnStyle />
+              <SideColumnStyle>
+                {this.props.gameState.players.map((p, ix) => 
+                  ix % 2 === 0 
+                  ? (
+                    <PlayerUI
+                      player={p}
+                      isContextPlayer={this.props.contextPlayer!.id === p.id}
+                      isPlayersTurn={this.props.gameState!.turn === p.turn}
+                    />
+                  ) : null
+                )}
+              </SideColumnStyle>
               <ColumnStyle>
                 <BoardUI gameState={this.props.gameState} contextPlayer={this.props.contextPlayer} />
-                {this.props.contextPlayer 
-                  ? <HudUI player={this.props.contextPlayer} />
-                  : null
-                }
               </ColumnStyle>
               <SideColumnStyle>
-                <PlayerListStyle>
-                  {this.props.gameState.players.map((p,i) =>
-                    <PlayerListItemStyle 
-                      key={p.id}
-                      isContextPlayer={p.id === this.props.contextPlayer!.id}
-                    >{this.props.gameState!.turn === (i+1) ? '▸ ' : null}{p.name}</PlayerListItemStyle>  
-                  )}
-                </PlayerListStyle>
+                {this.props.gameState.players.map((p, ix) => 
+                  ix % 2 !== 0 
+                  ? (
+                    <PlayerUI
+                      player={p}
+                      isContextPlayer={this.props.contextPlayer!.id === p.id}
+                      isPlayersTurn={this.props.gameState!.turn === p.turn}
+                    />
+                  ) : null
+                )}
               </SideColumnStyle>
             </>
           )

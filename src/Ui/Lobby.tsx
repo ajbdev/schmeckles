@@ -1,8 +1,8 @@
-import React from "react"
+import React, { SyntheticEvent } from "react"
 import styled from "styled-components"
 import { GameTitle, BackgroundType, getRandomBackground } from './Splash';
 import { Network, Host, Client, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
-import { Player, GameState } from '../Game';
+import { Player, GameState, generateRandomName } from '../Game';
 import Game from '../Game';
 import { Action, BaseAction } from '../Actions';
 import GameUI from './Game';
@@ -202,7 +202,16 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   }
 
   addBot() {
+    const player = new Player(generateRandomName());
     
+    player.computer = true;
+    player.connected = true;
+
+    this.host.players.push(player);
+
+    this.setState({
+      players: this.host.players,
+    });
   }
 
   sendGameState() {
@@ -232,7 +241,8 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     }
     return (
       <Lobby 
-        code={this.state.code} 
+        code={this.state.code}
+        addBot={() => this.addBot()}
         players={this.state.players}
         disbandLobby={() => this.disbandLobby()} 
         startGame={() => this.startGame()} 
@@ -362,6 +372,7 @@ interface LobbyProps {
   code: string;
   players: Player[];
   startGame?: () => void;
+  addBot?: () => void;
   disbandLobby?: () => void;
   exitLobby?: () => void;
 }
@@ -388,6 +399,14 @@ class Lobby extends React.Component<LobbyProps> {
   copyCodeToClipboard = () => {
     this.codeInput.current!.select();
     document.execCommand("copy");
+  }
+
+  changePlayers(e: SyntheticEvent) {
+    const target = e.target as HTMLSelectElement;
+
+    if (target.value === 'Computer' && this.props.addBot) {
+      this.props.addBot();
+    }
   }
 
   render() {
@@ -426,33 +445,27 @@ class Lobby extends React.Component<LobbyProps> {
               )
           }
           <PlayerBoxes>
-          {[...Array(4)].map((p,i) =>
-            <PlayerBoxStyle key={i}>
-              {this.props.players[i] 
+            {this.props.players.map((p,i) =>
+              <PlayerBoxStyle key={i}>
+                {!this.props.players[i].connected 
+                  ? <PlayerNameConnectingStyle>{this.props.players[i].name}</PlayerNameConnectingStyle>
+                  : <>{this.props.players[i].name}</>
+                }
+              </PlayerBoxStyle>
+            )}
+            <PlayerBoxStyle>
+              {this.props.startGame 
                 ? (
-                  <>
-                    {!this.props.players[i].connected 
-                      ? <PlayerNameConnectingStyle>{this.props.players[i].name}</PlayerNameConnectingStyle>
-                      : <>{this.props.players[i].name}</>
-                    }
-                  </>
+                  <span>
+                    Waiting for <PlayerTypeDropdownStyle onChange={e => this.changePlayers(e)}><option>Player</option><option>Computer</option></PlayerTypeDropdownStyle>
+                  </span>
                 )
-                : this.props.startGame 
-                    ? (
-                      <span>
-                        Waiting for <PlayerTypeDropdownStyle><option>Player</option><option>Computer</option></PlayerTypeDropdownStyle>
-                      </span>
-                    )
-                    : (<>Waiting for players...</>)
-              }
-              
+                : (<>Waiting for players...</>)}
             </PlayerBoxStyle>
-          )}
           </PlayerBoxes>
           {this.props.players.length < 2
             ? <p>At least two players needed to start game.</p>
             : null}
-
           {this.props.startGame 
             ? (
               <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startGame && this.props.startGame()}>Start Game</StartGameButtonStyle>
