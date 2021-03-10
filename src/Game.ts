@@ -335,7 +335,7 @@ export default class Game {
 
     const nextPlayer = this.gameState.players[this.gameState.turn-1];
     if (nextPlayer.computer) {
-      this.computerAction(nextPlayer);
+      setTimeout(() => this.computerAction(nextPlayer), 3000);
     }
   }
 }
