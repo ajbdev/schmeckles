@@ -497,7 +497,7 @@ class Lobby extends React.Component<LobbyProps> {
             ? (
               <>
                 <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startGame && this.props.startGame()}>Start Game</StartGameButtonStyle>
-                <ExitToMainMenuStyle onClick={() => window.confirm('Are you sure you want to disband this lobby and exit?') ? this.props.disbandLobby!() : null}>Exit to Main Menu</ExitToMainMenuStyle>
+                <ExitToMainMenuStyle onClick={() => this.props.disbandLobby!()}>Exit to Main Menu</ExitToMainMenuStyle>
               </>
             )
             : <p>Game will begin when the host start the game.</p>
