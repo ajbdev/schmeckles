@@ -33,8 +33,8 @@ const App = () => {
   return (
     <SplashBackground type={BackgroundType.Board} src={bgSrc}>
       <AppStyle>
-        {isHostingLobby ? <LobbyHost playerName={playerName} setIsHostingLobby={setIsHostingLobby} setErrorMessage={setErrorMessage} setBgSrc={setBgSrc} /> : null}
-        {joinLobbyCode ? <LobbyClient playerName={playerName} joinLobbyCode={joinLobbyCode} setErrorMessage={setErrorMessage} setJoinLobbyCode={_setJoinLobbyCode} setBgSrc={setBgSrc} /> : null}
+        {isHostingLobby ? <LobbyHost playerName={playerName} setIsHostingLobby={setIsHostingLobby} setErrorMessage={setErrorMessage} errorMessage={errorMessage} setBgSrc={setBgSrc} /> : null}
+        {joinLobbyCode ? <LobbyClient playerName={playerName} joinLobbyCode={joinLobbyCode} setErrorMessage={setErrorMessage} errorMessage={errorMessage} setJoinLobbyCode={_setJoinLobbyCode} setBgSrc={setBgSrc} /> : null}
         {!isHostingLobby && !joinLobbyCode ? <Splash hostLobby={hostLobby} joinLobby={joinLobby} errorMessage={errorMessage} /> : null}
       </AppStyle>
     </SplashBackground>

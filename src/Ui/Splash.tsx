@@ -175,7 +175,7 @@ const ChangeNameInput = styled.input`
   width: 140px;
 `
 
-const ErrorMessage = styled.div`
+export const ErrorMessage = styled.div`
   font-size: 20px;
   color: #fff;
   display: inline-block;

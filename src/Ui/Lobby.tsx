@@ -1,6 +1,6 @@
 import React, { SyntheticEvent } from "react"
 import styled from "styled-components"
-import { GameTitle, BackgroundType, getRandomBackground } from './Splash';
+import { GameTitle, BackgroundType, getRandomBackground, ErrorMessage } from './Splash';
 import { Network, Host, Client, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
 import { GameState } from '../Game';
 import { Player, generateRandomName } from '../Player';
@@ -75,6 +75,17 @@ const ExitLink = styled.a`
   padding: 4px;
 `
 
+const ExitToMainMenuStyle = styled.button`
+  font-size: 28px;
+  padding: 10px;
+  margin: 10px;
+  background: transparent;
+  color: #fff;
+  border-radius: 3px;
+  border: 3px solid #fff;
+  width: auto;
+`
+
 const StartGameButtonStyle = styled.button`
   border-radius: 0;
   font-size: 28px;
@@ -98,6 +109,7 @@ interface LobbyHostProps {
   playerName: string
   setIsHostingLobby: (t: boolean) => void
   setErrorMessage: (err: string) => void
+  errorMessage: string
   setBgSrc: (bgSrc: string) => void
 }
 
@@ -147,7 +159,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
 
     this.host.onError = (err) => {
       this.props.setErrorMessage(err.toString());
-      this.props.setIsHostingLobby(false);
+      //this.props.setIsHostingLobby(false);
     }
 
     this.host.host(
@@ -252,6 +264,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
         code={this.state.code}
         addBot={() => this.addBot()}
         players={this.state.players}
+        errorMessage={this.props.errorMessage}
         disbandLobby={() => this.disbandLobby()} 
         startGame={() => this.startGame()} 
       />
@@ -262,6 +275,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
 interface LobbyClientProps {
   playerName: string
   joinLobbyCode: string
+  errorMessage: string
   setJoinLobbyCode: (c: string) => void
   setErrorMessage: (err: string) => void
   setBgSrc: (bgSrc: string) => void
@@ -371,7 +385,7 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
     }
 
     return (
-      <Lobby code={this.state.code} players={this.state.players} exitLobby={() => this.cleanupLobbyAndExit()} />
+      <Lobby code={this.state.code} players={this.state.players} errorMessage={this.props.errorMessage} exitLobby={() => this.cleanupLobbyAndExit()} />
     )
   }
 }
@@ -383,6 +397,7 @@ interface LobbyProps {
   addBot?: () => void;
   disbandLobby?: () => void;
   exitLobby?: () => void;
+  errorMessage: string;
 }
 
 class Lobby extends React.Component<LobbyProps> {
@@ -446,11 +461,15 @@ class Lobby extends React.Component<LobbyProps> {
                 </LobbyCode>
               </>
             )
+            : this.props.errorMessage
+            ? (
+              <ErrorMessage>{this.props.errorMessage}</ErrorMessage>
+            )
             : (
-                <>
-                  Establishing P2P network connection...
-                </>
-              )
+              <>
+                Establishing P2P network connection...
+              </>
+            )
           }
           <PlayerBoxes>
             {this.props.players.map((p,i) =>
@@ -474,9 +493,12 @@ class Lobby extends React.Component<LobbyProps> {
           {this.props.players.length < 2
             ? <p>At least two players needed to start game.</p>
             : null}
-          {this.props.startGame 
+          {this.props.startGame && this.props.disbandLobby
             ? (
-              <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startGame && this.props.startGame()}>Start Game</StartGameButtonStyle>
+              <>
+                <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startGame && this.props.startGame()}>Start Game</StartGameButtonStyle>
+                <ExitToMainMenuStyle onClick={() => window.confirm('Are you sure you want to disband this lobby and exit?') ? this.props.disbandLobby!() : null}>Exit to Main Menu</ExitToMainMenuStyle>
+              </>
             )
             : <p>Game will begin when the host start the game.</p>
           }
