@@ -198,6 +198,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   disbandLobby() {
     if (window.confirm('Are you sure you want to disband this lobby? Players will not be able to join with this lobby code.') && this.props.setIsHostingLobby) {
       this.props.setIsHostingLobby(false);
+      this.props.setErrorMessage('');
       window.history.pushState({}, 'Schmeckles', '/');
       document.title = 'Schmeckles';
     }
