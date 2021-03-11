@@ -1,5 +1,6 @@
 import { Action, BaseAction } from "./Actions";
-import Game, { GameState, Gem, Player, Tier, shuffle,emptyGemStash } from "./Game";
+import { Player } from './Player';
+import Game, { GameState, Gem, Tier, shuffle,emptyGemStash } from "./Game";
 
 
 export interface SendActionInterface {

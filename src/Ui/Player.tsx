@@ -1,5 +1,6 @@
 
-import { Card, emptyGemStash, Gem, GemStash, Player, PlayerTurn } from '../Game';
+import { Card, emptyGemStash, Gem, GemStash, PlayerTurn } from '../Game';
+import { Player } from '../Player';
 import styled, { keyframes } from 'styled-components';
 import React from 'react';
 import { GemUI, IconSize } from './Gems';

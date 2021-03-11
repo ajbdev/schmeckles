@@ -1,4 +1,5 @@
-import { GameState, Player, GemStash, Gem, Card, Tier, CardPile, emptyGemStash } from './Game';
+import { GameState, GemStash, Gem, Card, Tier, CardPile, emptyGemStash } from './Game';
+import { Player } from './Player';
 import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted, isValidGems } from './Rules';
 
 export enum Action {

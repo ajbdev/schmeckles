@@ -1,5 +1,5 @@
 import Peer from 'peerjs';
-import { Player } from './Game';
+import { Player } from './Player';
 
 export enum HostBroadcastType {
   DISBANDED = 'DISBANDED',
@@ -35,10 +35,17 @@ export abstract class Network {
     this.player = player;
     this.debugLevel = 3;
     this.connectionId = this.createConnectionId();
-    this.peer = new Peer(this.fullyQualifiedId(this.connectionId), { debug: this.debugLevel });
+    this.peer = new Peer(this.fullyQualifiedId(
+      this.connectionId), 
+      { debug: this.debugLevel,
+        //config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]}      
+      }
+    );
     this.onError = onError;
 
     this.peer.on('error', this.onError);
+    
+    this.peer.on('disconnected', () => this.onError(new Error('Disconnected from peer server')));
   }
 
   fullyQualifiedId(code: string) {
@@ -62,6 +69,7 @@ export class Host extends Network {
 
     this.peer.on('open', (id) => {
       onConnect(this.connectionId);
+
 
       this.peer.on('connection', (client) => {
 

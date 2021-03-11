@@ -1,4 +1,5 @@
-import { GameState, Player, PlayerTurn, GemStash, Gem, Card } from './Game';
+import { GameState, PlayerTurn, GemStash, Gem, Card } from './Game';
+import { Player } from './Player';
 
 export interface Result {
   passed: boolean;

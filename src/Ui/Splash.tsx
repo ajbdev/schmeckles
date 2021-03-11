@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 import React, { useEffect, useState } from 'react';
 import FastAverageColor from 'fast-average-color';
-import { generateRandomName } from '../Game';
-
+import { generateRandomName, getAvatarFromName } from '../Player';
+import { AvatarUI, AvatarSize, SelectAvatarUI } from './Avatars';
+import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
+import { ReactComponent as DiceSvg } from './svg/dice.svg';
 
 const SplashScreenStyle = styled.div`
   width: 100%;
@@ -33,6 +35,7 @@ const SplashTitle = styled.h1`
   color: #FFDC73;
   -webkit-text-stroke: 1px #BF9B30;
   margin: 0;
+  user-select: none;
   padding: 20px 0 50px 0;
 `
 
@@ -42,6 +45,7 @@ const GameTitleStyle = styled.h2`
   -webkit-text-stroke: 0.5px #BF9B30;
   text-shadow: 1px 1px 1px #000;
   margin: 0;
+  user-select: none;
   text-align: center;
 `
 
@@ -54,14 +58,15 @@ const HostButton = styled.button`
   font-size: 28px;
   padding: 10px;
   background: #91a4e6;
+  width: 100%;
+  display: block;
   border: 2px solid #3451b3;
-  width: 400px;
 `
 
 const JoinGameArea = styled.div`
   display: flex;
-  margin: 20px auto;
-  width: 400px;
+  align-self: center;
+  margin-top: 20px;
 `
 
 const JoinGameInput = styled.input`
@@ -70,7 +75,7 @@ const JoinGameInput = styled.input`
   border: 2px solid #ccc;
   text-align: center;
   text-transform: uppercase;
-  width: 150px;
+  width: 50%;
 `
 
 const JoinGameButton = styled.button`
@@ -80,7 +85,12 @@ const JoinGameButton = styled.button`
   border: 2px solid #2f8a33;
   background: #5ee465;
   margin-left: 20px;
-  width: 230px;
+  width: 50%;
+`
+const StartLobbyButtonsStyle = styled.div`
+  margin: 10px;
+  max-width: 400px;
+  align-self: center;
 `
 
 export enum BackgroundType { Menu = 'menu', Board = 'board'}
@@ -146,6 +156,7 @@ const ChangeNameLink = styled.a`
 const WelcomeStyle = styled.p`
   color: #fff;
   font-size: 24px;
+  height: 32px;
   text-shadow: 1px 1px 1px #000;
   font-weight: bold;
   user-select: none;
@@ -169,6 +180,7 @@ const ErrorMessage = styled.div`
   color: #fff;
   display: inline-block;
   padding: 8px;
+  margin-bottom: 10px;
   border-radius: 8px;
   background: rgba(255, 0, 0, 0.5);
 `
@@ -176,11 +188,28 @@ const ErrorMessage = styled.div`
 const ColumnStyle = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-evenly;
   height: 100%;
 `
 
+const SelectNewAvatarStyle = styled.div`
+  cursor: pointer;
+`
+
+const CenteredStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+const SelectPositioning = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+
+
 const randomName = generateRandomName();
+const randomAvatar = getAvatarFromName(randomName);
 
 interface SplashProps {
   hostLobby: (playerName: string) => void;
@@ -188,12 +217,77 @@ interface SplashProps {
   errorMessage: string;
 }
 
+const RandomAvatarStyle = styled.button`
+  background: transparent;
+  vertical-align: middle;
+  margin-left: 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 0;
+  svg {
+    fill: #fff;
+    stroke: #555555;
+    margin-top: 4px;
+    stroke-width: 20;
+    height: 28px;
+    width: 28px;
+  }
+`
+
+const RandomAvatarButtonUI = (props: { onClick: () => void }) => (
+  <RandomAvatarStyle {...props}>
+    <DiceSvg />
+  </RandomAvatarStyle>
+)
+
+const ConfirmButtonStyle = styled.button`
+  border: 2px solid var(--confirm);
+  background: transparent;
+  vertical-align: middle;
+  margin-left: 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  svg {
+    fill: var(--confirm);
+    height: 23px;
+    width: 20px;
+  }
+`;
+
+const ConfirmButtonUI = (props: { onClick: () => void}) => (
+  <ConfirmButtonStyle {...props}>
+    <ConfirmSvg />
+  </ConfirmButtonStyle>
+);
+
+
 export default function Splash(props: SplashProps) {
   const [isChangingName, setIsChangingName] = useState(false);
 
   const [name, setName] = useState(randomName);
 
+  const [suggestedName, setSuggestedName] = useState(randomName);
+
+  const [avatar, setAvatar] = useState(randomAvatar);
+
   const [code, setCode] = useState('');
+
+  const suggestAvatar = () => {
+    setSuggestedName(generateRandomName);
+  }
+
+  const changePlayer = () => {
+    setName('');
+    setIsChangingName(true);
+  }
+
+  const setPlayer = () => {
+    if (name.trim().length === 0) {
+      setName(suggestedName);
+    }
+
+    setIsChangingName(false);
+  }
 
   const handleEnter = (i: any) => { 
     if (i.which === 13) {
@@ -218,24 +312,43 @@ export default function Splash(props: SplashProps) {
           <div>
             <SplashTitle>Schmeckles</SplashTitle>
           </div>
-          <div>
+          <CenteredStyle>
             { props.errorMessage ? <ErrorMessage>{props.errorMessage}</ErrorMessage> : null}
+
             <WelcomeStyle>
               Welcome, 
               {isChangingName 
                 ? (
-                  <ChangeNameInput type="text" placeholder={name} autoFocus={true} onChange={v => setName(v.target.value)} onKeyPress={handleEnter} />
+                  <>
+                    <ChangeNameInput type="text" placeholder={suggestedName} autoFocus={true} onChange={v => setName(v.target.value)} onKeyPress={handleEnter} />
+                    <RandomAvatarButtonUI onClick={() => suggestAvatar()} />
+                    <ConfirmButtonUI onClick={() => setPlayer()} />
+                  </>
                 )
                 : (
                   <>
                     &nbsp;
-                    <ChosenNameStyle onClick={() => setIsChangingName(true)}>{name}</ChosenNameStyle>! 
+                    <ChosenNameStyle onClick={() => changePlayer()}>{name}</ChosenNameStyle>! 
                     &nbsp;
-                    <ChangeNameLink onClick={() => setIsChangingName(true)}>Change Name</ChangeNameLink>
+                    <ChangeNameLink onClick={() => changePlayer()}>Change</ChangeNameLink>
                   </>
                 )
                 }
             </WelcomeStyle>
+            <SelectPositioning>
+            {isChangingName
+              ? (
+                <SelectAvatarUI size={AvatarSize.xl} selectedAvatar={avatar} setSelectedAvatar={(avatar:string) => setAvatar(avatar)} />
+              )
+              : (
+                <SelectNewAvatarStyle onClick={() => changePlayer()}>
+                  <AvatarUI src={avatar} size={AvatarSize.xl} />
+                </SelectNewAvatarStyle>
+              )
+            }
+            </SelectPositioning>
+          </CenteredStyle>
+          <StartLobbyButtonsStyle>
             <HostButton onClick={() => props.hostLobby(name)}>
               Host a game
             </HostButton>
@@ -243,7 +356,7 @@ export default function Splash(props: SplashProps) {
               <JoinGameInput type="text" placeholder="Code" value={code} onChange={(e) => setCode(e.target.value)} />
               <JoinGameButton disabled={code.length !== 4} onClick={() => props.joinLobby(code, name)}>Join Game</JoinGameButton>
             </JoinGameArea>
-          </div>
+          </StartLobbyButtonsStyle>
         </ColumnStyle>
       </SplashBackground>
     </SplashScreenStyle>

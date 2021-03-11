@@ -1,8 +1,11 @@
 import cardsJson from './cards.json';
 import noblesJson from './nobles.json';
+import namesJson from './names.json';
+
 import { BaseAction, IAction, Action } from './Actions';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { computeAction } from './Computer';
+import { Player } from './Player';
 
 interface NobleJsonValues {
   points: number;
@@ -203,40 +206,6 @@ export class GameState  {
     this.tierIIIDrawPile.draw(4-this.tierIIICards.cards.length, this.tierIIICards);
   }
 }
-
-
-const names = ['Helgi','Finnbogi','Abu','Jean','Samo','Giovanni','Luís','Jeanne','Gregorio','Domini','Andres','Guglielmo','Hugo','Muhammad', 'Eldad', 'Wulfstan', 'Joseph', 'Aldo', 'Alessio', 'Cosimo', 'Fabritio', 'Francesca', 'Galileo', 'Isabetta', 'Lavinia', 'Madalena', 'Minerva', 'Nencia', 'Vinci'];
-
-export function generateRandomName() {
-  return names[Math.floor(Math.random()*names.length)];;
-}
-
-export class Player {
-  id: string;
-  name: string;
-  gems: GemStash;
-  cards: CardPile;
-  reservedCards: Card[];
-  turn: PlayerTurn;
-  nobles: Noble[];
-  connected: boolean;
-  connectionId: string;
-  computer: boolean;
-
-  constructor(name: string) {    
-    this.id = name;
-    this.name = name;
-    this.gems = emptyGemStash();
-    this.cards = new CardPile();
-    this.reservedCards = [];
-    this.nobles = [];
-    this.connected = false;
-    this.connectionId = '';
-    this.computer = false;
-    this.turn = 0;
-  }
-}
-
 
 export default class Game {
   gameState: GameState;

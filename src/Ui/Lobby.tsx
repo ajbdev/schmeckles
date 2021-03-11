@@ -2,7 +2,8 @@ import React, { SyntheticEvent } from "react"
 import styled from "styled-components"
 import { GameTitle, BackgroundType, getRandomBackground } from './Splash';
 import { Network, Host, Client, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
-import { Player, GameState, generateRandomName } from '../Game';
+import { GameState } from '../Game';
+import { Player, generateRandomName } from '../Player';
 import Game from '../Game';
 import { Action, BaseAction } from '../Actions';
 import GameUI from './Game';
@@ -144,6 +145,11 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
 
     window.onunload = () => this.host.disconnect();
 
+    this.host.onError = (err) => {
+      this.props.setErrorMessage(err.toString());
+      this.props.setIsHostingLobby(false);
+    }
+
     this.host.host(
       c => this.setState({ code: c }), 
       p => this.setState({ players: p }),
@@ -161,6 +167,8 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
         }
       }
     );
+
+
     
     game.onStateUpdate((gameState: GameState) => {
       this.setState({ gameState: gameState });

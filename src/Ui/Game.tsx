@@ -1,6 +1,7 @@
 import React from 'react';
 import { BoardUI } from './Board';
-import Game, { GameState, Player } from '../Game';
+import Game, { GameState } from '../Game';
+import { Player } from '../Player';
 import { Action } from '../Actions';
 import styled from 'styled-components';
 import { BackgroundType } from './Splash';

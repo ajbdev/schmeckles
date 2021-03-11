@@ -5,7 +5,8 @@ import { ReactComponent as DiamondSvg } from './svg/diamond.svg';
 import { ReactComponent as OnyxSvg } from './svg/onyx.svg';
 import { ReactComponent as SapphireSvg } from './svg/sapphire.svg';
 import { ReactComponent as StarSvg } from './svg/star.svg';
-import { GemStash, Gem, Player } from '../Game';
+import { GemStash, Gem } from '../Game';
+import { Player } from '../Player';
 
 
 export enum IconSize { xs = '12px', sm = '24px', md = '32px', lg = '48px', xl = '64px' };

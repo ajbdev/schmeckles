@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Player, Gem, GemStash, CardPile } from '../Game';
+import { Gem, GemStash, CardPile } from '../Game';
+import { Player } from '../Player';
 import { SchmeckleGemCoinUI, InteractiveCardUI } from './Board';
 import { CardUI, CardSize } from './Cards';
 import { GemUI, IconSize } from './Gems';
