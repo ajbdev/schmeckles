@@ -265,15 +265,18 @@ export default function Splash(props: SplashProps) {
   const [isChangingName, setIsChangingName] = useState(false);
 
   const [name, setName] = useState(randomName);
-
   const [suggestedName, setSuggestedName] = useState(randomName);
 
   const [avatar, setAvatar] = useState(randomAvatar);
+  const [suggestedAvatar, setSuggestedAvatar] = useState('');
 
   const [code, setCode] = useState('');
 
   const suggestAvatar = () => {
-    setSuggestedName(generateRandomName);
+    const newName = generateRandomName();
+
+    setSuggestedName(newName);
+    setSuggestedAvatar(getAvatarFromName(newName));
   }
 
   const changePlayer = () => {
@@ -338,7 +341,7 @@ export default function Splash(props: SplashProps) {
             <SelectPositioning>
             {isChangingName
               ? (
-                <SelectAvatarUI size={AvatarSize.xl} selectedAvatar={avatar} setSelectedAvatar={(avatar:string) => setAvatar(avatar)} />
+                <SelectAvatarUI size={AvatarSize.xl} selectedAvatar={avatar} suggestedAvatar={suggestedAvatar} setSelectedAvatar={(avatar:string) => setAvatar(avatar)} />
               )
               : (
                 <SelectNewAvatarStyle onClick={() => changePlayer()}>

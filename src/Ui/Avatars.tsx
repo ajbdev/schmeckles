@@ -57,6 +57,7 @@ export const SelectableAvatarUI = (props: SelectableAvatarProps) => {
 interface SelectAvatarProps {
   size: AvatarSize
   selectedAvatar: string
+  suggestedAvatar: string
   setSelectedAvatar: (avatar:string) => void;
 }
 
@@ -178,6 +179,16 @@ export const SelectAvatarUI = (props: SelectAvatarProps) => {
 
     setSelections(newSelections);
   },[]);
+
+  useEffect(() => {
+    if (!props.suggestedAvatar || props.suggestedAvatar === props.selectedAvatar) {
+      return;
+    }
+    const ix = selections.findIndex((s:string) => s === props.suggestedAvatar);
+
+    traverseSelections((ix-selection)*-1);
+
+  },[props.suggestedAvatar])
 
   return (
     <>
