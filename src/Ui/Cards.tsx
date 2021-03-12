@@ -58,8 +58,10 @@ const GemAwardStyle = styled.div`
 `
 
 export const CardUI = (props: CardUIProps) => {
+  const borderSize = BorderSize[props.size as keyof typeof BorderSize] || BorderSize.md;
+
   if (props.flipped) {
-    return <FlippedCardUI {...props} />
+    return <FlippedCardUI {...props} borderSize={borderSize} />
   }
 
   const gemUIProps = {
@@ -107,10 +109,24 @@ const FlippedCardStyle = styled.div`
   align-items: stretch;
 `
 
-const FlippedCardInnerStyle = styled.div`
+enum BorderSize {
+  xs = '6px',
+  sm = '8px',
+  md = '10px',
+  lg = '10px',
+  xl = '10px'
+}
+
+interface FlippedCardProps extends CardStyleProps {
+  borderSize: BorderSize
+}
+
+const FlippedCardInnerStyle = styled.div.attrs((props: FlippedCardProps) => ({
+  borderSize: props.borderSize || BorderSize.md
+}))`
   font-size: 36px;
   background: #715027;
-  margin: 10px;
+  margin: ${props => props.borderSize};
   width: 100%;
   border-radius: 2px;
   justify-content: center;
@@ -119,10 +135,10 @@ const FlippedCardInnerStyle = styled.div`
   display: flex;
 `
 
-export const FlippedCardUI = (props: { children?: React.ReactNode, size?: CardSize }) => (
+export const FlippedCardUI = (props: { children?: React.ReactNode, size?: CardSize, borderSize?: BorderSize }) => (
   <CardStyle size={props.size}>
     <FlippedCardStyle>
-      <FlippedCardInnerStyle>
+      <FlippedCardInnerStyle {...props}>
         {props.children}
       </FlippedCardInnerStyle>
     </FlippedCardStyle>

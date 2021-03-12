@@ -139,7 +139,7 @@ const ExitToMainMenuStyle = styled.button`
   background: transparent;
   color: #fff;
   border-radius: 3px;
-  border: 3px solid #fff;
+  border: 2px solid #fff;
   display: block;
   width: auto;
 `
@@ -587,9 +587,9 @@ class Lobby extends React.Component<LobbyProps> {
                 </AvatarUI>
                 {!p.connected
                   ? <PlayerNameConnectingStyle>{p.name}</PlayerNameConnectingStyle>
-                  : ( <div>
+                  : ( 
+                      <div>
                         <PlayerNameStyle>{p.name}</PlayerNameStyle>
-                        
                       </div>
                     )
                 }

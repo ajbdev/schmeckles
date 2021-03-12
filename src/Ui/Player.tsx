@@ -2,7 +2,7 @@
 import { Card, emptyGemStash, Gem, GemStash, PlayerTurn } from '../Game';
 import { Player } from '../Player';
 import styled, { keyframes } from 'styled-components';
-import React from 'react';
+import React, { useState } from 'react';
 import { GemUI, IconSize } from './Gems';
 import { CardSize, CardUI } from './Cards';
 
@@ -58,6 +58,7 @@ export const PlayerGemsUI = (props: { gems: GemStash, diff?: GemStash }) => (
 );
 
 const NameStyle = styled.span`
+  user-select: none;
 `;
 
 const TurnMarkerStyle = styled.span`
@@ -66,6 +67,22 @@ const TurnMarkerStyle = styled.span`
   position: absolute;
   margin-left: -34px;
   color: #fff;
+`
+
+const VictoryPointsStyle = styled.div`
+  margin-right: -30px;
+  font-size: 26px;
+  font-weight: bold;
+  display: inline-block;
+  margin-left: 10px;
+  border-radius: 100%;
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  background: var(--gold);
+  border: 4px solid #ff7b00;
+  text-align: center;
+  user-select: none;
 `
 
 const CardStackStyle = styled.div`
@@ -80,6 +97,10 @@ const CardSlotStyle = styled.div`
   &:hover {
     z-index: 101;
   }
+`
+
+const ReservedCardSlotStyle = styled.div`
+
 `
 
 const GemSpaceStyle = styled.div`
@@ -107,11 +128,13 @@ interface PlayerUIProps {
 interface PlayerUIState {
   gems: GemStash
   diff?: GemStash
+  flipCard: boolean;
 }
 
 const defaultState = {
   gems: emptyGemStash(),
-  diff: undefined
+  diff: undefined,
+  flipCard: true
 }
 
 export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
@@ -156,6 +179,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
   }
 
   render() {
+
     return (
       <>
         <ListItemStyle 
@@ -163,18 +187,28 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           isContextPlayer={this.props.isContextPlayer}
         >
         {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
+
           <NameStyle>{this.props.player.name}</NameStyle>
+
+          <VictoryPointsStyle>
+            {this.props.player.victoryPoints()}
+          </VictoryPointsStyle>
           <GemSpaceStyle>
             <PlayerGemsUI gems={this.state.gems} diff={this.state.diff} />
           </GemSpaceStyle>
+
           <CardStackStyle>
             {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map(c =>
               <CardSlotStyle>
                 <CardUI card={c} size={CardSize.xs} hideCosts={true} />
               </CardSlotStyle>
             )}
+            {this.props.player.reservedCards.map(c => 
+              <ReservedCardSlotStyle onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
+                <CardUI card={c} size={CardSize.xs} flipped={this.state.flipCard} />
+              </ReservedCardSlotStyle>
+            )}
           </CardStackStyle>
-
         </ListItemStyle>  
       </>
     )

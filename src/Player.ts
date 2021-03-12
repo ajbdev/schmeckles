@@ -70,4 +70,18 @@ export class Player {
     this.computer = false;
     this.turn = 0;
   }
+
+  victoryPoints() {
+    let total = 0;
+
+    if (this.cards.cards.length > 0) {
+      total += this.cards.cards.map(c => c.points).reduce((a,b) => a+b);
+    }
+
+    if (this.nobles.length > 0) {
+      total += this.nobles.map(n => n.points).reduce((a,b) => a+b);
+    }
+
+    return total;
+  }
 }
