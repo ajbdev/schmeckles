@@ -9,7 +9,7 @@ import { GemStash, Gem } from '../Game';
 import { Player } from '../Player';
 
 
-export enum IconSize { xs = '12px', sm = '24px', md = '32px', lg = '48px', xl = '64px' };
+export enum IconSize { xs = '16px', sm = '24px', md = '32px', lg = '48px', xl = '64px' };
 
 interface IconProps {
   size?: IconSize;

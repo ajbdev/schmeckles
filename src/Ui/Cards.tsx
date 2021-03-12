@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Tier, Card } from '../Game';
-import { GemCostsUI, GemUI } from './Gems';
+import { GemCostsUI, GemUI, IconSize } from './Gems';
 
 export enum CardSize {
   xs = 'xs',
@@ -12,7 +12,7 @@ export enum CardSize {
 }
 
 const CardSizes: { [key:string]: string[] } = {
-  xs: ['50px', '72x'],
+  xs: ['50px', '72px'],
   sm: ['68px', '97px'],
   md: ['90px', '129px'],
   lg: ['120px', '172px'],
@@ -27,7 +27,7 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   size: props.size || CardSize.md
 }))`
   width: ${props => CardSizes[props.size][0]};
-  height ${props => CardSizes[props.size][1]};
+  height: ${props => CardSizes[props.size][1]};
   border: 1px solid #000;
   border-radius: 5px;
   background: #fff;
@@ -48,16 +48,13 @@ interface CardUIProps {
   card: Card
   size?: CardSize
   flipped?: boolean
+  hideCosts?: boolean
 }
 
 const GemAwardStyle = styled.div`
   position: absolute;
   right: 2px;
   top: 2px;
-  svg {
-    width: 25px;
-    height: 25px;
-  }
 `
 
 export const CardUI = (props: CardUIProps) => {
@@ -65,12 +62,22 @@ export const CardUI = (props: CardUIProps) => {
     return <FlippedCardUI {...props} />
   }
 
+  const gemUIProps = {
+    gem: props.card.gem,
+    size: IconSize[props.size as keyof typeof IconSize] || IconSize.md
+  }
+
+  const gemCostUIProps = {
+    gems: props.card.costs,
+    size: IconSize[props.size as keyof typeof IconSize] || IconSize.md
+  }
+
   return (
     <CardStyle size={props.size ? props.size : CardSize.md}>
       {props.card.points ? <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle> : null}
-      {props.card.costs 
+      {props.card.costs && !props.hideCosts
         ? (
-          <GemCostsUI gems={props.card.costs} />
+          <GemCostsUI {...gemCostUIProps} />
         )
         : null
       }
@@ -78,7 +85,7 @@ export const CardUI = (props: CardUIProps) => {
         props.card.gem
         ? (
           <GemAwardStyle>
-            <GemUI gem={props.card.gem} />
+            <GemUI {...gemUIProps} />
           </GemAwardStyle>
         )
         : null

@@ -55,10 +55,12 @@ export class Player {
   connected: boolean;
   connectionId: string;
   computer: boolean;
+  avatar: string;
 
-  constructor(name: string) {    
+  constructor(name: string, avatar: string) {    
     this.id = name;
     this.name = name;
+    this.avatar = avatar;
     this.gems = emptyGemStash();
     this.cards = new CardPile();
     this.reservedCards = [];

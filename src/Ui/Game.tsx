@@ -31,6 +31,7 @@ const SideColumnStyle = styled.div`
   display: flex;
   flex-direction: column;
   align-self: flex-start;
+  justify-content: space-around;
   padding: 20px 0;
 `
 

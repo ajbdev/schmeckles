@@ -3,10 +3,13 @@ import styled from "styled-components"
 import { GameTitle, BackgroundType, getRandomBackground, ErrorMessage } from './Splash';
 import { Network, Host, Client, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
 import { GameState } from '../Game';
-import { Player, generateRandomName } from '../Player';
+import { Player, generateRandomName, getAvatarFromName } from '../Player';
 import Game from '../Game';
 import { Action, BaseAction } from '../Actions';
 import GameUI from './Game';
+import { AvatarSize, AvatarUI } from './Avatars';
+import { ReactComponent as CancelSvg } from './svg/cancel.svg';
+
 
 
 const LobbyPageStyle = styled.div`
@@ -24,16 +27,51 @@ const ContentColumnStyle = styled.div`
   color: #fff;
 `
 
+const InAvatarStyle = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  padding: 3px;
+`
+
 const PlayerBoxes = styled.div`
   width: 450px;
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
 `
 
 const PlayerBoxStyle = styled.div`
-  width: 200px;
+  width: 150px;
+  height: 150px;
+  margin: 10px;
+  border: 2px solid transparent;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+`
+
+const CpuStyle = styled.div`
+  font-size: 12px;
+
+`;
+
+const PlayerNameStyle = styled.span`
+  font-weight: bold;
+  color: #fff;
+  font-size: 20px;
+  text-shadow: 1px 1px 2px #000;
+  margin-top: 10px;
+`
+
+const WaitingForPlayerBoxStyle = styled.div`
+  width: 150px;
   border: 2px solid #ccc;
-  height: 200px;
+  height: 150px;
   margin: 10px;
   background: rgba(55,55,55,0.5);
   text-align: center;
@@ -41,12 +79,30 @@ const PlayerBoxStyle = styled.div`
   text-shadow: 1px 1px 1px #000;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
 `
 
 const LobbyCode = styled.div`
   font-size: 24px;
   padding: 20px;
+`
+
+const RemovePlayerStyle = styled.span`
+  color: var(--cancel);
+  vertical-align: middle;
+  margin-left: 8px;
+
+  svg {
+    fill: var(--cancel);
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  &:hover {
+    svg { fill: var(--cancel-hover) }
+  }
 `
 
 const CodeUnderline = styled.input`
@@ -79,21 +135,36 @@ const ExitToMainMenuStyle = styled.button`
   font-size: 28px;
   padding: 10px;
   margin: 10px;
+  cursor: pointer;
   background: transparent;
   color: #fff;
   border-radius: 3px;
   border: 3px solid #fff;
+  display: block;
   width: auto;
 `
 
 const StartGameButtonStyle = styled.button`
   border-radius: 0;
   font-size: 28px;
+  cursor: pointer;
   padding: 10px;
   background: #91a4e6;
   border: 2px solid #3451b3;
   margin: 10px;
+  display: block;
   width: auto;
+`
+
+const NoticeStyle = styled.div`
+  margin: 10px;
+`
+
+const ButtonsStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  align-self: center;
 `
 
 const PlayerNameConnectingStyle = styled.span`
@@ -106,7 +177,7 @@ const PlayerTypeDropdownStyle = styled.select`
 `
 
 interface LobbyHostProps {
-  playerName: string
+  player: Player
   setIsHostingLobby: (t: boolean) => void
   setErrorMessage: (err: string) => void
   errorMessage: string
@@ -136,9 +207,9 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
 
   constructor(props: LobbyHostProps) {
     super(props);
-    this.player = new Player(props.playerName);
+    this.player = props.player;
     this.state = defaultLobbyHostState;
-    
+
     this.host = new Host(this.player, (err) => this.networkErrorHandler(err));
   }
 
@@ -150,7 +221,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
 
     const bgSrc = getRandomBackground(BackgroundType.Board);
     this.props.setBgSrc(bgSrc);
-    
+
     game.gameState.background = bgSrc;
 
     this.setWindowCloseDialog();
@@ -163,7 +234,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
     }
 
     this.host.host(
-      c => this.setState({ code: c }), 
+      c => this.setState({ code: c }),
       p => this.setState({ players: p }),
       (msg: ClientNetworkMessage) => {
         switch (msg.type) {
@@ -180,8 +251,6 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
       }
     );
 
-
-    
     game.onStateUpdate((gameState: GameState) => {
       this.setState({ gameState: gameState });
     })
@@ -223,8 +292,10 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   }
 
   addBot() {
-    const player = new Player(generateRandomName());
-    
+    const botName = generateRandomName();
+
+    const player = new Player(botName, getAvatarFromName(botName));
+
     player.computer = true;
     player.connected = true;
 
@@ -232,6 +303,14 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
 
     this.setState({
       players: this.host.players,
+    });
+  }
+
+  removePlayer(player: Player) {
+    this.host.removePlayer(player);
+
+    this.setState({
+      players: this.host.players
     });
   }
 
@@ -261,20 +340,22 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
       return <GameUI gameState={this.state.gameState} contextPlayer={this.state.contextPlayer!} />
     }
     return (
-      <Lobby 
+      <Lobby
         code={this.state.code}
         addBot={() => this.addBot()}
         players={this.state.players}
+        contextPlayer={this.props.player}
+        removePlayer={(p:Player) => this.removePlayer(p)}
         errorMessage={this.props.errorMessage}
-        disbandLobby={() => this.disbandLobby()} 
-        startGame={() => this.startGame()} 
+        disbandLobby={() => this.disbandLobby()}
+        startGame={() => this.startGame()}
       />
     )
   }
 }
 
 interface LobbyClientProps {
-  playerName: string
+  player: Player
   joinLobbyCode: string
   errorMessage: string
   setJoinLobbyCode: (c: string) => void
@@ -296,19 +377,19 @@ const defaultLobbyClientState = {
   gameState: null
 }
 
-export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientState> {
+export class LobbyClient extends React.Component<LobbyClientProps, LobbyClientState> {
   player: Player
   client: Client
 
   constructor(props: LobbyClientProps) {
     super(props);
     this.state = defaultLobbyClientState;
-    this.player = new Player(props.playerName);
+    this.player = props.player;
     this.client = new Client(this.player, (err) => this.networkErrorHandler(err));
   }
 
   componentDidMount() {
-    this.setState({ 
+    this.setState({
       code: this.props.joinLobbyCode.toUpperCase(),
       contextPlayer: this.player
     });
@@ -318,7 +399,7 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
     });
 
     game.onAction((a: BaseAction) => {
-      this.client.send({ type: ClientMessageType.ACTION, payload: { player: a.player, action: a.type, meta: a.meta }});
+      this.client.send({ type: ClientMessageType.ACTION, payload: { player: a.player, action: a.type, meta: a.meta } });
     })
 
     window.onunload = () => this.client.disconnect();
@@ -386,7 +467,13 @@ export class LobbyClient extends React.Component<LobbyClientProps,LobbyClientSta
     }
 
     return (
-      <Lobby code={this.state.code} players={this.state.players} errorMessage={this.props.errorMessage} exitLobby={() => this.cleanupLobbyAndExit()} />
+      <Lobby 
+        code={this.state.code} 
+        players={this.state.players} 
+        contextPlayer={this.props.player}
+        errorMessage={this.props.errorMessage} 
+        exitLobby={() => this.cleanupLobbyAndExit()} 
+      />
     )
   }
 }
@@ -398,6 +485,8 @@ interface LobbyProps {
   addBot?: () => void;
   disbandLobby?: () => void;
   exitLobby?: () => void;
+  removePlayer?: (p: Player) => void;
+  contextPlayer: Player;
   errorMessage: string;
 }
 
@@ -412,7 +501,7 @@ class Lobby extends React.Component<LobbyProps> {
   componentDidUpdate(prevProps: LobbyProps) {
     if (this.props.code !== prevProps.code) {
       this.updateBrowserLocation(this.props.code);
-    }    
+    }
   }
 
   updateBrowserLocation = (c: string) => {
@@ -433,21 +522,30 @@ class Lobby extends React.Component<LobbyProps> {
     }
   }
 
+  removePlayer(p: Player) {
+    if (p.computer) {
+      return this.props.removePlayer!(p)
+    }
+    if (window.confirm('Are you sure you want to remove this player')) {
+      this.props.removePlayer!(p);
+    }
+  }
+
   render() {
     return (
       <LobbyPageStyle>
         <ContentColumnStyle>
           <GameTitle />
-          {this.props.code 
+          {this.props.code
             ? (
               <>
                 <LobbyCode>
                   Lobby Code: <CodeUnderline ref={this.codeInput} type="text" value={this.props.code} readOnly={true} onClick={this.copyCodeToClipboard} />
                   {this.props.disbandLobby
                     ? (
-                    <ExitLink onClick={() => this.props.disbandLobby && this.props.disbandLobby()}>
-                      Disband Lobby
-                    </ExitLink>
+                      <ExitLink onClick={() => this.props.disbandLobby && this.props.disbandLobby()}>
+                        Disband Lobby
+                      </ExitLink>
                     )
                     : null
                   }
@@ -456,50 +554,76 @@ class Lobby extends React.Component<LobbyProps> {
                       <ExitLink onClick={() => this.props.exitLobby && this.props.exitLobby()}>
                         Exit Lobby
                       </ExitLink>
-                    ) 
+                    )
                     : null
                   }
                 </LobbyCode>
               </>
             )
             : this.props.errorMessage
-            ? (
-              <ErrorMessage>{this.props.errorMessage}</ErrorMessage>
-            )
-            : (
-              <>
-                Establishing P2P network connection...
+              ? (
+                <ErrorMessage>{this.props.errorMessage}</ErrorMessage>
+              )
+              : (
+                <>
+                  Establishing P2P network connection...
               </>
-            )
+              )
           }
           <PlayerBoxes>
-            {this.props.players.map((p,i) =>
+            {this.props.players.map((p, i) =>
               <PlayerBoxStyle key={i}>
-                {!this.props.players[i].connected 
-                  ? <PlayerNameConnectingStyle>{this.props.players[i].name}</PlayerNameConnectingStyle>
-                  : <>{this.props.players[i].name}</>
+                <AvatarUI size={AvatarSize.xl} src={p.avatar}>
+                  <InAvatarStyle>
+                  {this.props.removePlayer && p.id !== this.props.contextPlayer.id
+                    ? (<RemovePlayerStyle onClick={() => this.removePlayer(p)}><CancelSvg /></RemovePlayerStyle>)
+                    : null
+                  }
+                  {p.computer
+                    ? <CpuStyle>CPU</CpuStyle>
+                    : null
+                  }
+                  </InAvatarStyle>
+                </AvatarUI>
+                {!p.connected
+                  ? <PlayerNameConnectingStyle>{p.name}</PlayerNameConnectingStyle>
+                  : ( <div>
+                        <PlayerNameStyle>{p.name}</PlayerNameStyle>
+                        
+                      </div>
+                    )
                 }
               </PlayerBoxStyle>
             )}
-            <PlayerBoxStyle>
-              {this.props.startGame 
-                ? (
-                  <span>
-                    Waiting for <PlayerTypeDropdownStyle onChange={e => this.changePlayers(e)}><option>Player</option><option>Computer</option></PlayerTypeDropdownStyle>
-                  </span>
-                )
-                : (<>Waiting for players...</>)}
-            </PlayerBoxStyle>
+            {this.props.players.length < 4
+              ? (<>
+                {[...Array(4 - this.props.players.length)].map(_ =>
+                  <WaitingForPlayerBoxStyle>
+                    {this.props.startGame
+                      ? (
+                        <span>
+                          Waiting for <PlayerTypeDropdownStyle onChange={e => this.changePlayers(e)}><option>Player</option><option>Computer</option></PlayerTypeDropdownStyle>
+                        </span>
+                      )
+                      : (<>Waiting for players...</>)}
+                  </WaitingForPlayerBoxStyle>
+                )}
+              </>)
+              : null
+            }
           </PlayerBoxes>
           {this.props.players.length < 2
-            ? <p>At least two players needed to start game.</p>
-            : null}
+            ? <NoticeStyle>At least two players needed to start game.</NoticeStyle>
+            : this.props.players.length > 4
+              ? <NoticeStyle>Although you can play with more than four players, gameplay may suffer with more than four players.</NoticeStyle>
+              : <NoticeStyle>&nbsp;</NoticeStyle>
+          }
           {this.props.startGame && this.props.disbandLobby
             ? (
-              <>
+              <ButtonsStyle>
                 <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startGame && this.props.startGame()}>Start Game</StartGameButtonStyle>
                 <ExitToMainMenuStyle onClick={() => this.props.disbandLobby!()}>Exit to Main Menu</ExitToMainMenuStyle>
-              </>
+              </ButtonsStyle>
             )
             : <p>Game will begin when the host start the game.</p>
           }

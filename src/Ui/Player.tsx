@@ -4,8 +4,9 @@ import { Player } from '../Player';
 import styled, { keyframes } from 'styled-components';
 import React from 'react';
 import { GemUI, IconSize } from './Gems';
+import { CardSize, CardUI } from './Cards';
 
-const PlayerGemsStyle = styled.div`
+const GemsStyle = styled.div`
   display: flex;
   flex-direction: row;
 `
@@ -15,13 +16,13 @@ const NumberChangeAnimation = keyframes`
 `; 
 
 
-const PlayerGemValueStyle = styled.div`
+const GemValueStyle = styled.div`
   margin-right: 10px;
   display: flex;
   vertical-align: middle;
 `
 
-const PlayerNumberStyle = styled.div`
+const NumberStyle = styled.div`
   margin-right: 5px;
 `
 
@@ -36,13 +37,13 @@ const NumberChangeStyle = styled.div`
 `
 
 export const PlayerGemsUI = (props: { gems: GemStash, diff?: GemStash }) => (
-  <PlayerGemsStyle>
+  <GemsStyle>
     {Object.keys(props.gems).map(
       g => (
-        <PlayerGemValueStyle>
-          <PlayerNumberStyle>
+        <GemValueStyle>
+          <NumberStyle>
             {props.gems[g as Gem]}
-          </PlayerNumberStyle>
+          </NumberStyle>
           {props.diff && props.diff[g as Gem] !== 0
             ? <NumberChangeStyle>
                 {props.diff[g as Gem] > 0 ? '+' : ''}{props.diff[g as Gem]}
@@ -50,32 +51,48 @@ export const PlayerGemsUI = (props: { gems: GemStash, diff?: GemStash }) => (
             : null
           }
           <GemUI gem={g as Gem} size={IconSize.sm} />
-        </PlayerGemValueStyle>
+        </GemValueStyle>
       )
     )}
-  </PlayerGemsStyle>
+  </GemsStyle>
 );
 
-const PlayerNameStyle = styled.span`
+const NameStyle = styled.span`
 `;
 
 const TurnMarkerStyle = styled.span`
   font-size: 40px;
   font-weight: bold;
   position: absolute;
-  margin-left: -24px;
+  margin-left: -34px;
   color: #fff;
 `
 
-const PlayerGemSpaceStyle = styled.div`
-  padding-top: 10px;
+const CardStackStyle = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 315px;
 `
 
-const PlayerListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) => ({
+const CardSlotStyle = styled.div`
+  width: 25px;
+  &:hover {
+    z-index: 101;
+  }
+`
+
+const GemSpaceStyle = styled.div`
+  padding-top: 10px;
+  width: 315px;
+`
+
+const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) => ({
   isContextPlayer: props.isContextPlayer || false
 }))`
   color: ${props => props.isContextPlayer ? '#fff' : '#222'}; 
   font-size: 20px;
+  height: 260px;
   font-weight: bold;
   padding-left: 10px;
   position: relative;
@@ -141,16 +158,24 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
   render() {
     return (
       <>
-        {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
-        <PlayerListItemStyle 
+        <ListItemStyle 
           key={this.props.player.id}
           isContextPlayer={this.props.isContextPlayer}
         >
-          <PlayerNameStyle>{this.props.player.name}</PlayerNameStyle>
-          <PlayerGemSpaceStyle>
+        {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
+          <NameStyle>{this.props.player.name}</NameStyle>
+          <GemSpaceStyle>
             <PlayerGemsUI gems={this.state.gems} diff={this.state.diff} />
-          </PlayerGemSpaceStyle>
-        </PlayerListItemStyle>  
+          </GemSpaceStyle>
+          <CardStackStyle>
+            {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map(c =>
+              <CardSlotStyle>
+                <CardUI card={c} size={CardSize.xs} hideCosts={true} />
+              </CardSlotStyle>
+            )}
+          </CardStackStyle>
+
+        </ListItemStyle>  
       </>
     )
   }

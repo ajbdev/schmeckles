@@ -10,7 +10,8 @@ interface AvatarProps {
   name?: string
   size?: AvatarSize
   border?: string
-  src: string;
+  src: string
+  children?: React.ReactNode
 }
 
 const goldBorderColor = `3px solid var(--gold)`;
@@ -30,7 +31,9 @@ const AvatarStyle = styled.div.attrs((props: AvatarProps) => ({
 `
 
 export const AvatarUI = (props: AvatarProps) => (
-  <AvatarStyle src={props.src} size={props.size} border={props.border} />
+  <AvatarStyle src={props.src} size={props.size} border={props.border}>
+    {props.children}
+  </AvatarStyle>
 )
 
 const SelectableAvatarStyle = styled.div.attrs((props: SelectableAvatarProps) => ({

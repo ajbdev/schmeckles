@@ -7,6 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
   font-family: 'ABeeZee';
+  background: #000;
 }
 
 #root {  height: 100%; }

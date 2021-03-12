@@ -112,6 +112,16 @@ export class Host extends Network {
     });
   }
 
+  removePlayer(player: Player) {
+    this.clients.forEach(c => {
+      if (c.peer === player.id) {
+        c.close();
+      }
+    });
+    
+    this.players.splice(this.players.findIndex(p => p.id === player.id),1);
+  }
+
   broadcast(m: HostNetworkMessage, exclude?: Player[]) {
     let clients = this.clients;
 

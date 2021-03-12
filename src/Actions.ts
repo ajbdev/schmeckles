@@ -176,11 +176,11 @@ export class PurchaseCard extends BaseAction {
       (g: Readonly<GameState>) => gameHasStarted(g.started),
       (g: Readonly<GameState>) => gameHasEnoughPlayers(g.players),
       (g: Readonly<GameState>) => isPlayersTurn(this.player, g.players, g.turn),
-      (g: Readonly<GameState>) => { 
-        const card = this.cards[this.index];
+      // (g: Readonly<GameState>) => { 
+      //   const card = this.cards[this.index];
 
-        return canAffordCard(card, this.player);
-      }
+      //   return canAffordCard(card, this.player);
+      // }
     ]
   }
 
@@ -195,6 +195,8 @@ export class PurchaseCard extends BaseAction {
 
     this.player.cards.cards.push(card);
     this.nextTurn(gameState);
+
+    gameState.drawVisibleCards();
   }
 }
 
@@ -229,5 +231,6 @@ export class ReserveCard extends BaseAction {
 
     this.player.reservedCards.push(card);
     this.nextTurn(gameState);
+    gameState.drawVisibleCards();
   }
 }

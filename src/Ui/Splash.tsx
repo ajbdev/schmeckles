@@ -57,6 +57,7 @@ const HostButton = styled.button`
   border-radius: 0;
   font-size: 28px;
   padding: 10px;
+  cursor: pointer;
   background: #91a4e6;
   width: 100%;
   display: block;
@@ -69,6 +70,7 @@ const JoinGameArea = styled.div`
   margin-top: 20px;
 `
 
+
 const JoinGameInput = styled.input`
   font-size: 28px;
   padding: 10px;
@@ -76,6 +78,10 @@ const JoinGameInput = styled.input`
   text-align: center;
   text-transform: uppercase;
   width: 50%;
+
+  @media(max-width: 420px) {
+    font-size: 24px;
+  }
 `
 
 const JoinGameButton = styled.button`
@@ -85,8 +91,14 @@ const JoinGameButton = styled.button`
   border: 2px solid #2f8a33;
   background: #5ee465;
   margin-left: 20px;
+  cursor: pointer;
   width: 50%;
+
+  @media(max-width: 420px) {
+    font-size: 24px;
+  }
 `
+
 const StartLobbyButtonsStyle = styled.div`
   margin: 10px;
   max-width: 400px;
@@ -208,12 +220,9 @@ const SelectPositioning = styled.div`
 `
 
 
-const randomName = generateRandomName();
-const randomAvatar = getAvatarFromName(randomName);
-
 interface SplashProps {
-  hostLobby: (playerName: string) => void;
-  joinLobby: (code: string, playerName: string) => void;
+  hostLobby: (playerName: string, avatar: string) => void;
+  joinLobby: (code: string, playerName: string, avatar: string) => void;
   errorMessage: string;
 }
 
@@ -264,6 +273,9 @@ const ConfirmButtonUI = (props: { onClick: () => void}) => (
 export default function Splash(props: SplashProps) {
   const [isChangingName, setIsChangingName] = useState(false);
 
+  const randomName = generateRandomName();
+  const randomAvatar = getAvatarFromName(randomName);
+  
   const [name, setName] = useState(randomName);
   const [suggestedName, setSuggestedName] = useState(randomName);
 
@@ -352,12 +364,12 @@ export default function Splash(props: SplashProps) {
             </SelectPositioning>
           </CenteredStyle>
           <StartLobbyButtonsStyle>
-            <HostButton onClick={() => props.hostLobby(name)}>
+            <HostButton onClick={() => props.hostLobby(name, avatar)}>
               Host a game
             </HostButton>
             <JoinGameArea>
               <JoinGameInput type="text" placeholder="Code" value={code} onChange={(e) => setCode(e.target.value)} />
-              <JoinGameButton disabled={code.length !== 4} onClick={() => props.joinLobby(code, name)}>Join Game</JoinGameButton>
+              <JoinGameButton disabled={code.length !== 4} onClick={() => props.joinLobby(code, name, avatar)}>Join Game</JoinGameButton>
             </JoinGameArea>
           </StartLobbyButtonsStyle>
         </ColumnStyle>
