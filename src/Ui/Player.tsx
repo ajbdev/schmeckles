@@ -27,7 +27,7 @@ const NumberStyle = styled.div`
 `
 
 const NumberChangeStyle = styled.div`
-  color: #fae100;
+  color: #fa9600;
   position: absolute;
   animation-name: ${NumberChangeAnimation};
   animation-duration: 1.2s;
@@ -80,7 +80,7 @@ const VictoryPointsStyle = styled.div`
   height: 32px;
   color: #fff;
   background: var(--gold);
-  border: 4px solid #ff7b00;
+  border: 4px solid #a3803f;
   text-align: center;
   user-select: none;
 `

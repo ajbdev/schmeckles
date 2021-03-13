@@ -121,7 +121,6 @@ const GemCostStyle = styled.div.attrs((props: GemCostStyleProps) => ({
   height: ${props => props.size};
   border-radius: 100%;
   text-align: center;
-  font-family: Courgette;
   position: relative;
   border: 1px solid #000;
   margin: 2px;
@@ -147,22 +146,26 @@ const OnyxCostStyle = styled(GemCostStyle)`
   background: var(--onyx);
 `
 
-interface CostProps {
-  cost: number;
+export enum CardGemCostSize {
+  'xs' = '12px',
+  'sm' = '14px;',
+  'md' = '17px',
+  'lg' = '20px',
+  'xl' = '22px'
 }
 
-const PointValueStyle = styled.span`
-  font-size: 22px;
-  font-weight: bold;
-  line-height: 22px;
-  color: #fff;
-  -webkit-text-fill-color: white;
-  -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: #555;
-`
+interface CostProps {
+  cost: number;
+  size?: CardGemCostSize
+}
 
-const OnyxPointValueStyle = styled(PointValueStyle)`
--webkit-text-stroke-color: #bbb;
+const CostNumberStyle = styled.span.attrs((props: GemCostStyleProps) => ({
+  size: props.size || CardGemCostSize.md
+}))`
+  font-size: ${props => props.size};
+  font-weight: bold;
+  line-height: ${props => props.size};
+  color: #fff;
 `
 
 const CostGemIcon = styled.div`
@@ -182,59 +185,77 @@ const CostDiamondIcon = styled(CostGemIcon)`
   }
 `
 
-export const RubyCostUI = (props: CostProps) => (
-  <RubyCostStyle>
-    <PointValueStyle>
-      {props.cost}
-    </PointValueStyle>
-    <CostGemIcon>
-      <RubyIcon />
-    </CostGemIcon>
-  </RubyCostStyle>
-)
+export const RubyCostUI = (props: CostProps) => {
+
+  return (
+    <RubyCostStyle size={props.size}>
+      <CostNumberStyle size={props.size}>
+        {props.cost}
+      </CostNumberStyle>
+      {props.size !== CardGemCostSize.xs
+        ? (<CostGemIcon>
+            <RubyIcon />
+          </CostGemIcon>)
+        : null
+      }
+    </RubyCostStyle>
+  )
+} 
 
 export const EmeraldCostUI = (props: CostProps) => (
-  <EmeraldCostStyle>
-    <PointValueStyle>
+  <EmeraldCostStyle size={props.size}>
+    <CostNumberStyle size={props.size}>
       {props.cost}
-    </PointValueStyle>
-    <CostGemIcon>
-      <EmeraldIcon />
-    </CostGemIcon>
+    </CostNumberStyle>
+    {props.size !== CardGemCostSize.xs
+      ? (<CostGemIcon>
+          <EmeraldIcon />
+        </CostGemIcon>)
+      : null
+    }
   </EmeraldCostStyle>
 )
 
 export const SapphireCostUI = (props: CostProps) => (
-  <SapphireCostStyle>
-    <PointValueStyle>
+  <SapphireCostStyle size={props.size}>
+    <CostNumberStyle size={props.size}>
       {props.cost}
-    </PointValueStyle>
-    <CostGemIcon>
-      <SapphireIcon />
-    </CostGemIcon>
+    </CostNumberStyle>
+    {props.size !== CardGemCostSize.xs
+      ? (<CostGemIcon>
+          <SapphireIcon />
+        </CostGemIcon>)
+      : null
+    }
   </SapphireCostStyle>
 )
 
 
 export const OnyxCostUI = (props: CostProps) => (
-  <OnyxCostStyle>
-    <OnyxPointValueStyle>
+  <OnyxCostStyle size={props.size as GemCostSize}>
+    <CostNumberStyle size={props.size}>
       {props.cost}
-    </OnyxPointValueStyle>
-    <CostGemIcon>
-      <OnyxIcon />
-    </CostGemIcon>
+    </CostNumberStyle>
+    {props.size !== CardGemCostSize.xs
+      ? (<CostGemIcon>
+          <OnyxIcon />
+        </CostGemIcon>)
+      : null
+    }
   </OnyxCostStyle>
 )
 
 export const DiamondCostUI = (props: CostProps) => (
-  <DiamondCostStyle>
-    <PointValueStyle>
+  <DiamondCostStyle size={GemCostSize[props.size as keyof typeof GemCostSize]}>
+    <CostNumberStyle size={props.size}>
       {props.cost}
-    </PointValueStyle>
-    <CostDiamondIcon>
-      <DiamondIcon />
-    </CostDiamondIcon>
+    </CostNumberStyle>
+    {props.size !== CardGemCostSize.xs
+      ? (<CostGemIcon>
+          <DiamondIcon />
+        </CostGemIcon>)
+      : null
+    }
   </DiamondCostStyle>
 )
 
@@ -248,14 +269,19 @@ const GemGroupedCostStyle = styled.div`
 
 export interface GemCostsUIProps {
   gems: GemStash
+  size?: CardGemCostSize
 }
 
-export const GemCostsUI = (props: GemCostsUIProps) => (
-  <GemGroupedCostStyle>
-    {props.gems.diamond > 0 ? <DiamondCostUI cost={props.gems.diamond} /> : null}
-    {props.gems.ruby > 0 ? <RubyCostUI cost={props.gems.ruby} /> : null}
-    {props.gems.emerald > 0 ? <EmeraldCostUI cost={props.gems.emerald} /> : null}
-    {props.gems.onyx > 0 ? <OnyxCostUI cost={props.gems.onyx} /> : null}
-    {props.gems.sapphire > 0 ? <SapphireCostUI cost={props.gems.sapphire} /> : null}
-  </GemGroupedCostStyle>
-)
+export const GemCostsUI = (props: GemCostsUIProps) => {
+  const sz = props.size;
+  
+  return (
+    <GemGroupedCostStyle>
+      {props.gems.diamond > 0 ? <DiamondCostUI cost={props.gems.diamond} size={sz} /> : null}
+      {props.gems.ruby > 0 ? <RubyCostUI cost={props.gems.ruby} size={sz} /> : null}
+      {props.gems.emerald > 0 ? <EmeraldCostUI cost={props.gems.emerald} size={sz} /> : null}
+      {props.gems.onyx > 0 ? <OnyxCostUI cost={props.gems.onyx} size={sz} /> : null}
+      {props.gems.sapphire > 0 ? <SapphireCostUI cost={props.gems.sapphire} size={sz} /> : null}
+    </GemGroupedCostStyle>
+  )
+}
