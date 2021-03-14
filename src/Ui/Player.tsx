@@ -5,6 +5,7 @@ import styled, { keyframes } from 'styled-components';
 import React, { useState } from 'react';
 import { GemUI, IconSize } from './Gems';
 import { CardSize, CardUI } from './Cards';
+import { InteractiveCardUI } from './Board';
 
 const GemsStyle = styled.div`
   display: flex;
@@ -14,7 +15,6 @@ const NumberChangeAnimation = keyframes`
   from { opacity: 1; margin-top: 16px;  }
   to { opacity: 0; margin-top: 0px; }
 `; 
-
 
 const GemValueStyle = styled.div`
   margin-right: 10px;
@@ -203,9 +203,16 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 <CardUI card={c} size={CardSize.xs} hideCosts={true} />
               </CardSlotStyle>
             )}
-            {this.props.player.reservedCards.map(c => 
+            {this.props.player.reservedCards.map((c,ix) => 
               <ReservedCardSlotStyle onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
-                <CardUI card={c} size={CardSize.xs} flipped={this.state.flipCard} />
+                <InteractiveCardUI 
+                  card={c} 
+                  index={ix}
+                  cards={this.props.player.reservedCards}
+                  player={this.props.player}
+                  size={CardSize.xs} 
+                  flipped={this.state.flipCard} 
+                />
               </ReservedCardSlotStyle>
             )}
           </CardStackStyle>

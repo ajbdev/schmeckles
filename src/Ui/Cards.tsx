@@ -36,7 +36,6 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   user-select: none;
 `
 
-
 export const VictoryPointsStyle = styled.div`
   font-size: 30px;
   font-weight: bold;

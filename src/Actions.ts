@@ -93,7 +93,6 @@ export class StartGame extends BaseAction {
     ]
   }
 
-
   act(gameState: GameState) {
     gameState.started = true;
     gameState.turn = 1;

@@ -82,10 +82,10 @@ const reserveCard = (player: Player, cards: Card[], ix: number) => {
 export const InteractiveCardUI = (props: InteractiveCardUIProps) => (
   <InteractiveCardStyle>
     <CardUI {...props} /> 
-      <CardButtonGutter>
-        <button onClick={() => purchaseCard(props.player, props.cards, props.index)}>Buy</button>
-        {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)}>Reserve</button> : null}
-      </CardButtonGutter>
+    <CardButtonGutter>
+      <button onClick={() => purchaseCard(props.player, props.cards, props.index)}>Buy</button>
+      {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)}>Reserve</button> : null}
+    </CardButtonGutter>
   </InteractiveCardStyle>
 );
 

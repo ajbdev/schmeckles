@@ -307,6 +307,8 @@ export default class Game {
   receiveAction(action: IAction) {
     if (action.checkRules(this.gameState)) {
       action.act(this.gameState);
+    } else {
+      console.log(action.failedRules);
     }
     this.actionLog.push(action);
     if (this.onStateUpdateCallback) {
