@@ -308,7 +308,7 @@ export default class Game {
     if (action.checkRules(this.gameState)) {
       action.act(this.gameState);
     } else {
-      console.log(action.failedRules);
+      console.log(action.failedRules.map(r => r.message));
     }
     this.actionLog.push(action);
     if (this.onStateUpdateCallback) {
