@@ -10,6 +10,12 @@ export interface SendActionInterface {
 
 
 export function computeAction(player: Player, gameState: GameState): SendActionInterface {
+  return {
+    actionType: Action.PassTurn,
+    data: {}
+  }
+
+
   const gems = emptyGemStash();
 
   shuffle([Gem.Ruby, Gem.Sapphire, Gem.Diamond, Gem.Onyx, Gem.Emerald]).slice(0,3).map(

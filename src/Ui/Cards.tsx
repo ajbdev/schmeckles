@@ -56,12 +56,20 @@ const GemAwardStyle = styled.div`
   top: 2px;
 `
 
+const AwardGemMap = {
+  [IconSize.xs]: IconSize.xs,
+  [IconSize.sm]: IconSize.sm,
+  [IconSize.md]: IconSize.md,
+  [IconSize.lg]: IconSize.md,
+  [IconSize.xl]: IconSize.md
+}
+
 export const CardUI = (props: CardUIProps) => {
   const borderSize = BorderSize[props.size as keyof typeof BorderSize] || BorderSize.md;
 
-  const gemUIProps = {
+  const awardGemUIProps = {
     gem: props.card.gem,
-    size: IconSize[props.size as keyof typeof IconSize] || IconSize.md
+    size: props.size ? IconSize[props.size as keyof typeof IconSize] : IconSize.sm
   }
 
   const gemCostUIProps = {
@@ -86,7 +94,7 @@ export const CardUI = (props: CardUIProps) => {
         props.card.gem
         ? (
           <GemAwardStyle>
-            <GemUI {...gemUIProps} />
+            <GemUI {...awardGemUIProps} />
           </GemAwardStyle>
         )
         : null

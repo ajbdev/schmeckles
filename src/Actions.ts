@@ -8,6 +8,7 @@ export enum Action {
   TakeGems = 'TakeGems',
   ReserveCard = 'ReserveCard',
   PurchaseCard = 'PurchaseCard',
+  PassTurn = 'PassTurn'
 }
 
 export interface IAction {
@@ -39,7 +40,8 @@ export abstract class BaseAction implements IAction {
       [Action.StartGame]: StartGame,
       [Action.TakeGems]: TakeGems,
       [Action.PurchaseCard]: PurchaseCard,
-      [Action.ReserveCard]: ReserveCard
+      [Action.ReserveCard]: ReserveCard,
+      [Action.PassTurn]: PassTurn
     }
 
     const ActionToBePerformed = actionFactoryMap[t];
@@ -197,6 +199,18 @@ export class PurchaseCard extends BaseAction {
 
     gameState.awardNobles(this.player);
     gameState.drawVisibleCards();
+  }
+}
+
+export class PassTurn extends BaseAction {
+  constructor(p: Player, meta: { forPlayer?: Player }) {
+    super(p, meta);
+
+    this.type = Action.PassTurn;
+  }
+
+  act(gameState: GameState) {
+    this.nextTurn(gameState);
   }
 }
 

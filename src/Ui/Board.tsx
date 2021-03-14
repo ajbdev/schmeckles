@@ -129,9 +129,19 @@ const TilesStyle = styled.div`
   border-radius: 4px;
 `
 
-const SchmeckleStyle = styled.div`
-  width: 46px;
-  height: 46px;
+const SchmeckleSizeMap = {
+  [IconSize.xs]: '30px',
+  [IconSize.sm]: '32px',
+  [IconSize.md]: '46px',
+  [IconSize.lg]: '46px',
+  [IconSize.xl]: '46px'
+}
+
+const SchmeckleStyle = styled.div.attrs((props: { size?: IconSize }) => ({
+  size: props.size ? SchmeckleSizeMap[props.size] : SchmeckleSizeMap[IconSize.md]
+}))`
+  width: ${props => props.size};
+  height: ${props => props.size};
   margin: 2px 0;
   position: relative;
 
@@ -223,7 +233,7 @@ export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize }) => {
   const SchmeckleCoinWrapUI = map[props.gem]
 
   return(
-    <SchmeckleCoinWrapUI>
+    <SchmeckleCoinWrapUI size={props.size}>
       <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
     </SchmeckleCoinWrapUI>
   )

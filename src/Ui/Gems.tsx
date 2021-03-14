@@ -89,8 +89,17 @@ export const Star = (props: IconProps) => (
   </Icon>
 );
 
+enum GemAwardSize {
+  xs = '10px',
+  sm = '14px',
+  md = '18px',
+  lg = '24px',
+  xl = '32px'
+}
+
 interface GemTypeProps {
   gem: Gem
+  size: IconSize
 }
 
 type GemUIProps = GemTypeProps & IconProps;
@@ -113,9 +122,9 @@ export const GemUI = (props: GemUIProps) => {
 const GemCostNumberSize = {
   [GemCostSize.xs]: '11px',
   [GemCostSize.sm]: '15px;',
-  [GemCostSize.md]: '18px',
-  [GemCostSize.lg]: '25px',
-  [GemCostSize.xl]: '32px'
+  [GemCostSize.md]: '16px',
+  [GemCostSize.lg]: '22px',
+  [GemCostSize.xl]: '28px'
 }
 
 interface GemCostStyleProps {
@@ -182,7 +191,12 @@ const CostGemIcon = styled.div`
   }
 `
 
+const DiamondNumberStyle = styled(CostNumberStyle)`
+  color: #666;
+`
+
 const CostDiamondIcon = styled(CostGemIcon)`
+  
   svg {
     stroke-width: 5;
     stroke: #222;
@@ -256,13 +270,13 @@ export const OnyxCostUI = (props: CostProps) => (
 export const DiamondCostUI = (props: CostProps) => {
   return (
     <DiamondCostStyle size={props.size}>
-      <CostNumberStyle size={props.size}>
+      <DiamondNumberStyle size={props.size}>
         {props.cost}
-      </CostNumberStyle>
+      </DiamondNumberStyle>
       {props.size !== GemCostSize.xs
-        ? (<CostGemIcon>
+        ? (<CostDiamondIcon>
             <DiamondIcon />
-          </CostGemIcon>)
+          </CostDiamondIcon>)
         : null
       }
     </DiamondCostStyle>

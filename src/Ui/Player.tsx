@@ -5,7 +5,7 @@ import styled, { keyframes } from 'styled-components';
 import React, { useState } from 'react';
 import { GemUI, IconSize } from './Gems';
 import { CardSize, CardUI } from './Cards';
-import { InteractiveCardUI } from './Board';
+import { InteractiveCardUI, SchmeckleGemCoinUI } from './Board';
 
 const GemsStyle = styled.div`
   display: flex;
@@ -36,7 +36,7 @@ const NumberChangeStyle = styled.div`
   margin-left: -12px;
 `
 
-export const PlayerGemsUI = (props: { gems: GemStash, diff?: GemStash }) => (
+export const PlayerGemsTallyUI = (props: { gems: GemStash, diff?: GemStash }) => (
   <GemsStyle>
     {Object.keys(props.gems).map(
       g => (
@@ -100,12 +100,19 @@ const CardSlotStyle = styled.div`
 `
 
 const ReservedCardSlotStyle = styled.div`
-  width: 51px;
 `
 
-const GemSpaceStyle = styled.div`
+const GemTallyStyle = styled.div`
   padding-top: 10px;
   width: 315px;
+`
+
+const CoinStackStyle = styled.div`
+  display: flex;
+  flex-direction: row;
+  & div {
+    width: 15px;
+  }
 `
 
 const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) => ({
@@ -126,14 +133,10 @@ interface PlayerUIProps {
 }
 
 interface PlayerUIState {
-  gems: GemStash
-  diff?: GemStash
   flipCard: boolean;
 }
 
 const defaultState = {
-  gems: emptyGemStash(),
-  diff: undefined,
   flipCard: true
 }
 
@@ -144,10 +147,6 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
     this.state = defaultState;
   }
 
-  componentDidMount() {
-    this.setState({ gems: { ...this.props.player.gems } });
-  }
-
   addGemTotal() {
     const gems = { ...this.props.player.gems };
 
@@ -156,26 +155,6 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
     });
 
     return gems;
-  }
-
-  componentDidUpdate(prevProps: PlayerUIProps) {
-    const gems = this.addGemTotal();
-
-    const diff = emptyGemStash();
-
-    const hasDiff = Object.keys(gems).map(g => { 
-      const v = (gems[g as Gem] - this.state.gems[g as Gem]);
-      diff[g as Gem] = v;
-      return v;
-    }).reduce((a:number, b:number) => a + b) > 0;
-
-    if (hasDiff) {
-      this.setState({
-        diff: diff,
-        gems: gems
-      });
-      setTimeout(() => this.setState({ diff: emptyGemStash() }), 1000);
-    }
   }
 
   render() {
@@ -193,9 +172,17 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           <VictoryPointsStyle>
             {this.props.player.victoryPoints()}
           </VictoryPointsStyle>
-          <GemSpaceStyle>
-            <PlayerGemsUI gems={this.state.gems} diff={this.state.diff} />
-          </GemSpaceStyle>
+          <GemTallyStyle>
+            <PlayerGemsTallyUI gems={this.addGemTotal()} />
+          </GemTallyStyle>
+
+          <CoinStackStyle>
+            {Object.keys(this.props.player.gems).map(gemType =>
+              [...Array(this.props.player.gems[gemType as Gem])].map(gem => 
+                <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} />  
+              )  
+            )}
+          </CoinStackStyle>
 
           <CardStackStyle>
             {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map(c =>
