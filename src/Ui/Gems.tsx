@@ -9,6 +9,8 @@ import { GemStash, Gem } from '../Game';
 import { Player } from '../Player';
 
 
+export enum GemCostSize { xs, sm, md, lg, xl }
+
 export enum IconSize { xs = '16px', sm = '24px', md = '32px', lg = '48px', xl = '64px' };
 
 interface IconProps {
@@ -108,17 +110,24 @@ export const GemUI = (props: GemUIProps) => {
   return <GemIconType {...props} />
 }
 
-export enum GemCostSize { xs = '11px', sm = '15px', md = '18px', lg = '25px', xl = '32px' }
+const GemCostNumberSize = {
+  [GemCostSize.xs]: '11px',
+  [GemCostSize.sm]: '15px;',
+  [GemCostSize.md]: '18px',
+  [GemCostSize.lg]: '25px',
+  [GemCostSize.xl]: '32px'
+}
 
 interface GemCostStyleProps {
-  size?: GemCostSize
+  size: GemCostSize
 }
 
 const GemCostStyle = styled.div.attrs((props: GemCostStyleProps) => ({
-  size: props.size || GemCostSize.md
+  size: GemCostNumberSize[props.size]
 }))`
   width: ${props => props.size};
   height: ${props => props.size};
+  font-size: ${props => props.size};
   border-radius: 100%;
   text-align: center;
   position: relative;
@@ -146,21 +155,16 @@ const OnyxCostStyle = styled(GemCostStyle)`
   background: var(--onyx);
 `
 
-export enum CardGemCostSize {
-  'xs' = '12px',
-  'sm' = '14px;',
-  'md' = '17px',
-  'lg' = '20px',
-  'xl' = '22px'
-}
-
-interface CostProps {
-  cost: number;
-  size?: CardGemCostSize
+const CardGemCostSize = {
+  [GemCostSize.xs]: '12px',
+  [GemCostSize.sm]: '14px;',
+  [GemCostSize.md]: '17px',
+  [GemCostSize.lg]: '20px',
+  [GemCostSize.xl]: '22px'
 }
 
 const CostNumberStyle = styled.span.attrs((props: GemCostStyleProps) => ({
-  size: props.size || CardGemCostSize.md
+  size: CardGemCostSize[props.size]
 }))`
   font-size: ${props => props.size};
   font-weight: bold;
@@ -185,14 +189,18 @@ const CostDiamondIcon = styled(CostGemIcon)`
   }
 `
 
-export const RubyCostUI = (props: CostProps) => {
+interface CostProps {
+  cost: number;
+  size?: GemCostSize
+}
 
+export const RubyCostUI = (props: CostProps) => {
   return (
     <RubyCostStyle size={props.size}>
       <CostNumberStyle size={props.size}>
         {props.cost}
       </CostNumberStyle>
-      {props.size !== CardGemCostSize.xs
+      {props.size !== GemCostSize.xs
         ? (<CostGemIcon>
             <RubyIcon />
           </CostGemIcon>)
@@ -207,7 +215,7 @@ export const EmeraldCostUI = (props: CostProps) => (
     <CostNumberStyle size={props.size}>
       {props.cost}
     </CostNumberStyle>
-    {props.size !== CardGemCostSize.xs
+    {props.size !== GemCostSize.xs
       ? (<CostGemIcon>
           <EmeraldIcon />
         </CostGemIcon>)
@@ -221,7 +229,7 @@ export const SapphireCostUI = (props: CostProps) => (
     <CostNumberStyle size={props.size}>
       {props.cost}
     </CostNumberStyle>
-    {props.size !== CardGemCostSize.xs
+    {props.size !== GemCostSize.xs
       ? (<CostGemIcon>
           <SapphireIcon />
         </CostGemIcon>)
@@ -232,11 +240,11 @@ export const SapphireCostUI = (props: CostProps) => (
 
 
 export const OnyxCostUI = (props: CostProps) => (
-  <OnyxCostStyle size={props.size as GemCostSize}>
+  <OnyxCostStyle size={props.size}>
     <CostNumberStyle size={props.size}>
       {props.cost}
     </CostNumberStyle>
-    {props.size !== CardGemCostSize.xs
+    {props.size !== GemCostSize.xs
       ? (<CostGemIcon>
           <OnyxIcon />
         </CostGemIcon>)
@@ -245,19 +253,21 @@ export const OnyxCostUI = (props: CostProps) => (
   </OnyxCostStyle>
 )
 
-export const DiamondCostUI = (props: CostProps) => (
-  <DiamondCostStyle size={GemCostSize[props.size as keyof typeof GemCostSize]}>
-    <CostNumberStyle size={props.size}>
-      {props.cost}
-    </CostNumberStyle>
-    {props.size !== CardGemCostSize.xs
-      ? (<CostGemIcon>
-          <DiamondIcon />
-        </CostGemIcon>)
-      : null
-    }
-  </DiamondCostStyle>
-)
+export const DiamondCostUI = (props: CostProps) => {
+  return (
+    <DiamondCostStyle size={props.size}>
+      <CostNumberStyle size={props.size}>
+        {props.cost}
+      </CostNumberStyle>
+      {props.size !== GemCostSize.xs
+        ? (<CostGemIcon>
+            <DiamondIcon />
+          </CostGemIcon>)
+        : null
+      }
+    </DiamondCostStyle>
+  )
+}
 
 const GemGroupedCostStyle = styled.div`
   display: flex;
@@ -266,22 +276,21 @@ const GemGroupedCostStyle = styled.div`
   bottom: 0;
 `
 
-
 export interface GemCostsUIProps {
   gems: GemStash
-  size?: CardGemCostSize
+  size?: GemCostSize
 }
 
 export const GemCostsUI = (props: GemCostsUIProps) => {
-  const sz = props.size;
-  
+  const size = props.size !== undefined ? props.size : GemCostSize.md;
+
   return (
     <GemGroupedCostStyle>
-      {props.gems.diamond > 0 ? <DiamondCostUI cost={props.gems.diamond} size={sz} /> : null}
-      {props.gems.ruby > 0 ? <RubyCostUI cost={props.gems.ruby} size={sz} /> : null}
-      {props.gems.emerald > 0 ? <EmeraldCostUI cost={props.gems.emerald} size={sz} /> : null}
-      {props.gems.onyx > 0 ? <OnyxCostUI cost={props.gems.onyx} size={sz} /> : null}
-      {props.gems.sapphire > 0 ? <SapphireCostUI cost={props.gems.sapphire} size={sz} /> : null}
+      {props.gems.diamond > 0 ? <DiamondCostUI cost={props.gems.diamond} size={size} /> : null}
+      {props.gems.ruby > 0 ? <RubyCostUI cost={props.gems.ruby} size={size} /> : null}
+      {props.gems.emerald > 0 ? <EmeraldCostUI cost={props.gems.emerald} size={size} /> : null}
+      {props.gems.onyx > 0 ? <OnyxCostUI cost={props.gems.onyx} size={size} /> : null}
+      {props.gems.sapphire > 0 ? <SapphireCostUI cost={props.gems.sapphire} size={size} /> : null}
     </GemGroupedCostStyle>
   )
 }

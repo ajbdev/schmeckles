@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Tier, Card } from '../Game';
-import { GemCostsUI, GemUI, IconSize, CardGemCostSize } from './Gems';
+import { GemCostsUI, GemUI, IconSize, GemCostSize } from './Gems';
 
 export enum CardSize {
   xs = 'xs',
@@ -60,8 +60,6 @@ const GemAwardStyle = styled.div`
 export const CardUI = (props: CardUIProps) => {
   const borderSize = BorderSize[props.size as keyof typeof BorderSize] || BorderSize.md;
 
-
-
   const gemUIProps = {
     gem: props.card.gem,
     size: IconSize[props.size as keyof typeof IconSize] || IconSize.md
@@ -69,14 +67,12 @@ export const CardUI = (props: CardUIProps) => {
 
   const gemCostUIProps = {
     gems: props.card.costs,
-    size: CardGemCostSize[props.size as keyof typeof CardGemCostSize]
+    size: GemCostSize[props.size as keyof typeof GemCostSize]
   }
 
   if (props.flipped) {
     return <FlippedCardUI {...props} borderSize={borderSize} />
   }
-
-  console.log(props.size);
 
   return (
     <CardStyle size={props.size ? props.size : CardSize.md}>

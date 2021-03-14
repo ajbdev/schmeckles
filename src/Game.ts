@@ -200,6 +200,17 @@ export class GameState  {
     }
   }
 
+  awardNobles(player: Player) {
+    this.nobles.forEach((noble, ix) => {
+      const canAfford = Object.keys(noble.costs).filter(gemType => noble.costs[gemType as Gem] > player.cards.cards.filter(c => c.gem === Gem[gemType as keyof typeof Gem]).length).length === 0;
+
+      if (canAfford) {
+        const noble = this.nobles.splice(ix, 1)[0];
+        player.nobles.push(noble);
+      }
+    });
+  }
+
   drawVisibleCards() {
     this.tierIDrawPile.draw(4-this.tierICards.cards.length, this.tierICards);
     this.tierIIDrawPile.draw(4-this.tierIICards.cards.length, this.tierIICards);

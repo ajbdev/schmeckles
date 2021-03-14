@@ -100,7 +100,7 @@ const CardSlotStyle = styled.div`
 `
 
 const ReservedCardSlotStyle = styled.div`
-
+  width: 51px;
 `
 
 const GemSpaceStyle = styled.div`
