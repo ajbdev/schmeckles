@@ -1,4 +1,4 @@
-import { GameState, PlayerTurn, GemStash, Gem, Card } from './Game';
+import { GameState, PlayerTurn, GemStash, Gem, Card, emptyGemStash } from './Game';
 import { Player } from './Player';
 
 export interface Result {
@@ -50,6 +50,30 @@ export const gameIsNotFull = (players: Player[]): Result => {
     passed: players.length < PLAYER_LIMIT,
     message: 'This game is full.'
   }
+}
+
+export const gatherGemsForPurchase = (cost: GemStash, player: Player): GemStash | boolean => {
+  const payment = emptyGemStash();
+  
+  // Subtract cards from payment costs
+  Object.keys(cost).filter(gem => cost[gem as Gem] > 0).forEach(gem => {
+    cost[gem as Gem] -= player.cards.cards.filter(c => c.gem === gem as Gem).length
+
+    if (cost[gem as Gem] < 0) {
+      cost[gem as Gem] = 0;
+    }
+
+    payment[gem as Gem] += cost[gem as Gem];
+  });
+
+  const balance = Object.keys(payment).map(gem => Math.max(0, payment[gem as Gem] - player.gems[gem as Gem])).reduce((a, b) => a + b);
+  if (balance > 0) {
+    if (player.gems.star >= balance) {
+      payment.star = balance - player.gems.star;
+    }
+  }
+
+  return payment;
 }
 
 export const canAffordCard = (card: Card, player: Player): Result => {
