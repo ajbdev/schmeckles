@@ -1,5 +1,5 @@
 
-import { Card, emptyGemStash, Gem, GemStash, PlayerTurn, GameState } from '../Game';
+import Game, { Card, emptyGemStash, Gem, GemStash, PlayerTurn, GameState } from '../Game';
 import { Player } from '../Player';
 import styled, { keyframes } from 'styled-components';
 import React, { useState } from 'react';
@@ -7,6 +7,8 @@ import { GemUI, IconSize } from './Gems';
 import { CardSize, CardUI } from './Cards';
 import { InteractiveCardUI, SchmeckleGemCoinUI } from './Board';
 import { NobleUI, NobleSize } from './Nobles';
+import { AvatarSize, AvatarUI } from './Avatars';
+import { Action } from '../Actions';
 
 const GemsStyle = styled.div`
   display: flex;
@@ -58,8 +60,12 @@ export const PlayerGemsTallyUI = (props: { gems: GemStash, diff?: GemStash }) =>
   </GemsStyle>
 );
 
-const NameStyle = styled.span`
+const NameStyle = styled.span.attrs((props: { border: string }) => ({
+  border: props.border || '0'
+}))`
+  border-bottom: ${props => props.border};
   user-select: none;
+  margin-left: 8px;
 `;
 
 const TurnMarkerStyle = styled.span`
@@ -67,7 +73,7 @@ const TurnMarkerStyle = styled.span`
   font-weight: bold;
   position: absolute;
   margin-left: -34px;
-  color: #fff;
+  color: var(--gold);
 `
 
 const VictoryPointsStyle = styled.div`
@@ -152,9 +158,12 @@ const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) =>
   position: relative;
 `
 
+const PassButtonStyle = styled.button`
+  margin-left: 50px;
+`
+
 interface PlayerUIProps { 
   player: Player
-  gameState?: GameState | null
   isPlayersTurn: boolean
   isContextPlayer: boolean 
 }
@@ -165,6 +174,15 @@ interface PlayerUIState {
 
 const defaultState = {
   flipCard: true
+}
+
+
+const passTurn = (player: Player) => {
+  if (window.confirm('Are you sure you want to pass your turn?')) {
+    const game = Game.getInstance();
+
+    game.sendAction(player, Action.PassTurn, {});
+  }
 }
 
 export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
@@ -193,20 +211,33 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           isContextPlayer={this.props.isContextPlayer}
         >
           {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
-          
+
           <TopRow>
-          <NameStyle>{this.props.player.name}</NameStyle>
-          {this.props.player.computer ? <CpuTagStyle>CPU</CpuTagStyle> : null}
+          
+            <AvatarUI 
+              src={this.props.player.avatar} 
+              size={AvatarSize.sm} 
+              border={this.props.isPlayersTurn ? '3px solid var(--gold)' : '3px solid #aaa'}
+            />
+            <NameStyle border={this.props.isPlayersTurn ? '3px solid var(--gold)' : ''}>{this.props.player.name}</NameStyle>
+            {this.props.player.computer ? <CpuTagStyle>CPU</CpuTagStyle> : null}
 
-          <NobleStackStyle>
-            {this.props.player.nobles.map(n => 
-              <NobleUI noble={n} size={NobleSize.xs} />                
-            )}
-          </NobleStackStyle>
+            <NobleStackStyle>
+              {this.props.player.nobles.map(n => 
+                <NobleUI noble={n} size={NobleSize.xs} />                
+              )}
+            </NobleStackStyle>
 
-          <VictoryPointsStyle>
-            {this.props.player.victoryPoints()}
-          </VictoryPointsStyle>
+            <VictoryPointsStyle>
+              {this.props.player.victoryPoints()}
+            </VictoryPointsStyle>
+
+            {this.props.isPlayersTurn && this.props.isContextPlayer
+              ? (
+                <PassButtonStyle onClick={() => passTurn(this.props.player)}>Pass</PassButtonStyle>
+              )
+              : null
+            }
 
           </TopRow>
           <GemTallyStyle>
@@ -233,6 +264,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                   card={c} 
                   index={ix}
                   cards={this.props.player.reservedCards}
+                  isPlayersTurn={this.props.isPlayersTurn}
                   player={this.props.player}
                   size={CardSize.xs} 
                   flipped={this.state.flipCard} 

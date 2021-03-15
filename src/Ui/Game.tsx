@@ -6,6 +6,7 @@ import { Action } from '../Actions';
 import styled from 'styled-components';
 import { BackgroundType } from './Splash';
 import { PlayerUI } from './Player';
+import { AvatarUI } from './Avatars';
 
 interface GameUIState {
 }
@@ -35,6 +36,59 @@ const SideColumnStyle = styled.div`
   padding: 20px 0;
 `
 
+const WinnerOverlayStyle = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(50,50,50,.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const WinnerModalStyle = styled.div`
+  padding: 20px;
+  width: 340px;
+  background: #000;
+  border: 3px solid var(--gold);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  color: #fff;
+`
+
+const PlayAgainButtonStyle = styled.button`
+  border-radius: 0;
+  font-size: 28px;
+  padding: 10px;
+  border: 2px solid #0e0e0e;
+  background: #5ee465;
+  margin-left: 20px;
+  color: #fff;
+  margin-top: 20px; 
+  cursor: pointer;
+  width: 50%;
+`
+
+const WinnerSplashUI = (props: { gameState: GameState }) => {
+  const winner = props.gameState.players.filter(p => p.winner)[0];
+
+  return (
+    <WinnerOverlayStyle>
+      <WinnerModalStyle>
+        <AvatarUI src={winner.avatar} border={"2px solid #ccc"} />
+        {winner.name} wins!
+        <PlayAgainButtonStyle onClick={() => window.location.reload()}>Play Again</PlayAgainButtonStyle>
+      </WinnerModalStyle>
+    </WinnerOverlayStyle>
+  )
+}
+
 interface GameUIProps {
   gameState: GameState | null
   contextPlayer: Player
@@ -59,7 +113,6 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
-                      gameState={this.props.gameState}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.props.gameState!.turn === p.turn}
                     />
@@ -75,13 +128,17 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
-                      gameState={this.props.gameState}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.props.gameState!.turn === p.turn}
                     />
                   ) : null
                 )}
               </SideColumnStyle>
+              {this.props.gameState.ended 
+                ? (
+                  <WinnerSplashUI gameState={this.props.gameState} />
+                )
+                : null}
             </>
           )
           : null

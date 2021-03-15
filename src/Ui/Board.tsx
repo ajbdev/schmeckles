@@ -2,13 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { DrawPileUI, CardUI, CardSize } from './Cards';
-import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash } from '../Game';
+import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
 import { Player } from '../Player';
 import { NobleUI } from './Nobles';
 import { GemUI, IconSize } from './Gems';
 import { Action } from '../Actions';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
+import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
 
 const game = Game.getInstance();
 
@@ -66,6 +67,7 @@ interface InteractiveCardUIProps {
   player: Player
   index: number
   cards: Card[]
+  isPlayersTurn: boolean
   disableReserve?: boolean
   flipped?: boolean
   size?: CardSize
@@ -79,31 +81,44 @@ const reserveCard = (player: Player, cards: Card[], ix: number) => {
   game.sendAction(player, Action.ReserveCard, { cards, index: ix });
 }
 
-export const InteractiveCardUI = (props: InteractiveCardUIProps) => (
-  <InteractiveCardStyle>
-    <CardUI {...props} /> 
-    <CardButtonGutter>
-      <button onClick={() => purchaseCard(props.player, props.cards, props.index)}>Buy</button>
-      {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)}>Reserve</button> : null}
-    </CardButtonGutter>
-  </InteractiveCardStyle>
-);
+export const InteractiveCardUI = (props: InteractiveCardUIProps) => {
+  const canPurchase = canAffordCard(props.card, props.player).passed;
+  const canReserve = canReserveCard(props.player).passed;
+
+  return (
+    <InteractiveCardStyle>
+      <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} /> 
+      {props.isPlayersTurn
+        ? (
+          <CardButtonGutter>
+            <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
+            {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
+          </CardButtonGutter>
+        )
+        : null
+      }
+    </InteractiveCardStyle>
+  )
+};
 
 interface CardRowUIProps {
   tier: Tier
   drawPile: CardPile
   visibleCards: Card[]
+  isPlayersTurn: boolean
   player: Player
 }
 
-export const CardRowUI = (props: CardRowUIProps ) => (
-  <CardRowStyle>
-    <DrawPileUI tier={props.drawPile.tier} numberOfCards={props.drawPile.cards.length}></DrawPileUI>
-    {props.visibleCards.map((card, i) => 
-      <InteractiveCardUI card={card} index={i} key={i} player={props.player} cards={props.visibleCards} />  
-    )}
-  </CardRowStyle>
-)
+export const CardRowUI = (props: CardRowUIProps ) => {
+  return (
+    <CardRowStyle>
+      <DrawPileUI tier={props.drawPile.tier} numberOfCards={props.drawPile.cards.length}></DrawPileUI>
+      {props.visibleCards.map((card, i) => 
+        <InteractiveCardUI cards={props.visibleCards} card={card} index={i} key={i} {...props} />  
+      )}
+    </CardRowStyle>
+  );
+}
 const BoardStyle = styled.div`
   display: flex;
   flex-direction: row;
@@ -196,7 +211,9 @@ const StarSchmeckleStyle = styled(SchmeckleStyle)`
   }
 `
 
-const SchmeckleGemStash = styled.div`
+const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boolean }) => ({
+  isPlayersTurn: props.isPlayersTurn
+}))`
   display: flex;
   flex-direction: row;
   max-width: 80px;
@@ -210,14 +227,16 @@ const SchmeckleGemStash = styled.div`
   }
   padding-right: 36px;
 
-  &:hover {
-    cursor: pointer;
-    svg {
-      border-color: #ffd900;
-      fill: #ffd900;
-      stroke: #ffd900;
+  ${props => props.isPlayersTurn && `
+    &:hover {
+      cursor: pointer;
+      svg {
+        border-color: #ffd900;
+        fill: #ffd900;
+        stroke: #ffd900;
+      }
     }
-  }
+  `}
 `
 
 export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize }) => {
@@ -242,11 +261,12 @@ export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize }) => {
 interface SchmeckleStackUIProps {
   gem: Gem
   amount: number
+  isPlayersTurn: boolean;
   holdGem: (gem:Gem) => void
 }
 
 const SchmeckleStackUI = (props: SchmeckleStackUIProps) => (
-  <SchmeckleGemStash onClick={() => props.holdGem(props.gem)} >
+  <SchmeckleGemStash isPlayersTurn={props.isPlayersTurn} onClick={() => props.isPlayersTurn && props.holdGem(props.gem)} >
     {[...Array(props.amount)].map((a, i) => 
         <SchmeckleGemCoinUI gem={props.gem} key={i} />
     )}
@@ -257,6 +277,7 @@ interface GemBankProps {
   gems: GemStash
   setHeldGems: (gems:Gem[]) => void
   heldGems: Gem[]
+  isPlayersTurn: boolean
 }
 
 const GemBankUI = (props: GemBankProps) => {
@@ -283,12 +304,12 @@ const GemBankUI = (props: GemBankProps) => {
   return (
     <GemBankStyle>
       <GemBankHolderStyle>
-        {props.gems.diamond > 0 ? <SchmeckleStackUI gem={Gem.Diamond} amount={props.gems.diamond-subtracted.diamond} holdGem={holdGem} /> : null}
-        {props.gems.ruby > 0 ? <SchmeckleStackUI gem={Gem.Ruby} amount={props.gems.ruby-subtracted.ruby} holdGem={holdGem} />  : null}
-        {props.gems.emerald > 0 ? <SchmeckleStackUI gem={Gem.Emerald} amount={props.gems.emerald-subtracted.emerald} holdGem={holdGem} />  : null}
-        {props.gems.onyx > 0 ? <SchmeckleStackUI gem={Gem.Onyx} amount={props.gems.onyx-subtracted.onyx} holdGem={holdGem} />  : null}
-        {props.gems.sapphire > 0 ? <SchmeckleStackUI gem={Gem.Sapphire} amount={props.gems.sapphire-subtracted.sapphire} holdGem={holdGem} />  : null}
-        {props.gems.star > 0 ? <SchmeckleStackUI gem={Gem.Star} amount={props.gems.star-subtracted.star} holdGem={holdGem} />  : null}
+        {props.gems.diamond > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Diamond} amount={props.gems.diamond-subtracted.diamond} holdGem={holdGem} /> : null}
+        {props.gems.ruby > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Ruby} amount={props.gems.ruby-subtracted.ruby} holdGem={holdGem} />  : null}
+        {props.gems.emerald > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Emerald} amount={props.gems.emerald-subtracted.emerald} holdGem={holdGem} />  : null}
+        {props.gems.onyx > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Onyx} amount={props.gems.onyx-subtracted.onyx} holdGem={holdGem} />  : null}
+        {props.gems.sapphire > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Sapphire} amount={props.gems.sapphire-subtracted.sapphire} holdGem={holdGem} />  : null}
+        {props.gems.star > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Star} amount={props.gems.star-subtracted.star} holdGem={holdGem} />  : null}
       </GemBankHolderStyle>
     </GemBankStyle>
   )
@@ -430,19 +451,21 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
   }
 
   render() {
+    const isTurn = isPlayersTurn(this.props.contextPlayer!, this.props.gameState.players, this.props.gameState.turn).passed;
+
     return (
       <>
         <BoardStyle>
-          <GemBankUI gems={this.props.gameState.gems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} heldGems={this.state.heldGems} />
+          <GemBankUI isPlayersTurn={isTurn} gems={this.props.gameState.gems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} heldGems={this.state.heldGems} />
           <TilesStyle>
             <NobleRowStyle>
               {this.props.gameState.nobles.map((noble, i) => 
                 <NobleUI noble={noble} key={i} />
               )}
             </NobleRowStyle>
-            <CardRowUI player={this.props.contextPlayer!} tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards}></CardRowUI>
-            <CardRowUI player={this.props.contextPlayer!} tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards}></CardRowUI>
-            <CardRowUI player={this.props.contextPlayer!} tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards}></CardRowUI>
           </TilesStyle>
         </BoardStyle>
         <HudGutterAreaStyle>

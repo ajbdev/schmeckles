@@ -69,6 +69,8 @@ export abstract class BaseAction implements IAction {
 
     if (turn > gameState.players.length) {
       turn = 1;
+      gameState.fullTurns++;
+      gameState.checkForWinner();
     }
 
     gameState.turn = turn;

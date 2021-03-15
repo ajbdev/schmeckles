@@ -21,10 +21,12 @@ const CardSizes: { [key:string]: string[] } = {
 
 interface CardStyleProps {
   size?: CardSize
+  outline?: string
 }
 
 const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
-  size: props.size || CardSize.md
+  size: props.size || CardSize.md,
+  outline: props.outline || ''
 }))`
   width: ${props => CardSizes[props.size][0]};
   height: ${props => CardSizes[props.size][1]};
@@ -32,6 +34,7 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   border-radius: 5px;
   background: #fff;
   margin: 5px;
+  box-shadow: ${props => props.outline};
   position: relative;
   user-select: none;
 `
@@ -48,6 +51,7 @@ interface CardUIProps {
   size?: CardSize
   flipped?: boolean
   hideCosts?: boolean
+  outline?: string
 }
 
 const GemAwardStyle = styled.div`
@@ -82,7 +86,7 @@ export const CardUI = (props: CardUIProps) => {
   }
 
   return (
-    <CardStyle size={props.size ? props.size : CardSize.md}>
+    <CardStyle size={props.size ? props.size : CardSize.md} outline={props.outline}>
       {props.card.points ? <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle> : null}
       {props.card.costs && !props.hideCosts
         ? (

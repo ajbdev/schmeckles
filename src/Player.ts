@@ -56,6 +56,7 @@ export class Player {
   connectionId: string;
   computer: boolean;
   avatar: string;
+  winner: boolean;
 
   constructor(name: string, avatar: string) {    
     this.id = name;
@@ -68,6 +69,7 @@ export class Player {
     this.connected = false;
     this.connectionId = '';
     this.computer = false;
+    this.winner = false;
     this.turn = 0;
   }
 

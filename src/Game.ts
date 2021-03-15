@@ -138,6 +138,8 @@ export class CardPile {
 
 export type PlayerTurn = number;
 
+export const WIN_THRESHOLD = 1;
+
 export class GameState  {
   tierICards: CardPile;
   tierIICards: CardPile;
@@ -149,7 +151,9 @@ export class GameState  {
   gems: GemStash;
   players: Player[];
   started: boolean;
+  ended: boolean;
   turn: PlayerTurn;
+  fullTurns: PlayerTurn;
   background?: string;
 
   constructor() {
@@ -169,7 +173,9 @@ export class GameState  {
 
     this.drawVisibleCards();
     this.turn = 1;
+    this.fullTurns = 0;
     this.started = false;
+    this.ended = false;
 
     this.gems = {
       [Gem.Ruby]: 7,
@@ -209,6 +215,24 @@ export class GameState  {
         player.nobles.push(noble);
       }
     });
+  }
+
+  checkForWinner() {
+    const eligible = this.players.filter(p => p.victoryPoints() >= WIN_THRESHOLD);
+
+    if (eligible.length === 1) {
+      this.ended = true;
+      eligible[0].winner = true;
+    }
+
+    if (eligible.length > 1) {
+      const sorted = eligible.sort((a, b) => a.victoryPoints() > b.victoryPoints() ? -1 : 1);
+
+      if (sorted[0].victoryPoints() > sorted[1].victoryPoints()) {
+        this.ended = true;
+        sorted[0].winner = true;
+      }
+    }
   }
 
   drawVisibleCards() {
