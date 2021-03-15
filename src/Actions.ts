@@ -188,7 +188,18 @@ export class PurchaseCard extends BaseAction {
   act(gameState: GameState) {
     const card = this.cards.splice(this.index,1)[0];
 
-    moveGems(this.player.gems, gameState.gems, card.costs);
+    const cost = { ...card.costs };
+
+    // Subtract player card gem awards from cost
+    Object.keys(card.costs).filter(gem => card.costs[gem as Gem] > 0).forEach(gem => {
+      cost[gem as Gem] -= this.player.cards.cards.filter(c => c.gem === gem as Gem).length
+
+      if (cost[gem as Gem] < 0) {
+        cost[gem as Gem] = 0;
+      }
+    });
+
+    moveGems(this.player.gems, gameState.gems, cost);
 
     if (card.reserved) {
       card.reserved = false;

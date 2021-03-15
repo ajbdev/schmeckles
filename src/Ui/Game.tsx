@@ -59,6 +59,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
+                      gameState={this.props.gameState}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.props.gameState!.turn === p.turn}
                     />
@@ -74,6 +75,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
+                      gameState={this.props.gameState}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.props.gameState!.turn === p.turn}
                     />

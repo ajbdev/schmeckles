@@ -1,11 +1,12 @@
 
-import { Card, emptyGemStash, Gem, GemStash, PlayerTurn } from '../Game';
+import { Card, emptyGemStash, Gem, GemStash, PlayerTurn, GameState } from '../Game';
 import { Player } from '../Player';
 import styled, { keyframes } from 'styled-components';
 import React, { useState } from 'react';
 import { GemUI, IconSize } from './Gems';
 import { CardSize, CardUI } from './Cards';
 import { InteractiveCardUI, SchmeckleGemCoinUI } from './Board';
+import { NobleUI, NobleSize } from './Nobles';
 
 const GemsStyle = styled.div`
   display: flex;
@@ -115,6 +116,31 @@ const CoinStackStyle = styled.div`
   }
 `
 
+const CpuTagStyle = styled.span`
+  font-size: 12px;
+  text-transform: uppercase;
+  background: transparent;
+  color: #fff;
+  vertical-align: middle;
+  margin-left: 10px;
+  padding: 2px 4px;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  user-select: none;
+`
+
+const NobleStackStyle = styled.div`
+
+  display: flex;
+  flex-direction: row;
+`
+
+const TopRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`
+
 const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) => ({
   isContextPlayer: props.isContextPlayer || false
 }))`
@@ -128,6 +154,7 @@ const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) =>
 
 interface PlayerUIProps { 
   player: Player
+  gameState?: GameState | null
   isPlayersTurn: boolean
   isContextPlayer: boolean 
 }
@@ -165,13 +192,23 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           key={this.props.player.id}
           isContextPlayer={this.props.isContextPlayer}
         >
-        {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
-
+          {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
+          
+          <TopRow>
           <NameStyle>{this.props.player.name}</NameStyle>
+          {this.props.player.computer ? <CpuTagStyle>CPU</CpuTagStyle> : null}
+
+          <NobleStackStyle>
+            {this.props.player.nobles.map(n => 
+              <NobleUI noble={n} size={NobleSize.xs} />                
+            )}
+          </NobleStackStyle>
 
           <VictoryPointsStyle>
             {this.props.player.victoryPoints()}
           </VictoryPointsStyle>
+
+          </TopRow>
           <GemTallyStyle>
             <PlayerGemsTallyUI gems={this.addGemTotal()} />
           </GemTallyStyle>

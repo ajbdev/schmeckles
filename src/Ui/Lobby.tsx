@@ -269,6 +269,7 @@ export class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
       this.props.setIsHostingLobby(false);
       this.props.setErrorMessage('');
       window.history.pushState({}, 'Schmeckles', '/');
+      Game.reset();
       document.title = 'Schmeckles';
     }
   }
