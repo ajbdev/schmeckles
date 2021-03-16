@@ -1,6 +1,6 @@
 import { GameState, GemStash, Gem, Card, Tier, CardPile, emptyGemStash } from './Game';
 import { Player } from './Player';
-import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted, isValidGems } from './Rules';
+import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted, isValidGems, gatherGemsForPurchase } from './Rules';
 
 export enum Action {
   JoinGame = 'JoinGame',
@@ -190,18 +190,9 @@ export class PurchaseCard extends BaseAction {
   act(gameState: GameState) {
     const card = this.cards.splice(this.index,1)[0];
 
-    const cost = { ...card.costs };
+    const cost = gatherGemsForPurchase(card.costs, this.player);
 
-    // Subtract player card gem awards from cost
-    Object.keys(card.costs).filter(gem => card.costs[gem as Gem] > 0).forEach(gem => {
-      cost[gem as Gem] -= this.player.cards.cards.filter(c => c.gem === gem as Gem).length
-
-      if (cost[gem as Gem] < 0) {
-        cost[gem as Gem] = 0;
-      }
-    });
-
-    moveGems(this.player.gems, gameState.gems, cost);
+    moveGems(this.player.gems, gameState.gems, cost as GemStash);
 
     if (card.reserved) {
       card.reserved = false;

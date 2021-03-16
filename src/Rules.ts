@@ -66,10 +66,13 @@ export const gatherGemsForPurchase = (cost: GemStash, player: Player): GemStash 
     payment[gem as Gem] += cost[gem as Gem];
   });
 
+  // Use stars to balance sums
   const balance = Object.keys(payment).map(gem => Math.max(0, payment[gem as Gem] - player.gems[gem as Gem])).reduce((a, b) => a + b);
   if (balance > 0) {
     if (player.gems.star >= balance) {
       payment.star = balance - player.gems.star;
+    } else {
+      return false;
     }
   }
 
@@ -77,10 +80,10 @@ export const gatherGemsForPurchase = (cost: GemStash, player: Player): GemStash 
 }
 
 export const canAffordCard = (card: Card, player: Player): Result => {
-  const overdrawn = Object.keys(card.costs).filter(gemType => card.costs[gemType as Gem] > (player.gems[gemType as Gem]+player.cards.cards.filter(c => c.gem === gemType as Gem).length)).length;
+  const funds = gatherGemsForPurchase(card.costs, player);
 
   return {
-    passed: overdrawn === 0,
+    passed: !!funds,
     message: 'Not enough gems to purchase this card.'
   }
 }

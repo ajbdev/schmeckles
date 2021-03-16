@@ -314,6 +314,7 @@ const GemBankUI = (props: GemBankProps) => {
     </GemBankStyle>
   )
 }
+
 const HudGutterAreaStyle = styled.div`
   display: flex;
   justify-content: center;
