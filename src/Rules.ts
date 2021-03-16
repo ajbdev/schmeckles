@@ -52,8 +52,10 @@ export const gameIsNotFull = (players: Player[]): Result => {
   }
 }
 
-export const gatherGemsForPurchase = (cost: GemStash, player: Player): GemStash | boolean => {
+export const gatherGemsForPurchase = (c: GemStash, player: Player): GemStash | boolean => {
   const payment = emptyGemStash();
+  
+  const cost = { ...c };
   
   // Subtract cards from payment costs
   Object.keys(cost).filter(gem => cost[gem as Gem] > 0).forEach(gem => {

@@ -43,7 +43,7 @@ export const PlayerGemsTallyUI = (props: { gems: GemStash, diff?: GemStash }) =>
   <GemsStyle>
     {Object.keys(props.gems).map(
       g => (
-        <GemValueStyle>
+        <GemValueStyle key={`gem_${g}`}>
           <NumberStyle>
             {props.gems[g as Gem]}
           </NumberStyle>
@@ -247,7 +247,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           <CoinStackStyle>
             {Object.keys(this.props.player.gems).map(gemType =>
               [...Array(this.props.player.gems[gemType as Gem])].map(gem => 
-                <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} />  
+                <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`gem_${gemType}`} />  
               )  
             )}
           </CoinStackStyle>
