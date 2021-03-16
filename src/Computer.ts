@@ -37,8 +37,8 @@ const take2RandomGems = () => {
 const reserveCard = (g: GameState): IPurchasableCard => {
   const piles: CardPile[] = [g.tierICards, g.tierIICards, g.tierIIICards];
 
-  const pileIndex = Math.floor(Math.random()*piles.length)+1
-  const cardIndex = Math.floor(Math.random()*piles[pileIndex].cards.length)+1;
+  const pileIndex = Math.floor(Math.random()*piles.length)
+  const cardIndex = Math.floor(Math.random()*piles[pileIndex].cards.length);
 
   return { cards: piles[pileIndex].cards, index: cardIndex };
 }
@@ -71,14 +71,27 @@ export function computeAction(player: Player, gameState: GameState): SendActionI
 
     return {
       actionType: Action.PurchaseCard,
-      data: { cards: card.cards, index: card.index }
+      data: card
     }
   }
   
   // Otherwise, randomly do any other action
+  const decision = Math.floor(Math.random()*10)+1;
 
-  return {
-    actionType: Action.PassTurn,
-    data: {}
+  if (decision <= 4) {
+    return {
+      actionType: Action.TakeGems,
+      data: { gems: take3RandomGems() }
+    }
+  } else if (decision > 4 && decision < 8) {
+    return {
+      actionType: Action.TakeGems,
+      data: { gems: take2RandomGems() }
+    }
+  } else {
+    return {
+      actionType: Action.ReserveCard,
+      data: reserveCard(gameState)
+    }
   }
 }
