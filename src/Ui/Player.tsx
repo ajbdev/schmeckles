@@ -246,20 +246,20 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
 
           <CoinStackStyle>
             {Object.keys(this.props.player.gems).map(gemType =>
-              [...Array(this.props.player.gems[gemType as Gem])].map(gem => 
-                <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`gem_${gemType}`} />  
+              [...Array(this.props.player.gems[gemType as Gem])].map((gem, ix) => 
+                <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`${this.props.player.id}_gem_${gemType}_${ix}`} />  
               )  
             )}
           </CoinStackStyle>
 
           <CardStackStyle>
-            {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map(c =>
-              <CardSlotStyle>
+            {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map((c,ix) =>
+              <CardSlotStyle key={`${this.props.player.id}_card_${c.gem}_${ix}`}>
                 <CardUI card={c} size={CardSize.xs} hideCosts={true} />
               </CardSlotStyle>
             )}
             {this.props.player.reservedCards.map((c,ix) => 
-              <ReservedCardSlotStyle onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
+              <ReservedCardSlotStyle key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
                 <InteractiveCardUI 
                   card={c} 
                   index={ix}

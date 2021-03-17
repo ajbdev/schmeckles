@@ -56,25 +56,33 @@ export const gatherGemsForPurchase = (c: GemStash, player: Player): GemStash | b
   const payment = emptyGemStash();
   
   const cost = { ...c };
-  
+
   // Subtract cards from payment costs
-  Object.keys(cost).filter(gem => cost[gem as Gem] > 0).forEach(gem => {
-    cost[gem as Gem] -= player.cards.cards.filter(c => c.gem === gem as Gem).length
+  Object.keys(cost).filter(g => cost[g as Gem] > 0).forEach(g => {
+    cost[g as Gem] -= player.cards.cards.filter(c => c.gem === g as Gem).length
 
-    if (cost[gem as Gem] < 0) {
-      cost[gem as Gem] = 0;
-    }
+    cost[g as Gem] = Math.max(0, cost[g as Gem]);
 
-    payment[gem as Gem] += cost[gem as Gem];
+    payment[g as Gem] += cost[g as Gem];
   });
 
+
   // Use stars to balance sums
-  const balance = Object.keys(payment).map(gem => Math.max(0, payment[gem as Gem] - player.gems[gem as Gem])).reduce((a, b) => a + b);
-  if (balance > 0) {
-    if (player.gems.star >= balance) {
-      payment.star = balance - player.gems.star;
-    } else {
-      return false;
+  let stars = player.gems.star;
+
+  for (let g of Object.keys(payment)) {
+    const p = payment[g as Gem];
+
+    const diff = p - player.gems[g as Gem];
+
+    if (diff > 0) {
+      if (stars >= diff) {
+        payment[g as Gem] -= diff;
+        payment.star += diff;
+        stars--;
+      } else {
+        return false
+      }
     }
   }
 
