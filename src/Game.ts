@@ -7,6 +7,8 @@ import { classToPlain, plainToClass } from 'class-transformer';
 import { computeAction } from './Computer';
 import { Player } from './Player';
 
+export const WIN_THRESHOLD = 15;
+
 interface NobleJsonValues {
   points: number;
   diamond: number | null;
@@ -137,8 +139,6 @@ export class CardPile {
 }
 
 export type PlayerTurn = number;
-
-export const WIN_THRESHOLD = 1;
 
 export class GameState  {
   tierICards: CardPile;
