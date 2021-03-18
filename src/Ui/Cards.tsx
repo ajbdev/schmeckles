@@ -52,6 +52,7 @@ interface CardUIProps {
   flipped?: boolean
   hideCosts?: boolean
   outline?: string
+  onClick?: () => void
 }
 
 const GemAwardStyle = styled.div`
@@ -86,7 +87,7 @@ export const CardUI = (props: CardUIProps) => {
   }
 
   return (
-    <CardStyle size={props.size ? props.size : CardSize.md} outline={props.outline}>
+    <CardStyle size={props.size ? props.size : CardSize.md} outline={props.outline} onClick={props.onClick}>
       {props.card.points ? <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle> : null}
       {props.card.costs && !props.hideCosts
         ? (

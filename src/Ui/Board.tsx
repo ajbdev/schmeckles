@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { DrawPileUI, CardUI, CardSize } from './Cards';
@@ -10,6 +10,7 @@ import { Action } from '../Actions';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
 import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
+import { Frame } from 'framer';
 
 const game = Game.getInstance();
 
@@ -24,36 +25,32 @@ const NobleRowStyle = styled.div`
   justify-content: flex-end;
 `
 
-const InteractiveCardStyle = styled.div`
+const InteractiveCardStyle = styled.div.attrs((props: { cursor?: boolean }) => ({
+  cursor: props.cursor
+}))`
   position: relative;
-  cursor: pointer;
+  cursor: ${props => props.cursor ? 'pointer' : 'default'};
   border-radius: 4px;
+  width: 100px;
   border: 1px solid transparent;
-
-  &:hover {
-    border-color: #999;
-    background: #999;
-
-    & > div {
-      display: block;
-    }
-  }
 `
 
-const CardButtonGutter = styled.div`
+const CardActionsOverlayStyle = styled.div`
   position: absolute;
-  display: none;
-  background: #999;
-  z-index: 101;
-  border-radius: 4px;
-  border: 1px solid #999;
-  margin-top: -4px;
-  padding: 4px;
-  margin-left: -1px;
-  margin-right: -1px;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  margin-left: 5px;
+  margin-top: 5px;
+  background: rgba(50,50,50,.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 5px;
 
   & button {
-    width: 100%;
+    display: block;
     padding: 5px;
 
     &:first-child {
@@ -85,19 +82,23 @@ export const InteractiveCardUI = (props: InteractiveCardUIProps) => {
   const canPurchase = canAffordCard(props.card, props.player).passed;
   const canReserve = canReserveCard(props.player).passed;
 
+  const [showActionMenu, setShowActionMenu] = useState(false);
+
   return (
-    <InteractiveCardStyle>
-      <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} /> 
-      {props.isPlayersTurn
-        ? (
-          <CardButtonGutter>
-            <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
-            {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
-          </CardButtonGutter>
-        )
-        : null
-      }
-    </InteractiveCardStyle>
+      <InteractiveCardStyle cursor={canPurchase || canReserve}>
+        <Frame whileHover={{ scale: 1.25, zIndex: 9999 }} background={"transparent"} width={92} height={131}>
+        <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} onClick={() => setShowActionMenu(!showActionMenu)} /> 
+        {showActionMenu
+          ? (
+            <CardActionsOverlayStyle>
+              <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
+              {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
+            </CardActionsOverlayStyle>
+          )
+          : null
+        }
+        </Frame>
+      </InteractiveCardStyle>
   )
 };
 
