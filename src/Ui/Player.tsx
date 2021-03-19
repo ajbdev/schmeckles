@@ -178,6 +178,7 @@ interface PlayerUIProps {
   player: Player
   isPlayersTurn: boolean
   isContextPlayer: boolean 
+  setPlayerRefs: (p:Player,slot:string,el:any) => void
 }
 
 interface PlayerUIState {
@@ -273,7 +274,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
             
           </CardStackStyle>
 
-          <ReserveGutterStyle>
+          <ReserveGutterStyle ref={el => this.props.setPlayerRefs(this.props.player, 'reserve', el)}>
             {this.props.player.reservedCards.map((c,ix) => 
               <ReservedCardSlotStyle key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
                 <InteractiveCardUI 

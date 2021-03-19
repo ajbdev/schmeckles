@@ -105,8 +105,16 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
     this.playerRefs = {};
   }
 
-  setPlayerRefs = (el:any) => {
+  setPlayerRefs = (p:Player,slot:string,el:any) => {
+    if (!this.playerRefs[p.id]) {
+      this.playerRefs[p.id] = {}
+    }
 
+    this.playerRefs[p.id][slot] = el;
+  }
+
+  getPlayerRef = (p:Player,slot:string) => {
+    return this.playerRefs[p.id][slot];
   }
 
   render() {
@@ -121,6 +129,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
+                      setPlayerRefs={this.setPlayerRefs}
                       key={p.id}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.props.gameState!.turn === p.turn}
@@ -129,7 +138,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                 )}
               </SideColumnStyle>
               <ColumnStyle>
-                <BoardUI gameState={this.props.gameState} contextPlayer={this.props.contextPlayer} />
+                <BoardUI gameState={this.props.gameState} contextPlayer={this.props.contextPlayer} playerRefs={this.playerRefs} />
               </ColumnStyle>
               <SideColumnStyle>
                 {this.props.gameState.players.map((p, ix) => 
@@ -138,6 +147,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                     <PlayerUI
                       player={p}
                       key={p.id}
+                      setPlayerRefs={this.setPlayerRefs}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.props.gameState!.turn === p.turn}
                     />

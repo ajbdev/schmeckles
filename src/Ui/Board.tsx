@@ -15,10 +15,6 @@ import { motion, useAnimation } from 'framer-motion';
 
 const game = Game.getInstance();
 
-const CardRowStyle = styled.div`
-  display: flex;
-  flex-direction: row;
-`
 
 const NobleRowStyle = styled.div`
   display: flex;
@@ -97,6 +93,12 @@ export const InteractiveCardUI = (props: InteractiveCardUIProps) => {
 
   async function reserveCardAndAnimate(p: Player, c: Card[], i: number) {
     await animator.start((i) => ({
+      x: -50,
+      y: -50,
+      scale: 1,
+      transition: { duration: 0.25 }
+    }));
+    await animator.start((i) => ({
       x: -600,
       y: -50,
       scale: 0.5,
@@ -131,36 +133,6 @@ export const InteractiveCardUI = (props: InteractiveCardUIProps) => {
       </InteractiveCardStyle>
   )
 };
-
-interface CardRowUIProps {
-  tier: Tier
-  drawPile: CardPile
-  visibleCards: Card[]
-  isPlayersTurn: boolean
-  player: Player
-}
-
-export const CardRowUI = (props: CardRowUIProps ) => {
-  const [showActionMenu, setShowActionMenu] = useState('');
-
-
-  return (
-    <CardRowStyle>
-      <DrawPileUI tier={props.drawPile.tier} numberOfCards={props.drawPile.cards.length}></DrawPileUI>
-      {props.visibleCards.map((card, i) => 
-        <InteractiveCardUI 
-          cards={props.visibleCards} 
-          card={card} 
-          index={i} 
-          key={i} 
-          setShowActionMenu={(card:string) => setShowActionMenu(card)} 
-          showActionMenu={showActionMenu} 
-          {...props} 
-        />  
-      )}
-    </CardRowStyle>
-  );
-}
 const BoardStyle = styled.div`
   display: flex;
   flex-direction: row;
