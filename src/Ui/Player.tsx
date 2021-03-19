@@ -158,6 +158,18 @@ const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) =>
   position: relative;
 `
 
+const ReserveGutterStyle = styled.div`
+  background: rgba(50,50,50,.2);
+  border-radius: 5px;
+  padding: 4px;
+  height: 90px;
+  display: inline-block;
+  & label {
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+`
+
 const PassButtonStyle = styled.button`
   margin-left: 50px;
 `
@@ -258,6 +270,10 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 <CardUI card={c} size={CardSize.xs} hideCosts={true} />
               </CardSlotStyle>
             )}
+            
+          </CardStackStyle>
+
+          <ReserveGutterStyle>
             {this.props.player.reservedCards.map((c,ix) => 
               <ReservedCardSlotStyle key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
                 <InteractiveCardUI 
@@ -271,7 +287,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 />
               </ReservedCardSlotStyle>
             )}
-          </CardStackStyle>
+          </ReserveGutterStyle>
         </ListItemStyle>  
       </>
     )

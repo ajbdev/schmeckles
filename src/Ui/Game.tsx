@@ -95,10 +95,18 @@ interface GameUIProps {
 }
 
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
+  playerRefs: any;
+
   constructor(props: any) {
     super(props);
 
     this.state = defaultState;
+
+    this.playerRefs = {};
+  }
+
+  setPlayerRefs = (el:any) => {
+
   }
 
   render() {

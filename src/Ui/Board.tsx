@@ -11,6 +11,7 @@ import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
 import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
 import { Frame } from 'framer';
+import { motion, useAnimation } from 'framer-motion';
 
 const game = Game.getInstance();
 
@@ -43,7 +44,9 @@ const CardActionsOverlayStyle = styled.div`
   left: 0;
   margin-left: 5px;
   margin-top: 5px;
-  background: rgba(50,50,50,.5);
+  margin-right: -5px;
+  margin-bottom: -5px;
+  background: rgba(50,50,50,.1);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -51,6 +54,7 @@ const CardActionsOverlayStyle = styled.div`
 
   & button {
     display: block;
+    cursor: pointer;
     padding: 5px;
 
     &:first-child {
@@ -68,6 +72,9 @@ interface InteractiveCardUIProps {
   disableReserve?: boolean
   flipped?: boolean
   size?: CardSize
+  setShowActionMenu?: (card:string) => void
+  reserveCard?: (a:any, b:any, c:any) => void
+  showActionMenu?: any
 }
 
 const purchaseCard = (player: Player, cards: Card[], ix: number) => {
@@ -79,24 +86,47 @@ const reserveCard = (player: Player, cards: Card[], ix: number) => {
 }
 
 export const InteractiveCardUI = (props: InteractiveCardUIProps) => {
+  const [animation, setAnimation] = useState({});
+
   const canPurchase = canAffordCard(props.card, props.player).passed;
   const canReserve = canReserveCard(props.player).passed;
 
-  const [showActionMenu, setShowActionMenu] = useState(false);
+  const cardId = `${props.card.tier}_${props.index}`;
+
+  const animator = useAnimation();
+
+  async function reserveCardAndAnimate(p: Player, c: Card[], i: number) {
+    await animator.start((i) => ({
+      x: -600,
+      y: -50,
+      scale: 0.5,
+      transition: { duration: 0.5 }
+    }));
+    animator.start({ scale: 1.0, x: 0, y: 0, transition: { duration: 0 } });
+    props.setShowActionMenu!('');
+
+    reserveCard(p, c, i);
+  }
+
 
   return (
-      <InteractiveCardStyle cursor={canPurchase || canReserve}>
-        <Frame whileHover={{ scale: 1.25, zIndex: 9999 }} background={"transparent"} width={92} height={131}>
-        <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} onClick={() => setShowActionMenu(!showActionMenu)} /> 
-        {showActionMenu
-          ? (
-            <CardActionsOverlayStyle>
-              <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
-              {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
-            </CardActionsOverlayStyle>
-          )
-          : null
-        }
+      <InteractiveCardStyle cursor={canPurchase || canReserve} onMouseLeave={() => props.setShowActionMenu && props.setShowActionMenu('')} onMouseEnter={() => props.setShowActionMenu && props.setShowActionMenu(cardId)}>
+        <Frame 
+          whileHover={{ scale: 1.25, zIndex: 102 }}
+          background={"transparent"}
+          animate={animator}
+          width={92} 
+          height={131}>
+          <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} /> 
+          {props.showActionMenu === cardId
+            ? (
+              <CardActionsOverlayStyle>
+                <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
+                {!props.card.reserved ? <button onClick={() => reserveCardAndAnimate(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
+              </CardActionsOverlayStyle>
+            )
+            : null
+          }
         </Frame>
       </InteractiveCardStyle>
   )
@@ -111,11 +141,22 @@ interface CardRowUIProps {
 }
 
 export const CardRowUI = (props: CardRowUIProps ) => {
+  const [showActionMenu, setShowActionMenu] = useState('');
+
+
   return (
     <CardRowStyle>
       <DrawPileUI tier={props.drawPile.tier} numberOfCards={props.drawPile.cards.length}></DrawPileUI>
       {props.visibleCards.map((card, i) => 
-        <InteractiveCardUI cards={props.visibleCards} card={card} index={i} key={i} {...props} />  
+        <InteractiveCardUI 
+          cards={props.visibleCards} 
+          card={card} 
+          index={i} 
+          key={i} 
+          setShowActionMenu={(card:string) => setShowActionMenu(card)} 
+          showActionMenu={showActionMenu} 
+          {...props} 
+        />  
       )}
     </CardRowStyle>
   );
