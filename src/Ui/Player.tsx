@@ -118,8 +118,21 @@ const GemTallyStyle = styled.div`
 const CoinStackStyle = styled.div`
   display: flex;
   flex-direction: row;
+  height: 30px;
+  padding: 5px;
+  position: relative;
+  margin-bottom: 10px;
   & div {
     width: 15px;
+  }
+
+  & label {
+    position: absolute;
+    transform: rotate(-90deg);
+    left: -24px;
+    top: 14px;
+    text-transform: uppercase;
+    font-size: 10px;
   }
 `
 
@@ -160,16 +173,22 @@ const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) =>
 `
 
 const ReserveGutterStyle = styled.div`
-  background: rgba(50,50,50,.2);
+  //background: rgba(50,50,50,.2);
   border-radius: 5px;
   padding: 4px;
-  height: 100px;
-  width: 64px;
+  height: 84px;
   position: relative;
+  display: flex;
   & label {
     position: absolute;
+    transform: rotate(-90deg);
+    left: -34px;
+    top: 40px;
     text-transform: uppercase;
     font-size: 10px;
+  }
+  & div {
+    margin-right: 5px;
   }
 `
 
@@ -262,6 +281,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           </GemTallyStyle>
 
           <CoinStackStyle>
+            <label>Gems</label>
             {Object.keys(this.props.player.gems).map(gemType =>
               [...Array(this.props.player.gems[gemType as Gem])].map((gem, ix) => 
                 <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`${this.props.player.id}_gem_${gemType}_${ix}`} />  
