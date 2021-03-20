@@ -5,7 +5,8 @@ import styled, { keyframes } from 'styled-components';
 import React, { useState } from 'react';
 import { GemUI, IconSize } from './Gems';
 import { CardSize, CardUI } from './Cards';
-import { InteractiveCardUI, SchmeckleGemCoinUI } from './Board';
+import { SchmeckleGemCoinUI } from './Schmeckles';
+import InteractiveCardUI from './InteractiveCard'
 import { NobleUI, NobleSize } from './Nobles';
 import { AvatarSize, AvatarUI } from './Avatars';
 import { Action } from '../Actions';
@@ -162,9 +163,11 @@ const ReserveGutterStyle = styled.div`
   background: rgba(50,50,50,.2);
   border-radius: 5px;
   padding: 4px;
-  height: 90px;
-  display: inline-block;
+  height: 100px;
+  width: 64px;
+  position: relative;
   & label {
+    position: absolute;
     text-transform: uppercase;
     font-size: 10px;
   }
@@ -176,6 +179,7 @@ const PassButtonStyle = styled.button`
 
 interface PlayerUIProps { 
   player: Player
+  playerRefs: { [key:string]: any }
   isPlayersTurn: boolean
   isContextPlayer: boolean 
   setPlayerRefs: (p:Player,slot:string,el:any) => void
@@ -275,10 +279,12 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           </CardStackStyle>
 
           <ReserveGutterStyle ref={el => this.props.setPlayerRefs(this.props.player, 'reserve', el)}>
+            <label>Reserved</label>
             {this.props.player.reservedCards.map((c,ix) => 
               <ReservedCardSlotStyle key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
                 <InteractiveCardUI 
                   card={c} 
+                  playerRefs={this.props.playerRefs}
                   index={ix}
                   cards={this.props.player.reservedCards}
                   isPlayersTurn={this.props.isPlayersTurn}

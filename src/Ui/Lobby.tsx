@@ -603,7 +603,12 @@ class Lobby extends React.Component<LobbyProps> {
                     {this.props.startGame
                       ? (
                         <span>
-                          Waiting for <PlayerTypeDropdownStyle onChange={e => this.changePlayers(e)}><option>Player</option><option>Computer</option></PlayerTypeDropdownStyle>
+                          Waiting for 
+                          {this.props.code || this.props.errorMessage
+                            ? <PlayerTypeDropdownStyle onChange={e => this.changePlayers(e)}><option>Player</option><option>Computer</option></PlayerTypeDropdownStyle>
+                            : <> network...</>                        
+                          }
+                          
                         </span>
                       )
                       : (<>Waiting for players...</>)}

@@ -1,7 +1,44 @@
-import React from 'react';
+import {CardPile} from '../Game';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tier, Card } from '../Game';
 import { GemCostsUI, GemUI, IconSize, GemCostSize } from './Gems';
+import { Player } from '../Player';
+import InteractiveCardUI from './InteractiveCard';
+
+
+const CardRowStyle = styled.div`
+  display: flex;
+  flex-direction: row;
+`
+
+
+interface CardRowUIProps {
+  tier: Tier
+  drawPile: CardPile
+  visibleCards: Card[]
+  isPlayersTurn: boolean
+  player: Player
+  playerRefs: { [key:string]: any }
+}
+
+export const CardRowUI = (props: CardRowUIProps ) => {
+
+  return (
+    <CardRowStyle>
+      <DrawPileUI tier={props.drawPile.tier} numberOfCards={props.drawPile.cards.length}></DrawPileUI>
+      {props.visibleCards.map((card, i) => 
+        <InteractiveCardUI 
+          cards={props.visibleCards} 
+          card={card} 
+          index={i} 
+          key={i}
+          {...props} 
+        />  
+      )}
+    </CardRowStyle>
+  );
+}
 
 export enum CardSize {
   xs = 'xs',
@@ -11,7 +48,7 @@ export enum CardSize {
   xl = 'xl'
 }
 
-const CardSizes: { [key:string]: string[] } = {
+export const CardSizes: { [key:string]: string[] } = {
   xs: ['50px', '72px'],
   sm: ['68px', '97px'],
   md: ['90px', '129px'],
