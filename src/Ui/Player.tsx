@@ -95,9 +95,19 @@ const VictoryPointsStyle = styled.div`
 
 const CardStackStyle = styled.div`
   display: flex;
+  position: relative;
   flex-direction: row;
   flex-wrap: wrap;
   width: 315px;
+  
+  & label {
+    position: absolute;
+    transform: rotate(-90deg);
+    left: -39px;
+    top: 40px;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
 `
 
 const CardSlotStyle = styled.div`
@@ -173,9 +183,7 @@ const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) =>
 `
 
 const ReserveGutterStyle = styled.div`
-  //background: rgba(50,50,50,.2);
   border-radius: 5px;
-  padding: 4px;
   height: 84px;
   position: relative;
   display: flex;
@@ -186,9 +194,6 @@ const ReserveGutterStyle = styled.div`
     top: 40px;
     text-transform: uppercase;
     font-size: 10px;
-  }
-  & div {
-    margin-right: 5px;
   }
 `
 
@@ -281,7 +286,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           </GemTallyStyle>
 
           <CoinStackStyle>
-            <label>Gems</label>
+            {this.props.player.reservedCards.length > 0 && this.props.isContextPlayer ? <label>Gems</label> : null}
             {Object.keys(this.props.player.gems).map(gemType =>
               [...Array(this.props.player.gems[gemType as Gem])].map((gem, ix) => 
                 <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`${this.props.player.id}_gem_${gemType}_${ix}`} />  
@@ -290,16 +295,17 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           </CoinStackStyle>
 
           <CardStackStyle>
+            {this.props.player.cards.cards.length > 0 && this.props.isContextPlayer ? <label>Purchased</label> : null}
             {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map((c,ix) =>
               <CardSlotStyle key={`${this.props.player.id}_card_${c.gem}_${ix}`}>
                 <CardUI card={c} size={CardSize.xs} hideCosts={true} />
               </CardSlotStyle>
-            )}
-            
+            )}            
+            <div ref={el => this.props.setPlayerRefs(this.props.player, 'purchased', el)} />
           </CardStackStyle>
 
-          <ReserveGutterStyle ref={el => this.props.setPlayerRefs(this.props.player, 'reserve', el)}>
-            <label>Reserved</label>
+          <ReserveGutterStyle>
+            {this.props.player.reservedCards.length > 0 && this.props.isContextPlayer ? <label>Reserved</label> : null}
             {this.props.player.reservedCards.map((c,ix) => 
               <ReservedCardSlotStyle key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
                 <InteractiveCardUI 
@@ -314,6 +320,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 />
               </ReservedCardSlotStyle>
             )}
+            <div ref={el => this.props.setPlayerRefs(this.props.player, 'reserve', el)} />
           </ReserveGutterStyle>
         </ListItemStyle>  
       </>
