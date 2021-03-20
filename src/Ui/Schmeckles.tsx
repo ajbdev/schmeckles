@@ -1,3 +1,4 @@
+import { Frame, motion } from "framer"
 import styled from "styled-components"
 import { Gem } from "../Game"
 import { IconSize, GemUI } from "./Gems"
@@ -11,8 +12,9 @@ const SchmeckleSizeMap = {
   [IconSize.xl]: '46px'
 }
 
-const SchmeckleStyle = styled.div.attrs((props: { size?: IconSize }) => ({
-  size: props.size ? SchmeckleSizeMap[props.size] : SchmeckleSizeMap[IconSize.md]
+const SchmeckleStyle = styled.div.attrs((props: { size?: IconSize, held?: boolean }) => ({
+  size: props.size ? SchmeckleSizeMap[props.size] : SchmeckleSizeMap[IconSize.md],
+  held: !!props.held
 }))`
   width: ${props => props.size};
   height: ${props => props.size};
@@ -23,11 +25,15 @@ const SchmeckleStyle = styled.div.attrs((props: { size?: IconSize }) => ({
     background: #fff;
     position: absolute;
     z-index: 100;
-    border: 2px solid #666;
+    border: ${props => props.held ? '2px dashed #666' : '2px solid #666'};
+    ${props => props.held ? `
+      opacity: 0.7;
+    ` : null}
     border-radius: 100%;
     padding: 5px;
   }
 `
+
 
 const RubySchmeckleStyle = styled(SchmeckleStyle)`
   svg {
@@ -89,16 +95,11 @@ const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boolean }) =
   ${props => props.isPlayersTurn && `
     &:hover {
       cursor: pointer;
-      svg {
-        border-color: #ffd900;
-        fill: #ffd900;
-        stroke: #ffd900;
-      }
     }
   `}
 `
 
-export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize }) => {
+export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize, held?: boolean }) => {
   const map = {
     [Gem.Diamond]: DiamondSchmeckleStyle,
     [Gem.Emerald]: EmeraldSchmeckleStyle,
@@ -111,7 +112,7 @@ export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize }) => {
   const SchmeckleCoinWrapUI = map[props.gem]
 
   return(
-    <SchmeckleCoinWrapUI size={props.size}>
+    <SchmeckleCoinWrapUI size={props.size} held={props.held}>
       <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
     </SchmeckleCoinWrapUI>
   )
@@ -122,12 +123,16 @@ interface SchmeckleStackUIProps {
   amount: number
   isPlayersTurn: boolean;
   holdGem: (gem:Gem) => void
+  amountHeld: number
 }
 
 export const SchmeckleStackUI = (props: SchmeckleStackUIProps) => (
   <SchmeckleGemStash isPlayersTurn={props.isPlayersTurn} onClick={() => props.isPlayersTurn && props.holdGem(props.gem)} >
-    {[...Array(props.amount)].map((a, i) => 
-        <SchmeckleGemCoinUI gem={props.gem} key={i} />
+    {[...Array(props.amount-props.amountHeld)].map((_, i) => 
+      <SchmeckleGemCoinUI gem={props.gem} key={`${props.gem}_${i}`} />
+    )}
+    {[...Array(props.amountHeld)].map((_, i) =>
+      <SchmeckleGemCoinUI gem={props.gem} key={`${props.gem}_held_${i}`} held={true} />
     )}
   </SchmeckleGemStash>
 )

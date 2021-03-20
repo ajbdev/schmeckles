@@ -24,15 +24,6 @@ interface GemBankProps {
 
 export default function GemBankUI(props: GemBankProps) {
 
-  const subtracted = {
-    diamond: props.heldGems.filter((g) => g === Gem.Diamond).length,
-    ruby: props.heldGems.filter((g) => g === Gem.Ruby).length,
-    emerald: props.heldGems.filter((g) => g === Gem.Emerald).length,
-    onyx: props.heldGems.filter((g) => g === Gem.Onyx).length,
-    sapphire: props.heldGems.filter((g) => g === Gem.Sapphire).length,
-    star: props.heldGems.filter((g) => g === Gem.Star).length,
-  }
-
   const holdGem = (gem: Gem) => {
     if (props.heldGems.length < 3) {
       const gems = props.heldGems;
@@ -46,12 +37,18 @@ export default function GemBankUI(props: GemBankProps) {
   return (
     <GemBankStyle>
       <GemBankHolderStyle>
-        {props.gems.diamond > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Diamond} amount={props.gems.diamond-subtracted.diamond} holdGem={holdGem} /> : null}
-        {props.gems.ruby > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Ruby} amount={props.gems.ruby-subtracted.ruby} holdGem={holdGem} />  : null}
-        {props.gems.emerald > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Emerald} amount={props.gems.emerald-subtracted.emerald} holdGem={holdGem} />  : null}
-        {props.gems.onyx > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Onyx} amount={props.gems.onyx-subtracted.onyx} holdGem={holdGem} />  : null}
-        {props.gems.sapphire > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Sapphire} amount={props.gems.sapphire-subtracted.sapphire} holdGem={holdGem} />  : null}
-        {props.gems.star > 0 ? <SchmeckleStackUI isPlayersTurn={props.isPlayersTurn} gem={Gem.Star} amount={props.gems.star-subtracted.star} holdGem={holdGem} />  : null}
+        {Object.values(Gem).map(gemType => 
+          props.gems[gemType as Gem] > 0 
+            ? <SchmeckleStackUI 
+                key={`schmeckle_stack_${gemType}`}
+                isPlayersTurn={props.isPlayersTurn} 
+                gem={gemType as Gem} 
+                amount={props.gems[gemType as Gem]} 
+                holdGem={holdGem} 
+                amountHeld={props.heldGems.filter((g) => g === gemType as Gem).length} 
+              />
+            : <div>AABBCC</div>
+        )}
       </GemBankHolderStyle>
     </GemBankStyle>
   )
