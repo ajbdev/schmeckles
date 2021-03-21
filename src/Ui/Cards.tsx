@@ -18,7 +18,7 @@ interface CardRowUIProps {
   visibleCards: Card[]
   isPlayersTurn: boolean
   player: Player
-  playerRefs: { [key:string]: any }
+  animationRefs: { [key:string]: any }
 }
 
 export const CardRowUI = (props: CardRowUIProps ) => {

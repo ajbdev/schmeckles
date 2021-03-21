@@ -95,26 +95,26 @@ interface GameUIProps {
 }
 
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
-  playerRefs: any;
+  animationRefs: any;
 
   constructor(props: any) {
     super(props);
 
     this.state = defaultState;
 
-    this.playerRefs = {};
+    this.animationRefs = {};
   }
 
-  setPlayerRefs = (p:Player,slot:string,el:any) => {
-    if (!this.playerRefs[p.id]) {
-      this.playerRefs[p.id] = {}
+  setAnimationRefs = (key:string,subKey:string,el:HTMLElement) => {
+    if (!this.animationRefs[key]) {
+      this.animationRefs[key] = {};
     }
 
-    this.playerRefs[p.id][slot] = el;
+    this.animationRefs[key][subKey] = el;
   }
 
-  getPlayerRef = (p:Player,slot:string) => {
-    return this.playerRefs[p.id][slot];
+  getAnimationRef = (key:string, subKey: string) => {
+    return this.animationRefs[key][subKey];
   }
 
   render() {
@@ -129,8 +129,8 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
-                      playerRefs={this.playerRefs}
-                      setPlayerRefs={this.setPlayerRefs}
+                      animationRefs={this.animationRefs}
+                      setAnimationRefs={this.setAnimationRefs}
                       key={p.id}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.props.gameState!.turn === p.turn}
@@ -139,7 +139,12 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                 )}
               </SideColumnStyle>
               <ColumnStyle>
-                <BoardUI gameState={this.props.gameState} contextPlayer={this.props.contextPlayer} playerRefs={this.playerRefs} />
+                <BoardUI 
+                  gameState={this.props.gameState} 
+                  contextPlayer={this.props.contextPlayer} 
+                  animationRefs={this.animationRefs} 
+                  setAnimationRefs={this.setAnimationRefs}
+                />
               </ColumnStyle>
               <SideColumnStyle>
                 {this.props.gameState.players.map((p, ix) => 
@@ -147,8 +152,8 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
-                      playerRefs={this.playerRefs}
-                      setPlayerRefs={this.setPlayerRefs}
+                      animationRefs={this.animationRefs}
+                      setAnimationRefs={this.setAnimationRefs}
                       key={p.id}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.props.gameState!.turn === p.turn}

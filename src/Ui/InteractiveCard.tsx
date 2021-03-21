@@ -70,7 +70,7 @@ interface InteractiveCardUIProps {
   flipped?: boolean
   size?: CardSize
   reserveCard?: (a:any, b:any, c:any) => void
-  playerRefs: { [key:string]: any }
+  animationRefs: { [key:string]: any }
 }
 
 
@@ -112,7 +112,7 @@ export default function InteractiveCardUI(props: InteractiveCardUIProps) {
 
   async function buyCardWithAnimation(p: Player, c: Card[], i: number) {
     if (cardRef.current) {
-      const purchasedElDimensions = props.playerRefs[props.player.id].purchased.getBoundingClientRect();
+      const purchasedElDimensions = props.animationRefs[props.player.id].purchased.getBoundingClientRect();
       const cardElDimensions = cardRef.current.getBoundingClientRect();
 
       const moveX = purchasedElDimensions .x - cardElDimensions.x - 20;
@@ -125,7 +125,7 @@ export default function InteractiveCardUI(props: InteractiveCardUIProps) {
 
   async function reserveCardWithAnimation(p: Player, c: Card[], i: number) {
     if (cardRef.current) {
-      const reserveElDimensions = props.playerRefs[props.player.id].reserve.getBoundingClientRect();
+      const reserveElDimensions = props.animationRefs[props.player.id].reserve.getBoundingClientRect();
       const cardElDimensions = cardRef.current.getBoundingClientRect();
 
       const moveX = reserveElDimensions.x - cardElDimensions.x - 20;

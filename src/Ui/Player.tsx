@@ -203,10 +203,10 @@ const PassButtonStyle = styled.button`
 
 interface PlayerUIProps { 
   player: Player
-  playerRefs: { [key:string]: any }
   isPlayersTurn: boolean
   isContextPlayer: boolean 
-  setPlayerRefs: (p:Player,slot:string,el:any) => void
+  animationRefs: { [key:string]: any }
+  setAnimationRefs: (key:string,subKey:string,el:any) => void
 }
 
 interface PlayerUIState {
@@ -292,6 +292,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`${this.props.player.id}_gem_${gemType}_${ix}`} />  
               )  
             )}
+            <div ref={el => this.props.setAnimationRefs(this.props.player.id, 'gems', el)} />
           </CoinStackStyle>
 
           <CardStackStyle>
@@ -301,7 +302,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 <CardUI card={c} size={CardSize.xs} hideCosts={true} />
               </CardSlotStyle>
             )}            
-            <div ref={el => this.props.setPlayerRefs(this.props.player, 'purchased', el)} />
+            <div ref={el => this.props.setAnimationRefs(this.props.player.id, 'purchased', el)} />
           </CardStackStyle>
 
           <ReserveGutterStyle>
@@ -310,7 +311,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
               <ReservedCardSlotStyle key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
                 <InteractiveCardUI 
                   card={c} 
-                  playerRefs={this.props.playerRefs}
+                  animationRefs={this.props.animationRefs}
                   index={ix}
                   cards={this.props.player.reservedCards}
                   isPlayersTurn={this.props.isPlayersTurn}
@@ -320,7 +321,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 />
               </ReservedCardSlotStyle>
             )}
-            <div ref={el => this.props.setPlayerRefs(this.props.player, 'reserve', el)} />
+            <div ref={el => this.props.setAnimationRefs(this.props.player.id, 'reserve', el)} />
           </ReserveGutterStyle>
         </ListItemStyle>  
       </>

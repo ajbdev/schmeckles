@@ -110,6 +110,7 @@ interface HoldGemUIProps {
   gems: Gem[]
   player: Player
   setHeldGems: (gems:Gem[]) => void
+  animationRefs: { [key:string]: any }
 }
 
 const HoldGemUI = (props: HoldGemUIProps) => {
@@ -152,7 +153,8 @@ const HoldGemUI = (props: HoldGemUIProps) => {
 interface BoardUIProps {
   gameState: GameState
   contextPlayer: Player
-  playerRefs: { [key:string]: any }
+  animationRefs: { [key:string]: any }
+  setAnimationRefs: (key:string, subKey:string, el:HTMLElement) => void
 }
 
 interface BoardUIState {
@@ -181,20 +183,33 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
     return (
       <>
         <BoardStyle>
-          <GemBankUI isPlayersTurn={isTurn} gems={this.props.gameState.gems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} heldGems={this.state.heldGems} />
+          <GemBankUI 
+            isPlayersTurn={isTurn} 
+            gems={this.props.gameState.gems}
+            setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} 
+            setAnimationRefs={this.props.setAnimationRefs}
+            heldGems={this.state.heldGems} 
+          />
           <TilesStyle>
             <NobleRowStyle>
               {this.props.gameState.nobles.map((noble, i) => 
                 <NobleUI noble={noble} key={i} />
               )}
             </NobleRowStyle>
-            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards} playerRefs={this.props.playerRefs}></CardRowUI>
-            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards} playerRefs={this.props.playerRefs}></CardRowUI>
-            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards} playerRefs={this.props.playerRefs}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards} animationRefs={this.props.animationRefs}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards} animationRefs={this.props.animationRefs}></CardRowUI>
+            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards} animationRefs={this.props.animationRefs}></CardRowUI>
           </TilesStyle>
         </BoardStyle>
         <HudGutterAreaStyle>
-          {this.state.heldGems.length > 0 ? <HoldGemUI player={this.props.contextPlayer!} gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}
+          {this.state.heldGems.length > 0 
+            ? <HoldGemUI 
+                player={this.props.contextPlayer!} 
+                animationRefs={this.props.animationRefs} 
+                gems={this.state.heldGems} 
+                setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} 
+              /> 
+            : null}
         </HudGutterAreaStyle>
       </>
     )
