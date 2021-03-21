@@ -127,7 +127,7 @@ export const SchmeckleGemCoinUI = (props: SchmeckleGemCoinProps) => {
     <SchmeckleCoinWrapUI 
       size={props.size} 
       held={props.held}
-      ref={(el:HTMLDivElement) => props.setAnimationRefs!('gemBank',props.gem, el)
+      ref={(el:HTMLDivElement) => props.setAnimationRefs && props.setAnimationRefs!('gemBank',props.gem,el)
       }>
       <Frame width={size} height={size} background={'transparent'} whileHover={props.isPlayersTurn && !props.held ? { scale: 1.25, zIndex: 101 } : undefined}>
         <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
@@ -157,7 +157,8 @@ export const SchmeckleStackUI = (props: SchmeckleStackUIProps) => (
     {[...Array(props.amountHeld)].map((_, i) =>
       <SchmeckleGemCoinUI
         setAnimationRefs={props.setAnimationRefs}
-        gem={props.gem} key={`${props.gem}_held_${i}`} 
+        gem={props.gem} 
+        key={`${props.gem}_held_${i}`} 
         held={true}
         isPlayersTurn={props.isPlayersTurn} 
       />
