@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { ForwardedRef, RefObject, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { Action } from '../Actions';
@@ -69,7 +69,6 @@ interface InteractiveCardUIProps {
   flipped?: boolean
   size?: CardSize
   reserveCard?: (a:any, b:any, c:any) => void
-  playerRefs: { [key:string]: any }
 }
 
 
@@ -81,18 +80,19 @@ const reserveCard = (player: Player, cards: Card[], ix: number) => {
   game.sendAction(player, Action.ReserveCard, { cards, index: ix });
 }
 
-export default function InteractiveCardUI(props: InteractiveCardUIProps) {
+const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: ForwardedRef<HTMLDivElement>) => {
   const canPurchase = canAffordCard(props.card, props.player).passed;
   const canReserve = canReserveCard(props.player).passed;
 
   const size = InteractiveCardSizes[props.size ? props.size : CardSize.md];
 
   return (
-    <InteractiveCardStyle 
-      interactive={(canPurchase || canReserve) && props.isPlayersTurn} 
+    <InteractiveCardStyle
+      interactive={(canPurchase || canReserve) && props.isPlayersTurn}
       size={props.size}
-      >
-      <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} /> 
+      ref={ref}
+    >
+      <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} />
       {props.isPlayersTurn
         ? (
           <CardActionsOverlayStyle>
@@ -104,4 +104,6 @@ export default function InteractiveCardUI(props: InteractiveCardUIProps) {
       }
     </InteractiveCardStyle>
   )
-};
+});
+
+export default InteractiveCardUI;

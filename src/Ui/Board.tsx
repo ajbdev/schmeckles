@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { ReactNode, RefObject, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { DrawPileUI, CardUI, CardSize, CardRowUI } from './Cards';
+import { DrawPileUI, CardUI, CardSize } from './Cards';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
 import { Player } from '../Player';
 import { NobleUI } from './Nobles';
@@ -12,6 +12,7 @@ import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
 import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
 import GemBankUI from './GemBank';
 import { SchmeckleGemCoinUI } from './Schmeckles';
+import InteractiveCardUI from './InteractiveCard';
 
 const game = Game.getInstance();
 
@@ -147,10 +148,15 @@ const HoldGemUI = (props: HoldGemUIProps) => {
   )
 }
 
+
+const CardRowStyle = styled.div`
+  display: flex;
+  flex-direction: row;
+`
+
 interface BoardUIProps {
   gameState: GameState
   contextPlayer: Player
-  playerRefs: { [key:string]: any }
 }
 
 interface BoardUIState {
@@ -161,12 +167,26 @@ const defaultState = {
   heldGems: []
 }
 
+
 export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
+  tierICardRefs: RefObject<HTMLDivElement>[] = []
+  tierIICardRefs: RefObject<HTMLDivElement>[] = []
+  tierIIICardRefs: RefObject<HTMLDivElement>[] = []
+  gemBankRef: RefObject<GemBankUI>
 
   constructor(props: BoardUIProps) {
     super(props)
 
     this.state = defaultState;
+
+    for (let i = 0; i <= 3; i++) {
+      this.tierICardRefs.push(React.createRef());
+      this.tierIICardRefs.push(React.createRef());
+      this.tierIIICardRefs.push(React.createRef());
+    }
+
+    this.gemBankRef = React.createRef()
+  
   }
 
   setHeldGems(gems: Gem[]) {
@@ -176,11 +196,33 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
   render() {
     const isTurn = isPlayersTurn(this.props.contextPlayer!, this.props.gameState.players, this.props.gameState.turn).passed;
 
+    const cardRows = [
+      {
+        tier: Tier.III,
+        draw: this.props.gameState.tierIIIDrawPile.cards,
+        visible: this.props.gameState.tierIIICards.cards,
+        refs: this.tierIIICardRefs
+      },
+      {
+        tier: Tier.II,
+        draw: this.props.gameState.tierIIDrawPile.cards,
+        visible: this.props.gameState.tierIICards.cards,
+        refs: this.tierIICardRefs
+      },
+      {
+        tier: Tier.I,
+        draw: this.props.gameState.tierIDrawPile.cards,
+        visible: this.props.gameState.tierICards.cards,
+        refs: this.tierICardRefs
+      }
+    ]
+
     return (
       <>
         <BoardStyle>
           <GemBankUI 
-            isPlayersTurn={isTurn} 
+            isPlayersTurn={isTurn}
+            ref={this.gemBankRef}
             gems={this.props.gameState.gems} 
             setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} 
             heldGems={this.state.heldGems} 
@@ -191,9 +233,24 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
                 <NobleUI noble={noble} key={i} />
               )}
             </NobleRowStyle>
-            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.III} drawPile={this.props.gameState.tierIIIDrawPile} visibleCards={this.props.gameState.tierIIICards.cards} playerRefs={this.props.playerRefs}></CardRowUI>
-            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.II} drawPile={this.props.gameState.tierIIDrawPile} visibleCards={this.props.gameState.tierIICards.cards} playerRefs={this.props.playerRefs}></CardRowUI>
-            <CardRowUI player={this.props.contextPlayer!} isPlayersTurn={isTurn} tier={Tier.I} drawPile={this.props.gameState.tierIDrawPile} visibleCards={this.props.gameState.tierICards.cards} playerRefs={this.props.playerRefs}></CardRowUI>
+            {cardRows.map(row =>
+              <CardRowStyle key={row.tier}>
+                <DrawPileUI tier={row.tier} numberOfCards={row.draw.length} />
+                {row.visible.map((card:Card, ix:number) => 
+                  <InteractiveCardUI 
+                    cards={row.visible} 
+                    card={card} 
+                    isPlayersTurn={isTurn}
+                    player={this.props.contextPlayer}
+                    ref={row.refs[ix]}
+                    index={ix} 
+                    key={ix}
+                    {...this.props} 
+                  />  
+                )}
+              </CardRowStyle>
+              
+            )}
           </TilesStyle>
         </BoardStyle>
         <HudGutterAreaStyle>

@@ -99,38 +99,45 @@ interface GameUIProps {
 }
 
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
-  playerRefs: any;
+  animationRefs: any;
 
   constructor(props: GameUIProps) {
     super(props);
 
     this.state = defaultState;
 
-    this.playerRefs = {};
+    this.animationRefs = {
+      players: [],
+      board: React.createRef()
+    }
   }
 
+
   componentDidMount() {
+    for (let i in this.props.gameState!.players) {
+      this.animationRefs.players.push(React.createRef());
+    }
     this.setState({
       gameState: Game.unserialize({ ...this.props.gameState })
     })
   }
 
-  componentDidUpdate(prevProps: GameUIProps, prevState: GameUIState) {
-    if (prevProps.gameState!.turn !== this.state.gameState!.turn) {
-      this.setState({ gameState: Game.unserialize(prevProps.gameState) })
+  /**
+   * We use a derived state from prop updates to render the game board. Although deriving state 
+   * in React components are generally frowned upon, we use it because:
+   * 
+   *  - It allows us to easily animate DOM elements even from network calls.
+   *  - The nature of the gameplay requires very few prop updates, so the performance hit of 
+   *    rendering twice for each parent component update is marginal.
+   *  - The game object gameState instance is still treated as the authoritative source,
+   *    and overrides any child component local state operations.
+   */
+  async componentDidUpdate(prevProps: GameUIProps, prevState: GameUIState) {
+    console.log(this);
+    if (this.props.gameState!.turn !== this.state.gameState!.turn) {
+      // Await animations here before transitioning to authoritative gameState
+      this.setState({ gameState: Game.unserialize(this.props.gameState) })
     }
-  }
-
-  setPlayerRefs = (p:Player,slot:string,el:any) => {
-    if (!this.playerRefs[p.id]) {
-      this.playerRefs[p.id] = {}
-    }
-
-    this.playerRefs[p.id][slot] = el;
-  }
-
-  getPlayerRef = (p:Player,slot:string) => {
-    return this.playerRefs[p.id][slot];
   }
 
   render() {
@@ -145,8 +152,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
-                      playerRefs={this.playerRefs}
-                      setPlayerRefs={this.setPlayerRefs}
+                      ref={this.animationRefs.players[ix]}
                       key={p.id}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.state.gameState!.turn === p.turn}
@@ -156,9 +162,9 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
               </SideColumnStyle>
               <ColumnStyle>
                 <BoardUI 
-                  gameState={this.state.gameState} 
-                  contextPlayer={this.props.contextPlayer} 
-                  playerRefs={this.playerRefs} 
+                  gameState={this.state.gameState}
+                  contextPlayer={this.props.contextPlayer}
+                  ref={this.animationRefs.board}
                 />
               </ColumnStyle>
               <SideColumnStyle>
@@ -167,8 +173,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                   ? (
                     <PlayerUI
                       player={p}
-                      playerRefs={this.playerRefs}
-                      setPlayerRefs={this.setPlayerRefs}
+                      ref={this.animationRefs.players[ix]}
                       key={p.id}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
                       isPlayersTurn={this.state.gameState!.turn === p.turn}

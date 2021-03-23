@@ -160,7 +160,6 @@ const CpuTagStyle = styled.span`
 `
 
 const NobleStackStyle = styled.div`
-
   display: flex;
   flex-direction: row;
 `
@@ -203,10 +202,8 @@ const PassButtonStyle = styled.button`
 
 interface PlayerUIProps { 
   player: Player
-  playerRefs: { [key:string]: any }
   isPlayersTurn: boolean
   isContextPlayer: boolean 
-  setPlayerRefs: (p:Player,slot:string,el:any) => void
 }
 
 interface PlayerUIState {
@@ -227,10 +224,18 @@ const passTurn = (player: Player) => {
 }
 
 export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
+  gemsRef: any;
+  purchasedRef: any;
+  reservedRef: any;
+
   constructor(props: PlayerUIProps) {
     super(props);
 
     this.state = defaultState;
+
+    this.gemsRef = React.createRef();
+    this.purchasedRef = React.createRef();
+    this.reservedRef = React.createRef();
   }
 
   addGemTotal() {
@@ -292,6 +297,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`${this.props.player.id}_gem_${gemType}_${ix}`} />  
               )  
             )}
+            <div ref={this.gemsRef} />
           </CoinStackStyle>
 
           <CardStackStyle>
@@ -301,7 +307,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 <CardUI card={c} size={CardSize.xs} hideCosts={true} />
               </CardSlotStyle>
             )}            
-            <div ref={el => this.props.setPlayerRefs(this.props.player, 'purchased', el)} />
+            <div ref={this.purchasedRef} />
           </CardStackStyle>
 
           <ReserveGutterStyle>
@@ -310,7 +316,6 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
               <ReservedCardSlotStyle key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
                 <InteractiveCardUI 
                   card={c} 
-                  playerRefs={this.props.playerRefs}
                   index={ix}
                   cards={this.props.player.reservedCards}
                   isPlayersTurn={this.props.isPlayersTurn}
@@ -320,7 +325,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                 />
               </ReservedCardSlotStyle>
             )}
-            <div ref={el => this.props.setPlayerRefs(this.props.player, 'reserve', el)} />
+            <div ref={this.reservedRef} />
           </ReserveGutterStyle>
         </ListItemStyle>  
       </>
