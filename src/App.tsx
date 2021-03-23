@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import GameUI from './Ui/Game';
-import { LobbyClient, LobbyHost } from './Ui/Lobby';
+import LobbyClient from './Ui/LobbyClient';
+import LobbyHost from './Ui/LobbyHost';
 import Splash, { BackgroundType, SplashBackground } from './Ui/Splash';
 import { generateRandomName, getAvatarFromName, Player } from './Player';
 
