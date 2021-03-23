@@ -1,10 +1,10 @@
 import React from "react"
 import { BackgroundType, getRandomBackground, ErrorMessage } from './Splash';
 import { Host, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
-import { GameState } from '../Game';
+import { GameEvent, GameState } from '../Game';
 import { Player, generateRandomName, getAvatarFromName } from '../Player';
 import Game from '../Game';
-import { Action, BaseAction } from '../Actions';
+import { Action, BaseAction, IAction } from '../Actions';
 import GameUI from './Game';
 import LobbyUI from './Lobby';
 
@@ -22,6 +22,7 @@ interface LobbyHostState {
   code: string
   contextPlayer: Player | null
   gameState: GameState | null
+  lastAction?: IAction
 }
 
 const defaultLobbyHostState = {
@@ -83,12 +84,13 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
       }
     );
 
-    game.onStateUpdate((gameState: GameState) => {
-      this.setState({ gameState: gameState });
-    })
-    game.onAction((a: BaseAction) => {
+    game.events.on(GameEvent.ActionReceived, (a: BaseAction, gameState: GameState) => {
+      this.setState({ gameState, lastAction: a });
+    });
+
+    game.events.on(GameEvent.ActionStarted, (a: BaseAction, gs: GameState) => {
       this.broadcastAction(a.player, a.type!, a.meta, [a.player]);
-    })
+    });
   }
 
   componentWillUnmount() {
@@ -170,7 +172,13 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
 
   render() {
     if (this.state.gameState && this.state.gameState.started) {
-      return <GameUI gameState={this.state.gameState} contextPlayer={this.state.contextPlayer!} />
+      return (
+        <GameUI 
+          gameState={this.state.gameState} 
+          lastAction={this.state.lastAction}
+          contextPlayer={this.state.contextPlayer!} 
+        />
+      )
     }
     return (
       <LobbyUI

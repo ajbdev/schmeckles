@@ -1,9 +1,9 @@
 import React from "react"
 import { Client, HostBroadcastType, ClientMessageType } from '../Network';
-import { GameState } from '../Game';
+import { GameEvent, GameState } from '../Game';
 import { Player } from '../Player';
 import Game from '../Game';
-import { Action, BaseAction } from '../Actions';
+import { Action, BaseAction, IAction } from '../Actions';
 import GameUI from './Game';
 import LobbyUI from './Lobby';
 
@@ -22,6 +22,7 @@ interface LobbyClientState {
   players: Player[]
   contextPlayer: Player | null
   gameState: GameState | null
+  lastAction?: IAction
 }
 
 const defaultLobbyClientState = {
@@ -50,13 +51,13 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
       contextPlayer: this.player
     });
 
-    game.onStateUpdate((gameState: GameState) => {
-      this.setState({ gameState: gameState })
+    game.events.on(GameEvent.ActionReceived, (a: BaseAction, gameState: GameState) => {
+      this.setState({ gameState, lastAction: a });
     });
 
-    game.onAction((a: BaseAction) => {
+    game.events.on(GameEvent.ActionStarted, (a: BaseAction) => {
       this.client.send({ type: ClientMessageType.ACTION, payload: { player: a.player, action: a.type, meta: a.meta } });
-    })
+    });
 
     window.onunload = () => this.client.disconnect();
 
@@ -119,7 +120,13 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
 
   render() {
     if (this.state.gameState && this.state.gameState.started) {
-      return <GameUI gameState={this.state.gameState} contextPlayer={this.state.contextPlayer!} />
+      return (
+        <GameUI 
+          gameState={this.state.gameState} 
+          contextPlayer={this.state.contextPlayer!} 
+          lastAction={this.state.lastAction}
+        />
+      )
     }
 
     return (

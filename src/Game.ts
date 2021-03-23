@@ -2,6 +2,7 @@ import cardsJson from './cards.json';
 import noblesJson from './nobles.json';
 import namesJson from './names.json';
 
+import { TypedEmitter } from 'tiny-typed-emitter';
 import { BaseAction, IAction, Action } from './Actions';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { computeAction } from './Computer';
@@ -140,7 +141,7 @@ export class CardPile {
 
 export type PlayerTurn = number;
 
-export class GameState  {
+export class GameState {
   tierICards: CardPile;
   tierIICards: CardPile;
   tierIIICards: CardPile;
@@ -242,18 +243,25 @@ export class GameState  {
   }
 }
 
+export enum GameEvent { ActionReceived = 'ActionReceived', ActionStarted = 'ActionStarted', StateUpdated = 'StateUpdated' }
+
+interface GameEvents {
+  [GameEvent.ActionReceived]: (a: BaseAction, computedGameState: GameState) => void
+  [GameEvent.ActionStarted]: (a: BaseAction) => void
+  [GameEvent.StateUpdated]: (gs: GameState) => void
+}
+
 export default class Game {
   gameState: GameState;
   actionLog: IAction[];
+  events: TypedEmitter;
+
   private static instance: Game | undefined;
-  private onStateUpdateCallback: ((gameState: GameState) => void) | null;
-  private onActionCallback: ((a: BaseAction) => void) | null;
 
   private constructor() {
     this.gameState = new GameState();
-    this.onStateUpdateCallback = null;
-    this.onActionCallback = null;
     this.actionLog = [];
+    this.events = new TypedEmitter<GameEvents>();
   }
 
   public static getInstance(): Game {
@@ -274,26 +282,16 @@ export default class Game {
 
   updateGameState(gs: GameState) {
     this.gameState = gs;
-    if (this.onStateUpdateCallback) {
-      this.onStateUpdateCallback(gs);
-    }
+
+    this.events.emit(GameEvent.StateUpdated, gs);
   }
 
   getPlayer(playerId: string) {
     return this.gameState.players.filter(p => p.id === playerId)[0];
   }
 
-  onStateUpdate(callback: (gameState: GameState) => void | null):void {
-    this.onStateUpdateCallback = callback;
-  }
-
-  onAction(callback: (a: BaseAction) => void | null):void {
-    this.onActionCallback = callback;
-  }
-
   cleanup() {
-    this.onStateUpdateCallback = null;
-    this.onActionCallback = null;
+    this.events.removeAllListeners();
   }
 
   sendAction(player: Player, actionType: Action, data: any): BaseAction {
@@ -303,9 +301,7 @@ export default class Game {
       data
     );  
 
-    if (this.onActionCallback) {
-      this.onActionCallback(action);
-    }
+    this.events.emit(GameEvent.ActionStarted, action);
 
     this.receiveAction(action);
 
@@ -335,9 +331,8 @@ export default class Game {
       console.log(action.failedRules.map(r => r.message));
     }
     this.actionLog.push(action);
-    if (this.onStateUpdateCallback) {
-      this.onStateUpdateCallback(this.gameState);
-    }
+
+    this.events.emit(GameEvent.ActionReceived, action, this.gameState);
 
     const nextPlayer = this.gameState.players[this.gameState.turn-1];
     if (nextPlayer.computer) {

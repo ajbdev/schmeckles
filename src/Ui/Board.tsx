@@ -179,7 +179,12 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
     return (
       <>
         <BoardStyle>
-          <GemBankUI isPlayersTurn={isTurn} gems={this.props.gameState.gems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} heldGems={this.state.heldGems} />
+          <GemBankUI 
+            isPlayersTurn={isTurn} 
+            gems={this.props.gameState.gems} 
+            setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} 
+            heldGems={this.state.heldGems} 
+          />
           <TilesStyle>
             <NobleRowStyle>
               {this.props.gameState.nobles.map((noble, i) => 

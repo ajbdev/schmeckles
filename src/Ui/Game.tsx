@@ -2,18 +2,13 @@ import React from 'react';
 import { BoardUI } from './Board';
 import Game, { GameState } from '../Game';
 import { Player } from '../Player';
-import { Action } from '../Actions';
+import { Action, IAction } from '../Actions';
 import styled from 'styled-components';
 import { BackgroundType } from './Splash';
 import { PlayerUI } from './Player';
 import { AvatarUI } from './Avatars';
 
-interface GameUIState {
-}
 
-const defaultState = {
-  gameState: null
-}
 
 
 const GameStyle = styled.div`
@@ -89,20 +84,41 @@ const WinnerSplashUI = (props: { gameState: GameState }) => {
   )
 }
 
+interface GameUIState {
+  gameState: GameState | null
+}
+
+const defaultState = {
+  gameState: null
+}
+
 interface GameUIProps {
   gameState: GameState | null
   contextPlayer: Player
+  lastAction?: IAction
 }
 
 export default class GameUI extends React.Component<GameUIProps, GameUIState> {
   playerRefs: any;
 
-  constructor(props: any) {
+  constructor(props: GameUIProps) {
     super(props);
 
     this.state = defaultState;
 
     this.playerRefs = {};
+  }
+
+  componentDidMount() {
+    this.setState({
+      gameState: Game.unserialize({ ...this.props.gameState })
+    })
+  }
+
+  componentDidUpdate(prevProps: GameUIProps, prevState: GameUIState) {
+    if (prevProps.gameState!.turn !== this.state.gameState!.turn) {
+      this.setState({ gameState: Game.unserialize(prevProps.gameState) })
+    }
   }
 
   setPlayerRefs = (p:Player,slot:string,el:any) => {
@@ -120,11 +136,11 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
   render() {
     return (
       <GameStyle>
-        {this.props.gameState ?
+        {this.state.gameState ?
           (
             <>
               <SideColumnStyle>
-                {this.props.gameState.players.map((p, ix) => 
+                {this.state.gameState.players.map((p, ix) => 
                   ix % 2 === 0 
                   ? (
                     <PlayerUI
@@ -133,16 +149,20 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                       setPlayerRefs={this.setPlayerRefs}
                       key={p.id}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
-                      isPlayersTurn={this.props.gameState!.turn === p.turn}
+                      isPlayersTurn={this.state.gameState!.turn === p.turn}
                     />
                   ) : null
                 )}
               </SideColumnStyle>
               <ColumnStyle>
-                <BoardUI gameState={this.props.gameState} contextPlayer={this.props.contextPlayer} playerRefs={this.playerRefs} />
+                <BoardUI 
+                  gameState={this.state.gameState} 
+                  contextPlayer={this.props.contextPlayer} 
+                  playerRefs={this.playerRefs} 
+                />
               </ColumnStyle>
               <SideColumnStyle>
-                {this.props.gameState.players.map((p, ix) => 
+                {this.state.gameState.players.map((p, ix) => 
                   ix % 2 !== 0 
                   ? (
                     <PlayerUI
@@ -151,14 +171,14 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
                       setPlayerRefs={this.setPlayerRefs}
                       key={p.id}
                       isContextPlayer={this.props.contextPlayer!.id === p.id}
-                      isPlayersTurn={this.props.gameState!.turn === p.turn}
+                      isPlayersTurn={this.state.gameState!.turn === p.turn}
                     />
                   ) : null
                 )}
               </SideColumnStyle>
-              {this.props.gameState.ended 
+              {this.state.gameState.ended 
                 ? (
-                  <WinnerSplashUI gameState={this.props.gameState} />
+                  <WinnerSplashUI gameState={this.state.gameState} />
                 )
                 : null}
             </>
