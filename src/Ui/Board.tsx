@@ -10,8 +10,6 @@ import { Action } from '../Actions';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
 import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
-import { Frame } from 'framer';
-import { motion, useAnimation } from 'framer-motion';
 import GemBankUI from './GemBank';
 import { SchmeckleGemCoinUI } from './Schmeckles';
 

@@ -1,4 +1,3 @@
-import { Frame, motion } from "framer"
 import styled from "styled-components"
 import { Gem } from "../Game"
 import { IconSize, GemUI } from "./Gems"

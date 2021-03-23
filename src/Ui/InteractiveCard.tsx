@@ -1,5 +1,4 @@
-import { Frame } from 'framer';
-import { AnimationControls, useAnimation } from 'framer-motion';
+
 import React, { useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
@@ -82,84 +81,27 @@ const reserveCard = (player: Player, cards: Card[], ix: number) => {
   game.sendAction(player, Action.ReserveCard, { cards, index: ix });
 }
 
-export async function animateCardTo(animator: AnimationControls, moveX: number, moveY: number) {
-  await animator.start((i) => ({
-    y: moveY,
-    scale: 1.25,
-    rotate: -20,
-    transition: { duration: 0.2 },
-  }));
-  await animator.start((i) => ({
-    x: moveX,
-    scale: 0.547,
-    rotate: -10,
-    transition: { duration: 0.5 }
-  }));
-  await animator.start((i) => ({
-    transition: { duration: 0.25 },
-    rotate: 0,
-    transitionEnd: { scale: 1.0, x: 0, y: 0, rotate: 0 }
-  }));
-}
-
 export default function InteractiveCardUI(props: InteractiveCardUIProps) {
   const canPurchase = canAffordCard(props.card, props.player).passed;
   const canReserve = canReserveCard(props.player).passed;
-
-  
-  const cardRef = useRef<HTMLDivElement>(null);
-  const animator = useAnimation();
-
-  async function buyCardWithAnimation(p: Player, c: Card[], i: number) {
-    if (cardRef.current) {
-      const purchasedElDimensions = props.playerRefs[props.player.id].purchased.getBoundingClientRect();
-      const cardElDimensions = cardRef.current.getBoundingClientRect();
-
-      const moveX = purchasedElDimensions .x - cardElDimensions.x - 20;
-      const moveY = purchasedElDimensions.y - cardElDimensions.y - 29;
-
-      await animateCardTo(animator, moveX, moveY);
-    }
-    purchaseCard(p, c, i);
-  }
-
-  async function reserveCardWithAnimation(p: Player, c: Card[], i: number) {
-    if (cardRef.current) {
-      const reserveElDimensions = props.playerRefs[props.player.id].reserve.getBoundingClientRect();
-      const cardElDimensions = cardRef.current.getBoundingClientRect();
-
-      const moveX = reserveElDimensions.x - cardElDimensions.x - 20;
-      const moveY = reserveElDimensions.y - cardElDimensions.y - 29;
-
-      await animateCardTo(animator, moveX, moveY);
-    }
-    reserveCard(p, c, i);
-  }
 
   const size = InteractiveCardSizes[props.size ? props.size : CardSize.md];
 
   return (
     <InteractiveCardStyle 
       interactive={(canPurchase || canReserve) && props.isPlayersTurn} 
-      ref={cardRef}
       size={props.size}
       >
-      <Frame 
-        background={"transparent"}
-        animate={animator}
-        width={size[0]} 
-        height={size[1]}>
-        <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} /> 
-        {props.isPlayersTurn
-          ? (
-            <CardActionsOverlayStyle>
-              <button onClick={() => buyCardWithAnimation(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
-              {!props.card.reserved ? <button onClick={() => reserveCardWithAnimation(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
-            </CardActionsOverlayStyle>
-          )
-          : null
-        }
-      </Frame>
+      <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} /> 
+      {props.isPlayersTurn
+        ? (
+          <CardActionsOverlayStyle>
+            <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
+            {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
+          </CardActionsOverlayStyle>
+        )
+        : null
+      }
     </InteractiveCardStyle>
   )
 };
