@@ -1,7 +1,7 @@
 import React, { ForwardedRef, RefObject } from "react";
 import styled from "styled-components";
 import { GemStash, Gem } from "../Game";
-import { SchmeckleStackUI } from "./Schmeckles";
+import { SchmeckleGemCoinUI, SchmeckleGemStash } from "./Schmeckles";
 
 const GemBankStyle = styled.div`
   display: flex;
@@ -24,15 +24,13 @@ interface GemBankProps {
 }
 
 interface GemRefs {
-  ruby: RefObject<HTMLDivElement>,
-  emerald: RefObject<HTMLDivElement>,
-  diamond: RefObject<HTMLDivElement>,
-  onyx: RefObject<HTMLDivElement>,
-  sapphire: RefObject<HTMLDivElement>,
-  star: RefObject<HTMLDivElement>
+  ruby: RefObject<HTMLDivElement>[],
+  emerald: RefObject<HTMLDivElement>[],
+  diamond: RefObject<HTMLDivElement>[],
+  onyx: RefObject<HTMLDivElement>[],
+  sapphire: RefObject<HTMLDivElement>[],
+  star: RefObject<HTMLDivElement>[]
 }
-
-
 export default class GemBankUI extends React.Component<GemBankProps> {
   gemRefs: GemRefs
   
@@ -40,12 +38,12 @@ export default class GemBankUI extends React.Component<GemBankProps> {
     super(props);
 
     this.gemRefs = {
-      ruby: React.createRef(),
-      emerald: React.createRef(),
-      diamond: React.createRef(),
-      onyx: React.createRef(),
-      sapphire: React.createRef(),
-      star: React.createRef()
+      ruby: [React.createRef(),React.createRef()],
+      emerald: [React.createRef(),React.createRef()],
+      diamond: [React.createRef(),React.createRef()],
+      onyx: [React.createRef(),React.createRef()],
+      sapphire: [React.createRef(),React.createRef()],
+      star: [React.createRef(),React.createRef()]
     }
   }
 
@@ -65,14 +63,23 @@ export default class GemBankUI extends React.Component<GemBankProps> {
         <GemBankHolderStyle>
           {Object.values(Gem).map(gemType =>
             this.props.gems[gemType as Gem] > 0
-              ? <SchmeckleStackUI
-                key={`schmeckle_stack_${gemType}`}
-                isPlayersTurn={this.props.isPlayersTurn}
-                gem={gemType as Gem}
-                amount={this.props.gems[gemType as Gem]}
-                holdGem={this.holdGem}
-                amountHeld={this.props.heldGems.filter((g) => g === gemType as Gem).length}
-              />
+              ? 
+              <SchmeckleGemStash 
+                  key={`schmeckle_stack_${gemType}`} 
+                  isPlayersTurn={this.props.isPlayersTurn} 
+                  onClick={() => this.props.isPlayersTurn && this.holdGem(gemType)} 
+                >
+                <>
+                {[...Array(this.props.gems[gemType as Gem]-this.props.heldGems.filter((g) => g === gemType as Gem).length)].map((_, i) => 
+                  <SchmeckleGemCoinUI gem={gemType as Gem} key={`${gemType}_${i}`} />
+                )}
+                </>
+                <>
+                {[...Array(this.props.heldGems.filter((g) => g === gemType as Gem).length)].map((_, i) =>
+                  <SchmeckleGemCoinUI gem={gemType as Gem} key={`${gemType}_held_${i}`} held={true} ref={this.gemRefs[gemType as Gem][i]} />
+                )}
+                </>
+              </SchmeckleGemStash>
               : null
           )}
         </GemBankHolderStyle>

@@ -233,6 +233,7 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
                 <NobleUI noble={noble} key={i} />
               )}
             </NobleRowStyle>
+            <>
             {cardRows.map(row =>
               <CardRowStyle key={row.tier}>
                 <DrawPileUI tier={row.tier} numberOfCards={row.draw.length} />
@@ -249,8 +250,8 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
                   />  
                 )}
               </CardRowStyle>
-              
             )}
+            </>
           </TilesStyle>
         </BoardStyle>
         <HudGutterAreaStyle>

@@ -1,3 +1,4 @@
+import React, { ForwardedRef }  from "react"
 import styled from "styled-components"
 import { Gem } from "../Game"
 import { IconSize, GemUI } from "./Gems"
@@ -75,7 +76,7 @@ const StarSchmeckleStyle = styled(SchmeckleStyle)`
   }
 `
 
-const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boolean }) => ({
+export const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boolean }) => ({
   isPlayersTurn: props.isPlayersTurn
 }))`
   display: flex;
@@ -98,7 +99,7 @@ const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boolean }) =
   `}
 `
 
-export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize, held?: boolean }) => {
+export const SchmeckleGemCoinUI = React.forwardRef((props: { gem: Gem, size?: IconSize, held?: boolean }, ref: ForwardedRef<HTMLDivElement>) => {
   const map = {
     [Gem.Diamond]: DiamondSchmeckleStyle,
     [Gem.Emerald]: EmeraldSchmeckleStyle,
@@ -111,27 +112,8 @@ export const SchmeckleGemCoinUI = (props: { gem: Gem, size?: IconSize, held?: bo
   const SchmeckleCoinWrapUI = map[props.gem]
 
   return(
-    <SchmeckleCoinWrapUI size={props.size} held={props.held}>
+    <SchmeckleCoinWrapUI size={props.size} held={props.held} ref={ref}>
       <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
     </SchmeckleCoinWrapUI>
   )
-}
-
-interface SchmeckleStackUIProps {
-  gem: Gem
-  amount: number
-  isPlayersTurn: boolean;
-  holdGem: (gem:Gem) => void
-  amountHeld: number
-}
-
-export const SchmeckleStackUI = (props: SchmeckleStackUIProps) => (
-  <SchmeckleGemStash isPlayersTurn={props.isPlayersTurn} onClick={() => props.isPlayersTurn && props.holdGem(props.gem)} >
-    {[...Array(props.amount-props.amountHeld)].map((_, i) => 
-      <SchmeckleGemCoinUI gem={props.gem} key={`${props.gem}_${i}`} />
-    )}
-    {[...Array(props.amountHeld)].map((_, i) =>
-      <SchmeckleGemCoinUI gem={props.gem} key={`${props.gem}_held_${i}`} held={true} />
-    )}
-  </SchmeckleGemStash>
-)
+});

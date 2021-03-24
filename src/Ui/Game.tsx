@@ -127,15 +127,19 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
    * in React components are generally frowned upon, we use it because:
    * 
    *  - It allows us to easily animate DOM elements even from network calls.
-   *  - The nature of the gameplay requires very few prop updates, so the performance hit of 
-   *    rendering twice for each parent component update is marginal.
+   *  - The nature of the gameplay requires very few prop updates from the top component, 
+   *    so the performance hit of rendering twice for each parent component update is marginal.
    *  - The game object gameState instance is still treated as the authoritative source,
    *    and overrides any child component local state operations.
    */
   async componentDidUpdate(prevProps: GameUIProps, prevState: GameUIState) {
-    console.log(this);
     if (this.props.gameState!.turn !== this.state.gameState!.turn) {
       // Await animations here before transitioning to authoritative gameState
+
+      console.log(this.props);
+
+      console.log(this.animationRefs);
+
       this.setState({ gameState: Game.unserialize(this.props.gameState) })
     }
   }
