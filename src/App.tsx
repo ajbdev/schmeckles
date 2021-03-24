@@ -16,7 +16,7 @@ const App = () => {
   const randomAvatar = getAvatarFromName(randomName);
   
   const [isHostingLobby, setIsHostingLobby] = useState(false);
-  const [player, setPlayer] = useState(new Player(randomName, randomAvatar))
+  const [player, setPlayer] = useState(new Player(randomName, randomAvatar));
   const [joinLobbyCode, setJoinLobbyCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [bgSrc, setBgSrc] = useState('');

@@ -2,6 +2,7 @@
 import React, { ForwardedRef, RefObject, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import { Frame } from 'framer'
 import { Action } from '../Actions';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
 import { Player } from '../Player';
@@ -92,16 +93,18 @@ const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: 
       size={props.size}
       ref={ref}
     >
-      <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} />
-      {props.isPlayersTurn
-        ? (
-          <CardActionsOverlayStyle>
-            <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
-            {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
-          </CardActionsOverlayStyle>
-        )
-        : null
-      }
+      <Frame background={"transparent"} width={size[0]} height={size[1]}>
+        <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} />
+        {props.isPlayersTurn
+          ? (
+            <CardActionsOverlayStyle>
+              <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>
+              {!props.card.reserved ? <button onClick={() => reserveCard(props.player, props.cards, props.index)} disabled={!canReserve}>Reserve</button> : null}
+            </CardActionsOverlayStyle>
+          )
+          : null
+        }
+      </Frame>
     </InteractiveCardStyle>
   )
 });

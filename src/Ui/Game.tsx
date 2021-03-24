@@ -110,6 +110,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
       players: [],
       board: React.createRef()
     }
+
   }
 
 
@@ -137,6 +138,9 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
       // Await animations here before transitioning to authoritative gameState
 
       console.log(this.props);
+      if (this.props.lastAction!.type === Action.ReserveCard) {
+        
+      }
 
       console.log(this.animationRefs);
 
