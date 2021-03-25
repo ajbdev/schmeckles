@@ -259,7 +259,6 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
 
           <TopRow>
-          
             <AvatarUI 
               src={this.props.player.avatar} 
               size={AvatarSize.sm} 

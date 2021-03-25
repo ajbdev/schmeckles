@@ -2,7 +2,7 @@
 import React, { ForwardedRef, RefObject, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { Frame } from 'framer'
+import { AnimationControls, Frame, useAnimation } from 'framer'
 import { Action } from '../Actions';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
 import { Player } from '../Player';
@@ -69,7 +69,8 @@ interface InteractiveCardUIProps {
   disableReserve?: boolean
   flipped?: boolean
   size?: CardSize
-  reserveCard?: (a:any, b:any, c:any) => void
+  reserveCard?: (a: any, b: any, c: any) => void
+  animateTo?: { moveX: number, moveY: number, onFinish: () => void }
 }
 
 
@@ -81,9 +82,36 @@ const reserveCard = (player: Player, cards: Card[], ix: number) => {
   game.sendAction(player, Action.ReserveCard, { cards, index: ix });
 }
 
+export async function animateCardTo(animator: AnimationControls, moveX: number, moveY: number, after: () => void) {
+  await animator.start((i) => ({
+    y: moveY,
+    scale: 1.25,
+    rotate: -20,
+    transition: { duration: 0.2 },
+  }));
+  await animator.start((i) => ({
+    x: moveX,
+    scale: 0.547,
+    rotate: -10,
+    transition: { duration: 0.5 }
+  }));
+  await animator.start((i) => ({
+    transition: { duration: 0.25 },
+    rotate: 0,
+    transitionEnd: { scale: 1.0, x: 0, y: 0, rotate: 0 }
+  }));
+
+  after();
+}
+
 const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: ForwardedRef<HTMLDivElement>) => {
   const canPurchase = canAffordCard(props.card, props.player).passed;
   const canReserve = canReserveCard(props.player).passed;
+
+  const animate = useAnimation();;
+  if (props.animateTo) {
+    animateCardTo(animate, props.animateTo.moveX, props.animateTo.moveY, props.animateTo.onFinish);
+  }
 
   const size = InteractiveCardSizes[props.size ? props.size : CardSize.md];
 
@@ -93,7 +121,7 @@ const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: 
       size={props.size}
       ref={ref}
     >
-      <Frame background={"transparent"} width={size[0]} height={size[1]}>
+      <Frame background={"transparent"} width={size[0]} height={size[1]} animate={animate}>
         <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} />
         {props.isPlayersTurn
           ? (

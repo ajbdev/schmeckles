@@ -13,6 +13,8 @@ import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
 import GemBankUI from './GemBank';
 import { SchmeckleGemCoinUI } from './Schmeckles';
 import InteractiveCardUI from './InteractiveCard';
+import { AnimationControls } from 'framer';
+import { BoardAnimation } from './Game';
 
 const game = Game.getInstance();
 
@@ -157,6 +159,7 @@ const CardRowStyle = styled.div`
 interface BoardUIProps {
   gameState: GameState
   contextPlayer: Player
+  animations: BoardAnimation
 }
 
 interface BoardUIState {
@@ -196,24 +199,33 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
   render() {
     const isTurn = isPlayersTurn(this.props.contextPlayer!, this.props.gameState.players, this.props.gameState.turn).passed;
 
+    const hasAnimation = (tier: Tier, index: number) => {
+      if (this.props.animations.board.hasOwnProperty(`tier${tier}Cards`)) {
+        
+      }
+    }
+
     const cardRows = [
       {
         tier: Tier.III,
         draw: this.props.gameState.tierIIIDrawPile.cards,
         visible: this.props.gameState.tierIIICards.cards,
-        refs: this.tierIIICardRefs
+        refs: this.tierIIICardRefs,
+        animation: this.props.animations.board.tierIIICards
       },
       {
         tier: Tier.II,
         draw: this.props.gameState.tierIIDrawPile.cards,
         visible: this.props.gameState.tierIICards.cards,
-        refs: this.tierIICardRefs
+        refs: this.tierIICardRefs,
+        animation: this.props.animations.board.tierIICards
       },
       {
         tier: Tier.I,
         draw: this.props.gameState.tierIDrawPile.cards,
         visible: this.props.gameState.tierICards.cards,
-        refs: this.tierICardRefs
+        refs: this.tierICardRefs,
+        animation: this.props.animations.board.tierICards
       }
     ]
 
@@ -242,6 +254,7 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
                     cards={row.visible} 
                     card={card} 
                     isPlayersTurn={isTurn}
+                    animateTo={row.animation && row.animation.index === ix ? row.animation : undefined}
                     player={this.props.contextPlayer}
                     ref={row.refs[ix]}
                     index={ix} 

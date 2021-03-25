@@ -1,12 +1,13 @@
 import React from 'react';
 import { BoardUI } from './Board';
-import Game, { GameState } from '../Game';
+import Game, { GameState, Tier } from '../Game';
 import { Player } from '../Player';
-import { Action, IAction } from '../Actions';
+import { Action, IAction, ReserveCard } from '../Actions';
 import styled from 'styled-components';
 import { BackgroundType } from './Splash';
 import { PlayerUI } from './Player';
 import { AvatarUI } from './Avatars';
+import { AnimationControls, useAnimation } from 'framer';
 
 
 
@@ -84,12 +85,23 @@ const WinnerSplashUI = (props: { gameState: GameState }) => {
   )
 }
 
+export interface BoardAnimation {
+  board: {
+    tierICards?: { index: number, moveX: number, moveY: number, onFinish: () => void }
+    tierIICards?: { index: number, moveX: number, moveY: number, onFinish: () => void }
+    tierIIICards?: { index: number, moveX: number, moveY: number, onFinish: () => void }
+    gemBank?: {}
+  }
+}
+
 interface GameUIState {
   gameState: GameState | null
+  animations: BoardAnimation
 }
 
 const defaultState = {
-  gameState: null
+  gameState: null,
+  animations: { board: {} }
 }
 
 interface GameUIProps {
@@ -113,7 +125,6 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
 
   }
 
-
   componentDidMount() {
     for (let i in this.props.gameState!.players) {
       this.animationRefs.players.push(React.createRef());
@@ -127,24 +138,49 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
    * We use a derived state from prop updates to render the game board. Although deriving state 
    * in React components are generally frowned upon, we use it because:
    * 
-   *  - It allows us to easily animate DOM elements even from network calls.
+   *  - It allows us to easily animate DOM elements from network calls.
    *  - The nature of the gameplay requires very few prop updates from the top component, 
    *    so the performance hit of rendering twice for each parent component update is marginal.
    *  - The game object gameState instance is still treated as the authoritative source,
    *    and overrides any child component local state operations.
    */
   async componentDidUpdate(prevProps: GameUIProps, prevState: GameUIState) {
-    if (this.props.gameState!.turn !== this.state.gameState!.turn) {
+    if (this.props.lastAction !== prevProps.lastAction) {
       // Await animations here before transitioning to authoritative gameState
 
-      console.log(this.props);
       if (this.props.lastAction!.type === Action.ReserveCard) {
-        
+        const a = this.props.lastAction as ReserveCard;
+
+        const tier = a.cards[a.index].tier as Tier;
+
+        const cardRef = this.animationRefs.board.current[`tier${Tier[tier]}CardRefs`][a.index].current;
+        const playerRef = this.animationRefs.players[a.player.turn - 1].current;
+
+        const reserveElDimensions = playerRef.reservedRef.current.getBoundingClientRect();
+        const cardElDimensions = cardRef.getBoundingClientRect();
+
+        const moveX = reserveElDimensions.x - cardElDimensions.x - 20;
+        const moveY = reserveElDimensions.y - cardElDimensions.y - 29;
+
+        const animations = {
+          board: {
+            [`tier${Tier[tier]}Cards`]: {
+              index: a.index, moveX: moveX, moveY: moveY, onFinish: () => {
+                this.setState({ animations: { board: {} }, gameState: Game.unserialize(this.props.gameState) })
+              }
+            }
+          }
+        };
+
+        this.setState({ animations });
+
+
+      } else {
+        this.setState({ gameState: Game.unserialize(this.props.gameState) })
+
       }
 
-      console.log(this.animationRefs);
 
-      this.setState({ gameState: Game.unserialize(this.props.gameState) })
     }
   }
 
@@ -155,41 +191,42 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
           (
             <>
               <SideColumnStyle>
-                {this.state.gameState.players.map((p, ix) => 
-                  ix % 2 === 0 
-                  ? (
-                    <PlayerUI
-                      player={p}
-                      ref={this.animationRefs.players[ix]}
-                      key={p.id}
-                      isContextPlayer={this.props.contextPlayer!.id === p.id}
-                      isPlayersTurn={this.state.gameState!.turn === p.turn}
-                    />
-                  ) : null
+                {this.state.gameState.players.map((p, ix) =>
+                  ix % 2 === 0
+                    ? (
+                      <PlayerUI
+                        player={p}
+                        ref={this.animationRefs.players[ix]}
+                        key={p.id}
+                        isContextPlayer={this.props.contextPlayer!.id === p.id}
+                        isPlayersTurn={this.state.gameState!.turn === p.turn}
+                      />
+                    ) : null
                 )}
               </SideColumnStyle>
               <ColumnStyle>
-                <BoardUI 
+                <BoardUI
                   gameState={this.state.gameState}
                   contextPlayer={this.props.contextPlayer}
                   ref={this.animationRefs.board}
+                  animations={this.state.animations}
                 />
               </ColumnStyle>
               <SideColumnStyle>
-                {this.state.gameState.players.map((p, ix) => 
-                  ix % 2 !== 0 
-                  ? (
-                    <PlayerUI
-                      player={p}
-                      ref={this.animationRefs.players[ix]}
-                      key={p.id}
-                      isContextPlayer={this.props.contextPlayer!.id === p.id}
-                      isPlayersTurn={this.state.gameState!.turn === p.turn}
-                    />
-                  ) : null
+                {this.state.gameState.players.map((p, ix) =>
+                  ix % 2 !== 0
+                    ? (
+                      <PlayerUI
+                        player={p}
+                        ref={this.animationRefs.players[ix]}
+                        key={p.id}
+                        isContextPlayer={this.props.contextPlayer!.id === p.id}
+                        isPlayersTurn={this.state.gameState!.turn === p.turn}
+                      />
+                    ) : null
                 )}
               </SideColumnStyle>
-              {this.state.gameState.ended 
+              {this.state.gameState.ended
                 ? (
                   <WinnerSplashUI gameState={this.state.gameState} />
                 )
