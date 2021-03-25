@@ -148,6 +148,14 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
     if (this.props.lastAction !== prevProps.lastAction) {
       // Await animations here before transitioning to authoritative gameState
 
+      const playSound = () => {
+        if ([Action.ReserveCard, Action.PurchaseCard, Action.TakeGems].includes(this.props.lastAction!.type!)) {
+          const sound = new Audio(`${process.env.PUBLIC_URL}/sounds/${this.props.lastAction!.type!}.wav`);
+  
+          sound.play();
+        }
+      }
+
       if (this.props.lastAction!.type === Action.ReserveCard) {
         const a = this.props.lastAction as ReserveCard;
 
@@ -166,6 +174,7 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
           board: {
             [`tier${Tier[tier]}Cards`]: {
               index: a.index, moveX: moveX, moveY: moveY, onFinish: () => {
+                playSound();
                 this.setState({ animations: { board: {} }, gameState: Game.unserialize(this.props.gameState) })
               }
             }
@@ -173,14 +182,9 @@ export default class GameUI extends React.Component<GameUIProps, GameUIState> {
         };
 
         this.setState({ animations });
-
-
       } else {
         this.setState({ gameState: Game.unserialize(this.props.gameState) })
-
       }
-
-
     }
   }
 
