@@ -72,6 +72,7 @@ interface InteractiveCardUIProps {
   disableReserve?: boolean
   flipped?: boolean
   size?: CardSize
+  isAlreadyPurchased?: boolean;
   reserveCard?: (a: any, b: any, c: any) => void
   lastAction?: ReserveCard | PurchaseCard
   animationRefs?: AnimationRefs
@@ -108,13 +109,14 @@ export async function animateCardTo(animator: AnimationControls, startX: number,
   await animator.start((i) => ({
     transition: { duration: 0.25 },
     rotate: 0,
+    zIndex: 0,
     transitionEnd: { scale: 1.0, x: 0, y: 0, rotate: 0 }
   }));
 }
 
 const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: ForwardedRef<HTMLDivElement>) => {
-  const canPurchase = canAffordCard(props.card, props.player).passed;
-  const canReserve = canReserveCard(props.player).passed;
+  const canPurchase = canAffordCard(props.card, props.player).passed && !props.isAlreadyPurchased;
+  const canReserve = canReserveCard(props.player).passed && !props.isAlreadyPurchased;
   const [isAnimating, setIsAnimating] = useState(false);
   const animate = useAnimation();
   const frameRef = useRef<HTMLDivElement>(null);
@@ -150,7 +152,7 @@ const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: 
     >
       <Frame background={"transparent"} width={size[0]} height={size[1]} animate={animate} ref={frameRef}>
         <CardUI {...props} flipped={flipped} size={sz} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} />
-        {props.isPlayersTurn
+        {props.isPlayersTurn && !props.isAlreadyPurchased
           ? (
             <CardActionsOverlayStyle>
               <button onClick={() => purchaseCard(props.player, props.cards, props.index)} disabled={!canPurchase}>Buy</button>

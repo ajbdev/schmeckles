@@ -125,6 +125,19 @@ const FlippedCardStyle = styled.div`
   align-items: stretch;
 `
 
+const NumberOfCardsStyle = styled.div`
+  font-size: 15px;
+  position: absolute;
+  bottom: 20px;
+  text-align: center;
+  width: 100%;
+  font-weight: bold;
+  color: #886841;
+  &:hover {
+    color: #bb9668;
+  }
+`
+
 enum BorderSize {
   xs = '6px',
   sm = '8px',
@@ -151,18 +164,27 @@ const FlippedCardInnerStyle = styled.div.attrs((props: FlippedCardProps) => ({
   display: flex;
 `
 
-export const FlippedCardUI = (props: { children?: React.ReactNode, size?: CardSize, borderSize?: BorderSize }) => (
+export const FlippedCardUI = (props: { children?: React.ReactNode, size?: CardSize, borderSize?: BorderSize, numberOfCards?: number }) => (
   <CardStyle size={props.size}>
     <FlippedCardStyle>
       <FlippedCardInnerStyle {...props}>
         {props.children}
       </FlippedCardInnerStyle>
     </FlippedCardStyle>
+    {props.numberOfCards
+      ? (
+        <NumberOfCardsStyle>
+          x{props.numberOfCards}
+        </NumberOfCardsStyle>
+      )
+      : null
+    }
+
   </CardStyle>
 )
 
 export const DrawPileUI = (props: DrawPileProps) => (
-  <FlippedCardUI>
+  <FlippedCardUI {...props}>
     {props.tier ?
       (
         <>
@@ -177,6 +199,6 @@ export const DrawPileUI = (props: DrawPileProps) => (
         </>
       ) 
       : null
-    }    
+    }
   </FlippedCardUI>
 );

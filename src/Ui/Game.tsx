@@ -129,8 +129,6 @@ export default class GameUI extends React.Component<GameUIProps> {
         }
       }
 
-      console.log(this.props.lastAction);
-
       playSound();
     }
   }
