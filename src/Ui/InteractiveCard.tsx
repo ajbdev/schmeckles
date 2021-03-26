@@ -117,20 +117,20 @@ const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: 
   const canReserve = canReserveCard(props.player).passed;
   const [isAnimating, setIsAnimating] = useState(false);
   const animate = useAnimation();
+  const frameRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {    
-    if (props.animationRefs && props.lastAction && props.lastAction.card.id === props.card.id) {
+    if (frameRef.current && props.animationRefs && props.lastAction && props.lastAction.card.id === props.card.id) {
       setIsAnimating(true);
 
       const board = props.animationRefs.board.current as any;
       const originalCardSpot = board[`tier${Tier[props.lastAction.card.tier]}CardRefs`][props.lastAction.index];
-      const playerUI = props.animationRefs.players.map(p => p.current!).find(p => p.props.player.id === props.lastAction?.player.id) as PlayerUI;
 
       const originalCardArea = originalCardSpot.current.getBoundingClientRect();
-      const reservedArea = playerUI.nextReservedCardRef.current.getBoundingClientRect();
+      const destinationArea = frameRef.current.getBoundingClientRect();
 
-      const x = originalCardArea.x + (originalCardArea.width) - reservedArea.x;
-      const y = originalCardArea.y  - reservedArea.y;
+      const x = originalCardArea.x  - destinationArea.x;
+      const y = originalCardArea.y  - destinationArea.y;
 
       animateCardTo(animate, x, y).then(r => setIsAnimating(false));
     }
@@ -148,7 +148,7 @@ const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: 
       size={sz}
       ref={ref}
     >
-      <Frame background={"transparent"} width={size[0]} height={size[1]} animate={animate}>
+      <Frame background={"transparent"} width={size[0]} height={size[1]} animate={animate} ref={frameRef}>
         <CardUI {...props} flipped={flipped} size={sz} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} />
         {props.isPlayersTurn
           ? (
