@@ -1,5 +1,5 @@
 
-import React, { ForwardedRef, RefObject, useRef, useState } from 'react';
+import React, { ForwardedRef, RefObject, useCallback, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { AnimationControls, Frame, useAnimation } from 'framer'
@@ -10,6 +10,7 @@ import { canAffordCard, canReserveCard } from '../Rules';
 import { CardUI, CardSize } from './Cards';
 import { AnimationRefs } from './Game';
 import { useEffect } from 'react';
+import { PlayerUI } from './Player';
 
 const game = Game.getInstance();
 
@@ -85,15 +86,21 @@ const reserveCard = (player: Player, cards: Card[], ix: number) => {
   game.sendAction(player, Action.ReserveCard, { cards, index: ix });
 }
 
-export async function animateCardTo(animator: AnimationControls, moveX: number, moveY: number, after: () => void) {
+export async function animateCardTo(animator: AnimationControls, startX: number, startY: number) {
+  await animator.start(i => ({
+    x: startX,
+    y: startY,
+    zIndex: 900,
+    transition: { duration: 0 }
+  }));
   await animator.start((i) => ({
-    y: moveY,
+    y: -30,
     scale: 1.25,
     rotate: -20,
     transition: { duration: 0.2 },
   }));
   await animator.start((i) => ({
-    x: moveX,
+    x: -20,
     scale: 0.547,
     rotate: -10,
     transition: { duration: 0.5 }
@@ -103,35 +110,46 @@ export async function animateCardTo(animator: AnimationControls, moveX: number, 
     rotate: 0,
     transitionEnd: { scale: 1.0, x: 0, y: 0, rotate: 0 }
   }));
-
-  after();
 }
 
 const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: ForwardedRef<HTMLDivElement>) => {
   const canPurchase = canAffordCard(props.card, props.player).passed;
   const canReserve = canReserveCard(props.player).passed;
-
-  const animate = useAnimation();;
-  // if (props.animate) {
-  //   animateCardTo(animate, props.animate.moveX, props.animate.moveY, props.animate.onFinish);
-  // }
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animate = useAnimation();
 
   useEffect(() => {    
-    if (props.lastAction && props.lastAction.card.id === props.card.id) {
+    if (props.animationRefs && props.lastAction && props.lastAction.card.id === props.card.id) {
+      setIsAnimating(true);
+
+      const board = props.animationRefs.board.current as any;
+      const originalCardSpot = board[`tier${Tier[props.lastAction.card.tier]}CardRefs`][props.lastAction.index];
+      const playerUI = props.animationRefs.players.map(p => p.current!).find(p => p.props.player.id === props.lastAction?.player.id) as PlayerUI;
+
+      const originalCardArea = originalCardSpot.current.getBoundingClientRect();
+      const reservedArea = playerUI.nextReservedCardRef.current.getBoundingClientRect();
+
+      const x = originalCardArea.x + (originalCardArea.width) - reservedArea.x;
+      const y = originalCardArea.y  - reservedArea.y;
+
+      animateCardTo(animate, x, y).then(r => setIsAnimating(false));
     }
 
   }, [props.lastAction, props.animationRefs, props.card]);
 
-  const size = InteractiveCardSizes[props.size ? props.size : CardSize.md];
+  const sz = isAnimating ? CardSize.md : props.size;
+
+  const size = InteractiveCardSizes[sz ? sz : CardSize.md];
+  const flipped = isAnimating ? false : props.flipped;
 
   return (
     <InteractiveCardStyle
       interactive={(canPurchase || canReserve) && props.isPlayersTurn}
-      size={props.size}
+      size={sz}
       ref={ref}
     >
       <Frame background={"transparent"} width={size[0]} height={size[1]} animate={animate}>
-        <CardUI {...props} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} />
+        <CardUI {...props} flipped={flipped} size={sz} outline={canPurchase ? "0px 0px 0px 3px var(--gold)" : "0"} />
         {props.isPlayersTurn
           ? (
             <CardActionsOverlayStyle>

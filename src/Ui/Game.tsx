@@ -94,8 +94,8 @@ interface GameUIProps {
 }
 
 export interface AnimationRefs {
-  players: LegacyRef<PlayerUI>[]
-  board: LegacyRef<BoardUI>
+  players: RefObject<PlayerUI>[]
+  board: RefObject<BoardUI>
 }
 
 export default class GameUI extends React.Component<GameUIProps> {
@@ -171,6 +171,7 @@ export default class GameUI extends React.Component<GameUIProps> {
                       <PlayerUI
                         player={p}
                         animationRefs={this.animationRefs}
+                        lastAction={this.props.lastAction}
                         ref={this.animationRefs.players[ix]}
                         key={p.id}
                         isContextPlayer={this.props.contextPlayer!.id === p.id}
