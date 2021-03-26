@@ -166,6 +166,7 @@ export class TakeGems extends BaseAction {
 
 export class PurchaseCard extends BaseAction {
   cards: Card[];
+  card: Card;
   index: number;
 
   constructor(p: Player, meta: { cards: Card[], index: number }) {
@@ -174,6 +175,7 @@ export class PurchaseCard extends BaseAction {
     this.type = Action.PurchaseCard;
     this.index = meta.index;
     this.cards = meta.cards;
+    this.card = meta.cards[meta.index];
 
     this.rules = [
       (g: Readonly<GameState>) => gameHasStarted(g.started),
@@ -220,6 +222,7 @@ export class PassTurn extends BaseAction {
 
 export class ReserveCard extends BaseAction {
   cards: Card[];
+  card: Card
   index: number;
 
   constructor(p: Player, meta: { cards: Card[], index: number }) {
@@ -228,6 +231,7 @@ export class ReserveCard extends BaseAction {
     this.type = Action.ReserveCard;
     this.cards = meta.cards;
     this.index = meta.index;
+    this.card = meta.cards[meta.index];
 
     this.rules = [
       (g: Readonly<GameState>) => gameHasStarted(g.started),

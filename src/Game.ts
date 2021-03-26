@@ -86,7 +86,8 @@ const mapNobleValuesJsonToNobleType = (noblesValues: NobleJsonValues[]) => noble
 );
 
 const mapCardValuesJsonToCardType = (cardValues: CardJsonValues[]) => cardValues.map(
-  c => new Card(
+  (c,ix) => new Card(
+    ix,
     c.points || 0,
     c.gem as Gem,
     c.tier as Tier,
@@ -106,13 +107,15 @@ export const shuffle = (arr:Array<any>) =>
     (res.push(s.splice(0|Math.random()*s.length,1)[0]), res), []);
 
 export class Card {
+  id: number;
   points: number;
   gem: Gem;
   tier: Tier;
   costs: GemStash;
   reserved?: boolean
 
-  constructor(points: number, gem: Gem, tier: Tier, costs: GemStash) {
+  constructor(id: number, points: number, gem: Gem, tier: Tier, costs: GemStash) {
+    this.id = id;
     this.points = points;
     this.gem = gem;
     this.tier = tier;

@@ -9,7 +9,8 @@ import { SchmeckleGemCoinUI } from './Schmeckles';
 import InteractiveCardUI from './InteractiveCard'
 import { NobleUI, NobleSize } from './Nobles';
 import { AvatarSize, AvatarUI } from './Avatars';
-import { Action } from '../Actions';
+import { Action, IAction, PurchaseCard, ReserveCard } from '../Actions';
+import { AnimationRefs } from './Game';
 
 const GemsStyle = styled.div`
   display: flex;
@@ -202,8 +203,10 @@ const PassButtonStyle = styled.button`
 
 interface PlayerUIProps { 
   player: Player
+  animationRefs: AnimationRefs;
   isPlayersTurn: boolean
   isContextPlayer: boolean 
+  lastAction?: IAction
 }
 
 interface PlayerUIState {
@@ -225,8 +228,8 @@ const passTurn = (player: Player) => {
 
 export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
   gemsRef: any;
-  purchasedRef: any;
-  reservedRef: any;
+  nextPurchasedCardRef: any;
+  nextReservedCardRef: any;
 
   constructor(props: PlayerUIProps) {
     super(props);
@@ -234,8 +237,8 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
     this.state = defaultState;
 
     this.gemsRef = React.createRef();
-    this.purchasedRef = React.createRef();
-    this.reservedRef = React.createRef();
+    this.nextPurchasedCardRef = React.createRef();
+    this.nextReservedCardRef = React.createRef();
   }
 
   addGemTotal() {
@@ -246,6 +249,10 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
     });
 
     return gems;
+  }
+
+  getCardAnimation(c:Card) {
+
   }
 
   render() {
@@ -291,40 +298,52 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
 
           <CoinStackStyle>
             {this.props.player.reservedCards.length > 0 && this.props.isContextPlayer ? <label>Gems</label> : null}
+            <>
             {Object.keys(this.props.player.gems).map(gemType =>
               [...Array(this.props.player.gems[gemType as Gem])].map((gem, ix) => 
                 <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`${this.props.player.id}_gem_${gemType}_${ix}`} />  
               )  
             )}
+            </>
             <div ref={this.gemsRef} />
           </CoinStackStyle>
 
           <CardStackStyle>
             {this.props.player.cards.cards.length > 0 && this.props.isContextPlayer ? <label>Purchased</label> : null}
+            <>
             {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map((c,ix) =>
               <CardSlotStyle key={`${this.props.player.id}_card_${c.gem}_${ix}`}>
                 <CardUI card={c} size={CardSize.xs} hideCosts={true} />
               </CardSlotStyle>
-            )}            
-            <div ref={this.purchasedRef} />
+            )}
+            </>            
+            <div ref={this.nextPurchasedCardRef} />
           </CardStackStyle>
 
           <ReserveGutterStyle>
             {this.props.player.reservedCards.length > 0 && this.props.isContextPlayer ? <label>Reserved</label> : null}
-            {this.props.player.reservedCards.map((c,ix) => 
-              <ReservedCardSlotStyle key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} onMouseEnter={() => this.setState({ flipCard: false })} onMouseLeave={() => this.setState({ flipCard: true })}>
-                <InteractiveCardUI 
-                  card={c} 
-                  index={ix}
-                  cards={this.props.player.reservedCards}
-                  isPlayersTurn={this.props.isPlayersTurn}
-                  player={this.props.player}
-                  size={CardSize.xs} 
-                  flipped={this.state.flipCard} 
-                />
-              </ReservedCardSlotStyle>
-            )}
-            <div ref={this.reservedRef} />
+            <>
+              {this.props.player.reservedCards.map((c,ix) => 
+                <ReservedCardSlotStyle 
+                  key={`${this.props.player.id}_reserved_${c.gem}_${ix}`} 
+                  onMouseEnter={() => this.setState({ flipCard: false })} 
+                  onMouseLeave={() => this.setState({ flipCard: true })}
+                >
+                  <InteractiveCardUI 
+                    card={c} 
+                    index={ix}
+                    cards={this.props.player.reservedCards}
+                    lastAction={this.props.lastAction instanceof ReserveCard || this.props.lastAction instanceof PurchaseCard ? this.props.lastAction : undefined}
+                    animationRefs={this.props.animationRefs}
+                    isPlayersTurn={this.props.isPlayersTurn}
+                    player={this.props.player}
+                    size={CardSize.xs} 
+                    flipped={this.state.flipCard} 
+                  />
+                </ReservedCardSlotStyle>
+              )}
+            </>
+            <div ref={this.nextReservedCardRef} />
           </ReserveGutterStyle>
         </ListItemStyle>  
       </>

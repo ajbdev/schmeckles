@@ -3,11 +3,13 @@ import React, { ForwardedRef, RefObject, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { AnimationControls, Frame, useAnimation } from 'framer'
-import { Action } from '../Actions';
+import { Action, IAction, PurchaseCard, ReserveCard } from '../Actions';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
 import { Player } from '../Player';
 import { canAffordCard, canReserveCard } from '../Rules';
 import { CardUI, CardSize } from './Cards';
+import { AnimationRefs } from './Game';
+import { useEffect } from 'react';
 
 const game = Game.getInstance();
 
@@ -70,7 +72,8 @@ interface InteractiveCardUIProps {
   flipped?: boolean
   size?: CardSize
   reserveCard?: (a: any, b: any, c: any) => void
-  animateTo?: { moveX: number, moveY: number, onFinish: () => void }
+  lastAction?: ReserveCard | PurchaseCard
+  animationRefs?: AnimationRefs
 }
 
 
@@ -109,9 +112,15 @@ const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: 
   const canReserve = canReserveCard(props.player).passed;
 
   const animate = useAnimation();;
-  if (props.animateTo) {
-    animateCardTo(animate, props.animateTo.moveX, props.animateTo.moveY, props.animateTo.onFinish);
-  }
+  // if (props.animate) {
+  //   animateCardTo(animate, props.animate.moveX, props.animate.moveY, props.animate.onFinish);
+  // }
+
+  useEffect(() => {    
+    if (props.lastAction && props.lastAction.card.id === props.card.id) {
+    }
+
+  }, [props.lastAction, props.animationRefs, props.card]);
 
   const size = InteractiveCardSizes[props.size ? props.size : CardSize.md];
 

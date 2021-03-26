@@ -13,8 +13,6 @@ import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
 import GemBankUI from './GemBank';
 import { SchmeckleGemCoinUI } from './Schmeckles';
 import InteractiveCardUI from './InteractiveCard';
-import { AnimationControls } from 'framer';
-import { BoardAnimation } from './Game';
 
 const game = Game.getInstance();
 
@@ -137,12 +135,16 @@ const HoldGemUI = (props: HoldGemUIProps) => {
   return (
     <HoldUIStyle>
       <HoldGemSlotsStyle>
-        {props.gems.map((g,i) => 
+        <>
+          {props.gems.map((g,i) => 
           <GemSlotStyle key={i} onClick={() => removeGem(i)}>
             <SchmeckleGemCoinUI gem={g} />
           </GemSlotStyle>)
         }
-        {[...Array(3-props.gems.length)].map((s,i) => <GemSlotStyle key={i} />)}
+        </>
+        <>
+          {[...Array(3-props.gems.length)].map((s,i) => <GemSlotStyle key={i} />)}
+        </>
         <ConfirmButtonStyle><ConfirmSvg onClick={() => confirmTakeGems()} /></ConfirmButtonStyle>
         <CancelButtonStyle onClick={() => props.setHeldGems([])}><CancelSvg /></CancelButtonStyle>
       </HoldGemSlotsStyle>       
@@ -159,7 +161,6 @@ const CardRowStyle = styled.div`
 interface BoardUIProps {
   gameState: GameState
   contextPlayer: Player
-  animations: BoardAnimation
 }
 
 interface BoardUIState {
@@ -199,33 +200,25 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
   render() {
     const isTurn = isPlayersTurn(this.props.contextPlayer!, this.props.gameState.players, this.props.gameState.turn).passed;
 
-    const hasAnimation = (tier: Tier, index: number) => {
-      if (this.props.animations.board.hasOwnProperty(`tier${tier}Cards`)) {
-        
-      }
-    }
 
     const cardRows = [
       {
         tier: Tier.III,
         draw: this.props.gameState.tierIIIDrawPile.cards,
         visible: this.props.gameState.tierIIICards.cards,
-        refs: this.tierIIICardRefs,
-        animation: this.props.animations.board.tierIIICards
+        refs: this.tierIIICardRefs
       },
       {
         tier: Tier.II,
         draw: this.props.gameState.tierIIDrawPile.cards,
         visible: this.props.gameState.tierIICards.cards,
-        refs: this.tierIICardRefs,
-        animation: this.props.animations.board.tierIICards
+        refs: this.tierIICardRefs
       },
       {
         tier: Tier.I,
         draw: this.props.gameState.tierIDrawPile.cards,
         visible: this.props.gameState.tierICards.cards,
-        refs: this.tierICardRefs,
-        animation: this.props.animations.board.tierICards
+        refs: this.tierICardRefs
       }
     ]
 
@@ -246,24 +239,25 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
               )}
             </NobleRowStyle>
             <>
-            {cardRows.map(row =>
-              <CardRowStyle key={row.tier}>
-                <DrawPileUI tier={row.tier} numberOfCards={row.draw.length} />
-                {row.visible.map((card:Card, ix:number) => 
-                  <InteractiveCardUI 
-                    cards={row.visible} 
-                    card={card} 
-                    isPlayersTurn={isTurn}
-                    animateTo={row.animation && row.animation.index === ix ? row.animation : undefined}
-                    player={this.props.contextPlayer}
-                    ref={row.refs[ix]}
-                    index={ix} 
-                    key={ix}
-                    {...this.props} 
-                  />  
-                )}
-              </CardRowStyle>
-            )}
+              {cardRows.map(row =>
+                <CardRowStyle key={row.tier}>
+                  <DrawPileUI tier={row.tier} numberOfCards={row.draw.length} />
+                  <>
+                    {row.visible.map((card:Card, ix:number) => 
+                      <InteractiveCardUI 
+                        cards={row.visible} 
+                        card={card} 
+                        isPlayersTurn={isTurn}
+                        player={this.props.contextPlayer}
+                        ref={row.refs[ix]}
+                        index={ix} 
+                        key={ix}
+                        {...this.props} 
+                      />  
+                    )}
+                  </>
+                </CardRowStyle>
+              )}
             </>
           </TilesStyle>
         </BoardStyle>
