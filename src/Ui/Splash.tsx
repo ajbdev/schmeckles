@@ -120,7 +120,7 @@ interface SplashBackgroundState {
 }
 
 export function getRandomBackground(type: BackgroundType) {
-  return `${process.env.PUBLIC_URL}/splash/${type}${Math.floor(Math.random() * 8)+1}.jpg`;
+  return `${process.env.PUBLIC_URL}/splash/${type}${Math.floor(Math.random() * 9)+1}.jpg`;
 }
 
 export class SplashBackground extends React.Component<SplashBackgroundProps, SplashBackgroundState> {

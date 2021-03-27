@@ -1,6 +1,10 @@
-import React, { ForwardedRef }  from "react"
+import { Frame, AnimationControls } from 'framer';
+import { useAnimation } from "framer-motion"
+import React, { ForwardedRef, useEffect, useRef, useState }  from "react"
 import styled from "styled-components"
+import { TakeGems } from "../Actions"
 import { Gem } from "../Game"
+import { AnimationRefs } from "./Game"
 import { IconSize, GemUI } from "./Gems"
 
 
@@ -81,9 +85,10 @@ export const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boole
 }))`
   display: flex;
   flex-direction: row;
-  max-width: 80px;
+  width: 80px;
   background: #666;
   border-radius: 46px;
+  height: 50px;
   padding-left: 2px;
   box-shadow: -1px -1px 1px #4d4d4d;
 
@@ -99,7 +104,43 @@ export const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boole
   `}
 `
 
-export const SchmeckleGemCoinUI = React.forwardRef((props: { gem: Gem, size?: IconSize, held?: boolean }, ref: ForwardedRef<HTMLDivElement>) => {
+export async function animateGemTo(animator: AnimationControls, startX: number, startY: number) {
+  await animator.start(i => ({
+    x: startX,
+    y: startY,
+    zIndex: 900,
+    scale: 2.0, 
+    transition: { duration: 0 }
+  }));
+  await animator.start((i) => ({
+    y: 0,
+    x: 0,
+    ease: 'easeIn',
+    rotate: 290,
+    scale: 1.0,
+    transition: { duration: 0.4 },
+  }));
+  await animator.start((i) => ({
+    transition: { duration: 0.25 },
+    zIndex: 0,
+    transitionEnd: { scale: 1.0, x: 0, y: 0, rotate: 0 }
+  }));
+}
+
+interface SchmeckleGemCoinProps {
+  gem: Gem
+  size?: IconSize
+  held?: boolean
+  lastAction?: TakeGems
+  animationRefs?: AnimationRefs
+}
+
+export const SchmeckleGemCoinUI = React.forwardRef((props: SchmeckleGemCoinProps, ref: ForwardedRef<HTMLDivElement>) => {
+
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animate = useAnimation();
+  const frameRef = useRef<HTMLDivElement>(null);
+
   const map = {
     [Gem.Diamond]: DiamondSchmeckleStyle,
     [Gem.Emerald]: EmeraldSchmeckleStyle,
@@ -109,11 +150,33 @@ export const SchmeckleGemCoinUI = React.forwardRef((props: { gem: Gem, size?: Ic
     [Gem.Star]: StarSchmeckleStyle
   }
 
-  const SchmeckleCoinWrapUI = map[props.gem]
+  const SchmeckleCoinWrapUI = map[props.gem];
+
+
+  useEffect(() => {    
+    if (frameRef.current && props.animationRefs && props.lastAction) {
+      setIsAnimating(true);
+
+      const board = props.animationRefs.board.current as any;
+
+      const originalGemArea = board.gemBankRef.current.gemRefs[props.gem].current.getBoundingClientRect();
+      const destinationArea = frameRef.current.getBoundingClientRect();
+
+      const x = originalGemArea.x - destinationArea.x;
+      const y = originalGemArea.y - destinationArea.y;
+
+      animateGemTo(animate,x,y).then(r => setIsAnimating(false));
+    }
+
+  }, [props.lastAction, props.animationRefs]);
 
   return(
-    <SchmeckleCoinWrapUI size={props.size} held={props.held} ref={ref}>
-      <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
-    </SchmeckleCoinWrapUI>
+    <>
+      <SchmeckleCoinWrapUI size={props.size} held={props.held} ref={ref}>
+        <Frame background={"transparent"} width={props.size ? props.size : IconSize.md} height={props.size} animate={animate} ref={frameRef}>
+            <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
+        </Frame>
+      </SchmeckleCoinWrapUI>
+    </>
   )
 });

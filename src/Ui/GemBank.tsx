@@ -24,12 +24,12 @@ interface GemBankProps {
 }
 
 interface GemRefs {
-  ruby: RefObject<HTMLDivElement>[],
-  emerald: RefObject<HTMLDivElement>[],
-  diamond: RefObject<HTMLDivElement>[],
-  onyx: RefObject<HTMLDivElement>[],
-  sapphire: RefObject<HTMLDivElement>[],
-  star: RefObject<HTMLDivElement>[]
+  ruby: RefObject<HTMLDivElement>,
+  emerald: RefObject<HTMLDivElement>,
+  diamond: RefObject<HTMLDivElement>,
+  onyx: RefObject<HTMLDivElement>,
+  sapphire: RefObject<HTMLDivElement>,
+  star: RefObject<HTMLDivElement>
 }
 export default class GemBankUI extends React.Component<GemBankProps> {
   gemRefs: GemRefs
@@ -38,12 +38,12 @@ export default class GemBankUI extends React.Component<GemBankProps> {
     super(props);
 
     this.gemRefs = {
-      ruby: [React.createRef(),React.createRef()],
-      emerald: [React.createRef(),React.createRef()],
-      diamond: [React.createRef(),React.createRef()],
-      onyx: [React.createRef(),React.createRef()],
-      sapphire: [React.createRef(),React.createRef()],
-      star: [React.createRef(),React.createRef()]
+      ruby: React.createRef(),
+      emerald: React.createRef(),
+      diamond: React.createRef(),
+      onyx: React.createRef(),
+      sapphire: React.createRef(),
+      star: React.createRef(),
     }
   }
 
@@ -71,12 +71,16 @@ export default class GemBankUI extends React.Component<GemBankProps> {
                 >
                 <>
                 {[...Array(this.props.gems[gemType as Gem]-this.props.heldGems.filter((g) => g === gemType as Gem).length)].map((_, i) => 
-                  <SchmeckleGemCoinUI gem={gemType as Gem} key={`${gemType}_${i}`} />
+                  <SchmeckleGemCoinUI 
+                    gem={gemType as Gem} 
+                    key={`${gemType}_${i}`} 
+                    ref={i === (this.props.gems[gemType as Gem]-this.props.heldGems.filter((g) => g === gemType as Gem).length)-1 ? this.gemRefs[gemType as Gem] : undefined} 
+                  />
                 )}
                 </>
                 <>
                 {[...Array(this.props.heldGems.filter((g) => g === gemType as Gem).length)].map((_, i) =>
-                  <SchmeckleGemCoinUI gem={gemType as Gem} key={`${gemType}_held_${i}`} held={true} ref={this.gemRefs[gemType as Gem][i]} />
+                  <SchmeckleGemCoinUI gem={gemType as Gem} key={`${gemType}_held_${i}`} held={true} />
                 )}
                 </>
               </SchmeckleGemStash>

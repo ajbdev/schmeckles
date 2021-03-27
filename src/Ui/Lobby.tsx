@@ -274,6 +274,7 @@ export default class Lobby extends React.Component<LobbyProps> {
               )
           }
           <PlayerBoxes>
+            <>
             {this.props.players.map((p, i) =>
               <PlayerBoxStyle key={`player_${i}`}>
                 <AvatarUI size={AvatarSize.xl} src={p.avatar}>
@@ -298,6 +299,7 @@ export default class Lobby extends React.Component<LobbyProps> {
                 }
               </PlayerBoxStyle>
             )}
+            </>
             {this.props.players.length < 4
               ? (<>
                 {[...Array(4 - this.props.players.length)].map((_,ix) =>

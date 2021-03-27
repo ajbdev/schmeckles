@@ -9,7 +9,7 @@ import { SchmeckleGemCoinUI } from './Schmeckles';
 import InteractiveCardUI from './InteractiveCard'
 import { NobleUI, NobleSize } from './Nobles';
 import { AvatarSize, AvatarUI } from './Avatars';
-import { Action, IAction, PurchaseCard, ReserveCard } from '../Actions';
+import { Action, IAction, PurchaseCard, ReserveCard, TakeGems } from '../Actions';
 import { AnimationRefs } from './Game';
 
 const GemsStyle = styled.div`
@@ -290,7 +290,6 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
               )
               : null
             }
-
           </TopRow>
           <GemTallyStyle>
             <PlayerGemsTallyUI gems={this.addGemTotal()} />
@@ -301,7 +300,19 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
             <>
             {Object.keys(this.props.player.gems).map(gemType =>
               [...Array(this.props.player.gems[gemType as Gem])].map((gem, ix) => 
-                <SchmeckleGemCoinUI size={IconSize.xs} gem={gemType as Gem} key={`${this.props.player.id}_gem_${gemType}_${ix}`} />  
+                <SchmeckleGemCoinUI 
+                  size={IconSize.xs} 
+                  gem={gemType as Gem} 
+                  lastAction={
+                    this.props.lastAction instanceof TakeGems 
+                      && this.props.lastAction.player.id === this.props.player.id 
+                      && ix >= this.props.player.gems[gemType as Gem] - this.props.lastAction.gems[gemType as Gem]
+                    ? this.props.lastAction 
+                    : undefined
+                  }
+                  animationRefs={this.props.animationRefs}
+                  key={`${this.props.player.id}_gem_${gemType}_${ix}`} 
+                />
               )  
             )}
             </>
