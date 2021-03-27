@@ -137,8 +137,8 @@ export class CardPile {
     }
   }
 
-  draw(n: number, destination: CardPile) {
-    this.cards.splice(0, n).forEach(c => destination.cards.push(c));
+  draw(n: number, destination: CardPile, atIndex = -1) {
+    this.cards.splice(0, n).forEach(c => destination.cards.splice(atIndex, 0, c));
   }
 }
 
@@ -210,6 +210,20 @@ export class GameState {
     }
   }
 
+  getDrawPileCards(t: Tier) {
+    switch (t) {
+      case Tier.I:
+        return this.tierIDrawPile;
+        break;
+      case Tier.II:
+        return this.tierIIDrawPile;
+        break;
+      case Tier.III:
+        return this.tierIIIDrawPile;
+        break;
+    }
+  }
+  
   awardNobles(player: Player) {
     this.nobles.forEach((noble, ix) => {
       const canAfford = Object.keys(noble.costs).filter(gemType => noble.costs[gemType as Gem] > player.cards.cards.filter(c => c.gem === gemType as Gem).length).length === 0;

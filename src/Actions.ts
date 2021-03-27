@@ -204,7 +204,11 @@ export class PurchaseCard extends BaseAction {
     this.nextTurn(gameState);
 
     gameState.awardNobles(this.player);
-    gameState.drawVisibleCards();
+    
+    const cards = gameState.getTierCards(card.tier);
+    const drawPile = gameState.getDrawPileCards(card.tier);
+    
+    drawPile.draw(1, cards, this.index);
   }
 }
 
@@ -253,6 +257,10 @@ export class ReserveCard extends BaseAction {
 
     this.player.reservedCards.push(card);
     this.nextTurn(gameState);
-    gameState.drawVisibleCards();
+
+    const cards = gameState.getTierCards(card.tier);
+    const drawPile = gameState.getDrawPileCards(card.tier);
+    
+    drawPile.draw(1, cards, this.index);
   }
 }

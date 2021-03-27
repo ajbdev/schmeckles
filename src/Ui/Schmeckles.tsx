@@ -174,7 +174,7 @@ export const SchmeckleGemCoinUI = React.forwardRef((props: SchmeckleGemCoinProps
     <>
       <SchmeckleCoinWrapUI size={props.size} held={props.held} ref={ref}>
         <Frame background={"transparent"} width={props.size ? props.size : IconSize.md} height={props.size} animate={animate} ref={frameRef}>
-            <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
+          <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
         </Frame>
       </SchmeckleCoinWrapUI>
     </>
