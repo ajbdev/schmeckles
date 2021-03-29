@@ -298,23 +298,22 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           <CoinStackStyle>
             {this.props.player.reservedCards.length > 0 && this.props.isContextPlayer ? <label>Gems</label> : null}
             <>
-            {Object.keys(this.props.player.gems).map(gemType =>
-              [...Array(this.props.player.gems[gemType as Gem])].map((gem, ix) => 
+              {this.props.player.gemOrder.map((gem, ix) => 
                 <SchmeckleGemCoinUI 
                   size={IconSize.xs} 
-                  gem={gemType as Gem} 
+                  gem={gem} 
                   lastAction={
                     this.props.lastAction instanceof TakeGems 
                       && this.props.lastAction.player.id === this.props.player.id 
-                      && ix >= this.props.player.gems[gemType as Gem] - this.props.lastAction.gems[gemType as Gem]
+                      && ix >= this.props.player.gemOrder.length - Object.values(this.props.lastAction.gems).reduce((a,b) => a+b)
                     ? this.props.lastAction 
                     : undefined
                   }
                   animationRefs={this.props.animationRefs}
-                  key={`${this.props.player.id}_gem_${gemType}_${ix}`} 
+                  key={`${this.props.player.id}_gem_${gem}_${ix}`} 
                 />
-              )  
-            )}
+              
+              )}
             </>
             <div ref={this.gemsRef} />
           </CoinStackStyle>

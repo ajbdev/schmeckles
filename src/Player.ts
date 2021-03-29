@@ -1,6 +1,6 @@
 
 import namesJson from './names.json';
-import { GemStash, CardPile, Card, PlayerTurn, Noble, emptyGemStash } from './Game';
+import { GemStash, CardPile, Card, PlayerTurn, Noble, emptyGemStash, Gem } from './Game';
 
 const males = {
   names: namesJson.filter(n => n.gender === 'male').map(n => n.name),
@@ -48,6 +48,7 @@ export class Player {
   id: string;
   name: string;
   gems: GemStash;
+  gemOrder: Gem[]; // Tracked solely for animation purposes
   cards: CardPile;
   reservedCards: Card[];
   turn: PlayerTurn;
@@ -65,6 +66,7 @@ export class Player {
     this.gems = emptyGemStash();
     this.cards = new CardPile();
     this.reservedCards = [];
+    this.gemOrder = []; 
     this.nobles = [];
     this.connected = false;
     this.connectionId = '';

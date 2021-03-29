@@ -86,6 +86,31 @@ const moveGems = (from: GemStash, to: GemStash, amount: GemStash) => {
   })
 }
 
+const moveGemsToPlayer = (from: GemStash, to: Player, amount: GemStash) => {
+  moveGems(from, to.gems, amount);
+
+  Object.keys(amount).forEach((gemType: string) => {
+    if (amount[gemType as Gem] > 0) {
+      for (let i = 0; i < amount[gemType as Gem]; i++) {
+        to.gemOrder.push(gemType as Gem);
+      }
+    }
+  });
+  
+}
+
+const moveGemsFromPlayer = (from: Player, to: GemStash, amount: GemStash) => {
+  moveGems(from.gems, to, amount);
+
+  Object.keys(amount).forEach((gemType: string) => {
+    if (amount[gemType as Gem] > 0) {
+      for (let i = 0; i < amount[gemType as Gem]; i++) {
+        from.gemOrder.splice(from.gemOrder.indexOf(gemType as Gem), 1);
+      }
+    }
+  });
+}
+
 export class StartGame extends BaseAction {
   constructor(p: Player, meta: {}) {
     super(p, meta);
@@ -159,7 +184,8 @@ export class TakeGems extends BaseAction {
   }
 
   act(gameState: GameState) {
-    moveGems(gameState.gems, this.player.gems, this.gems);
+    moveGemsToPlayer(gameState.gems, this.player, this.gems);   
+
     this.nextTurn(gameState);
   }
 }
@@ -194,11 +220,13 @@ export class PurchaseCard extends BaseAction {
 
     const cost = gatherGemsForPurchase(card.costs, this.player);
 
-    moveGems(this.player.gems, gameState.gems, cost as GemStash);
+    moveGemsFromPlayer(this.player, gameState.gems, cost as GemStash);
 
     if (card.reserved) {
       card.reserved = false;
     }
+
+    card.drawn = false;
 
     this.player.cards.cards.push(card);
     this.nextTurn(gameState);
@@ -251,9 +279,10 @@ export class ReserveCard extends BaseAction {
     const gems = emptyGemStash();
     gems.star = 1;
 
-    moveGems(gameState.gems, this.player.gems, gems);
+    moveGemsToPlayer(gameState.gems, this.player, gems);
 
     card.reserved = true;
+    card.drawn = false;
 
     this.player.reservedCards.push(card);
     this.nextTurn(gameState);

@@ -112,7 +112,8 @@ export class Card {
   gem: Gem;
   tier: Tier;
   costs: GemStash;
-  reserved?: boolean
+  reserved?: boolean;
+  drawn: boolean;
 
   constructor(id: number, points: number, gem: Gem, tier: Tier, costs: GemStash) {
     this.id = id;
@@ -120,6 +121,7 @@ export class Card {
     this.gem = gem;
     this.tier = tier;
     this.costs = costs;
+    this.drawn = false;
   }
 }
 
@@ -138,7 +140,12 @@ export class CardPile {
   }
 
   draw(n: number, destination: CardPile, atIndex = -1) {
-    this.cards.splice(0, n).forEach(c => destination.cards.splice(atIndex, 0, c));
+    const cards = this.cards.splice(0, n)
+      
+    cards.forEach(c => {
+      c.drawn = true;
+      destination.cards.splice(atIndex, 0, c);
+    });
   }
 }
 

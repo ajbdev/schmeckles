@@ -109,16 +109,20 @@ export async function animateGemTo(animator: AnimationControls, startX: number, 
     x: startX,
     y: startY,
     zIndex: 900,
-    scale: 2.0, 
+    scale: 2.0,
+    transition: { duration: 0 }
+  }));
+  await animator.start(i => ({
+    visibility: 'visible',
     transition: { duration: 0 }
   }));
   await animator.start((i) => ({
-    y: 0,
-    x: 0,
-    ease: 'easeIn',
-    rotate: 290,
+    x: [startX, 0],
+    y: [0, 0],
+    type: 'spring',
+    rotate: 359,
     scale: 1.0,
-    transition: { duration: 0.4 },
+    transition: { duration: 0.8 },
   }));
   await animator.start((i) => ({
     transition: { duration: 0.25 },
@@ -137,7 +141,6 @@ interface SchmeckleGemCoinProps {
 
 export const SchmeckleGemCoinUI = React.forwardRef((props: SchmeckleGemCoinProps, ref: ForwardedRef<HTMLDivElement>) => {
 
-  const [isAnimating, setIsAnimating] = useState(false);
   const animate = useAnimation();
   const frameRef = useRef<HTMLDivElement>(null);
 
@@ -155,8 +158,6 @@ export const SchmeckleGemCoinUI = React.forwardRef((props: SchmeckleGemCoinProps
 
   useEffect(() => {    
     if (frameRef.current && props.animationRefs && props.lastAction) {
-      setIsAnimating(true);
-
       const board = props.animationRefs.board.current as any;
 
       const originalGemArea = board.gemBankRef.current.gemRefs[props.gem].current.getBoundingClientRect();
@@ -165,7 +166,7 @@ export const SchmeckleGemCoinUI = React.forwardRef((props: SchmeckleGemCoinProps
       const x = originalGemArea.x - destinationArea.x;
       const y = originalGemArea.y - destinationArea.y;
 
-      animateGemTo(animate,x,y).then(r => setIsAnimating(false));
+      animateGemTo(animate,x,y);
     }
 
   }, [props.lastAction, props.animationRefs]);
@@ -173,7 +174,7 @@ export const SchmeckleGemCoinUI = React.forwardRef((props: SchmeckleGemCoinProps
   return(
     <>
       <SchmeckleCoinWrapUI size={props.size} held={props.held} ref={ref}>
-        <Frame background={"transparent"} width={props.size ? props.size : IconSize.md} height={props.size} animate={animate} ref={frameRef}>
+        <Frame background={"transparent"} width={props.size ? props.size : IconSize.md} height={props.size} animate={animate} ref={frameRef} style={props.lastAction ? { visibility: 'hidden' } : {}}>
           <GemUI gem={props.gem} size={props.size ? props.size : IconSize.md} />
         </Frame>
       </SchmeckleCoinWrapUI>

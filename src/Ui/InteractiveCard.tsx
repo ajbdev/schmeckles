@@ -2,7 +2,7 @@
 import React, { ForwardedRef, RefObject, useCallback, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { AnimationControls, Frame, useAnimation } from 'framer'
+import { animationControls, AnimationControls, Frame, useAnimation } from 'framer'
 import { Action, IAction, PurchaseCard, ReserveCard } from '../Actions';
 import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
 import { Player } from '../Player';
@@ -114,6 +114,12 @@ export async function animateCardTo(animator: AnimationControls, startX: number,
   }));
 }
 
+export async function animateCardFadeIn(animator: AnimationControls) {
+  await animator.start({ opacity: 0, transition: { duration: 0 } });
+
+  await animator.start({ opacity: 1.0, transition: { duration: 1.0 } });
+}
+
 const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: ForwardedRef<HTMLDivElement>) => {
   const canPurchase = canAffordCard(props.card, props.player).passed && !props.isAlreadyPurchased;
   const canReserve = canReserveCard(props.player).passed && !props.isAlreadyPurchased;
@@ -135,8 +141,9 @@ const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: 
       const y = originalCardArea.y  - destinationArea.y;
 
       animateCardTo(animate, x, y).then(r => setIsAnimating(false));
+    } else if (frameRef.current && props.card.drawn) {
+      animateCardFadeIn(animate);
     }
-
   }, [props.lastAction, props.animationRefs, props.card]);
 
   const sz = isAnimating ? CardSize.md : props.size;
