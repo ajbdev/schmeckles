@@ -267,12 +267,18 @@ export class GameState {
   }
 }
 
-export enum GameEvent { ActionReceived = 'ActionReceived', ActionStarted = 'ActionStarted', StateUpdated = 'StateUpdated' }
+export enum GameEvent { 
+  ActionReceived = 'ActionReceived', 
+  ActionStarted = 'ActionStarted', 
+  StateUpdated = 'StateUpdated',
+  ActionFailed = 'ActionFailed'
+}
 
 interface GameEvents {
   [GameEvent.ActionReceived]: (a: BaseAction, computedGameState: GameState) => void
   [GameEvent.ActionStarted]: (a: BaseAction) => void
   [GameEvent.StateUpdated]: (gs: GameState) => void
+  [GameEvent.ActionFailed]: (gs: BaseAction) => void
 }
 
 export default class Game {
@@ -351,12 +357,13 @@ export default class Game {
   receiveAction(action: IAction) {
     if (action.checkRules(this.gameState)) {
       action.act(this.gameState);
-    } else {
-      console.log(action.failedRules.map(r => r.message));
-    }
-    this.actionLog.push(action);
 
-    this.events.emit(GameEvent.ActionReceived, action, this.gameState);
+      this.actionLog.push(action);
+  
+      this.events.emit(GameEvent.ActionReceived, action, this.gameState);
+    } else {
+      this.events.emit(GameEvent.ActionFailed, action);
+    }
 
     const nextPlayer = this.gameState.players[this.gameState.turn-1];
     if (nextPlayer.computer) {
