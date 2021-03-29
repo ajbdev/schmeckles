@@ -117,12 +117,12 @@ export async function animateGemTo(animator: AnimationControls, startX: number, 
     transition: { duration: 0 }
   }));
   await animator.start((i) => ({
-    x: [startX, 0],
-    y: [0, 0],
+    x: 0,
+    y: 0,
     type: 'spring',
     rotate: 359,
     scale: 1.0,
-    transition: { duration: 0.8 },
+    transition: { duration: 0.5 },
   }));
   await animator.start((i) => ({
     transition: { duration: 0.25 },
