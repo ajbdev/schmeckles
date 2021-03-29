@@ -23,13 +23,15 @@ interface LobbyHostState {
   contextPlayer: Player | null
   gameState: GameState | null
   lastAction?: IAction
+  gameErrors: string[]
 }
 
 const defaultLobbyHostState = {
   players: [],
   code: '',
   gameState: null,
-  contextPlayer: null
+  contextPlayer: null,
+  gameErrors: []
 }
 
 const game = Game.getInstance();
@@ -90,6 +92,16 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
 
     game.events.on(GameEvent.ActionStarted, (a: BaseAction, gs: GameState) => {
       this.broadcastAction(a.player, a.type!, a.meta, [a.player]);
+    });
+
+    game.events.on(GameEvent.ActionFailed, (a: BaseAction) => {
+      if (a.player.id === this.player.id) {
+        this.setState({
+          gameErrors: a.failedRules.map(fr => fr.message)
+        }, () => setTimeout(() => { 
+          this.setState({ gameErrors: [] })
+        }, 3000));
+      }
     });
   }
 
@@ -176,6 +188,7 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
         <GameUI 
           gameState={this.state.gameState} 
           lastAction={this.state.lastAction}
+          gameErrors={this.state.gameErrors}
           contextPlayer={this.state.contextPlayer!} 
         />
       )

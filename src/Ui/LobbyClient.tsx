@@ -22,14 +22,16 @@ interface LobbyClientState {
   players: Player[]
   contextPlayer: Player | null
   gameState: GameState | null
-  lastAction?: IAction
+  lastAction?: IAction,
+  gameErrors: string[]
 }
 
 const defaultLobbyClientState = {
   players: [],
   code: '',
   contextPlayer: null,
-  gameState: null
+  gameState: null,
+  gameErrors: []
 }
 
 const game = Game.getInstance();
@@ -57,6 +59,16 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
 
     game.events.on(GameEvent.ActionStarted, (a: BaseAction) => {
       this.client.send({ type: ClientMessageType.ACTION, payload: { player: a.player, action: a.type, meta: a.meta } });
+    });
+
+    game.events.on(GameEvent.ActionFailed, (a: BaseAction) => {
+      if (a.player.id === this.player.id) {
+        this.setState({
+          gameErrors: a.failedRules.map(fr => fr.message)
+        }, () => setTimeout(() => { 
+          this.setState({ gameErrors: [] })
+        }, 30000))
+      }
     });
 
     window.onunload = () => this.client.disconnect();
@@ -123,7 +135,8 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
       return (
         <GameUI 
           gameState={this.state.gameState} 
-          contextPlayer={this.state.contextPlayer!} 
+          contextPlayer={this.state.contextPlayer!}
+          gameErrors={this.state.gameErrors}
           lastAction={this.state.lastAction}
         />
       )

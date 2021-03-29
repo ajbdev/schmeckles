@@ -9,9 +9,6 @@ import { PlayerUI } from './Player';
 import { AvatarUI } from './Avatars';
 import { AnimationControls, useAnimation } from 'framer';
 
-
-
-
 const GameStyle = styled.div`
   display: flex;
   align-items: center;
@@ -71,6 +68,23 @@ const PlayAgainButtonStyle = styled.button`
   width: 50%;
 `
 
+const GameErrorsStyle = styled.ul`
+  list-style-type: none;
+  font-size: 20px;
+  color: #fff;
+  position: fixed;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background: rgba(255, 0, 0, 0.75);
+  top: 10px;
+  z-index: 101;
+
+  & li {
+    list-style-type: none;
+  }
+`
+
 const WinnerSplashUI = (props: { gameState: GameState }) => {
   const winner = props.gameState.players.filter(p => p.winner)[0];
 
@@ -85,12 +99,11 @@ const WinnerSplashUI = (props: { gameState: GameState }) => {
   )
 }
 
-
-
 interface GameUIProps {
   gameState: GameState | null
   contextPlayer: Player
   lastAction?: IAction
+  gameErrors?: string[]
 }
 
 export interface AnimationRefs {
@@ -115,6 +128,8 @@ export default class GameUI extends React.Component<GameUIProps> {
     for (let i in this.props.gameState!.players) {
       this.animationRefs.players.push(React.createRef());
     }
+
+    
   }
 
   async componentDidUpdate(prevProps: GameUIProps) {
@@ -136,6 +151,16 @@ export default class GameUI extends React.Component<GameUIProps> {
   render() {
     return (
       <GameStyle>
+        {this.props.gameErrors && this.props.gameErrors.length > 0
+          ? (
+            <GameErrorsStyle>
+              {this.props.gameErrors.map(e => 
+                <li>{e}</li>  
+              )}
+            </GameErrorsStyle>
+          )
+          : null
+        }
         {this.props.gameState ?
           (
             <>
