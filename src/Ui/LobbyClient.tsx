@@ -67,7 +67,7 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
           gameErrors: a.failedRules.map(fr => fr.message)
         }, () => setTimeout(() => { 
           this.setState({ gameErrors: [] })
-        }, 30000))
+        }, 3000))
       }
     });
 
