@@ -122,7 +122,10 @@ export async function animateGemTo(animator: AnimationControls, startX: number, 
     type: 'spring',
     rotate: 359,
     scale: 1.0,
-    transition: { duration: 0.5 },
+    transition: { 
+      duration: 0.5,
+      ease: 'circInOut'
+    },
   }));
   await animator.start((i) => ({
     transition: { duration: 0.25 },
