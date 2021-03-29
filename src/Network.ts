@@ -1,5 +1,6 @@
 import Peer from 'peerjs';
 import { Player } from './Player';
+import { classToPlain, plainToClass } from 'class-transformer';
 
 export enum HostBroadcastType {
   DISBANDED = 'DISBANDED',
@@ -51,7 +52,6 @@ export abstract class Network {
   fullyQualifiedId(code: string) {
     return  `schmeckles_${code}`;
   }
-
   abstract createConnectionId(): string;
 }
 
@@ -133,6 +133,10 @@ export class Host extends Network {
 
     console.log('Broadcasting to ' + clients.length + ' clients: ', m);
 
+    const serialized = { ...m }
+
+    serialized.payload = classToPlain(serialized.payload);
+
     clients.forEach(c => {
       c.send(m);
     })
@@ -162,7 +166,7 @@ export class Client extends Network {
     this.peer.on('open', (id:string) => {
       this.player.id = this.fullyQualifiedId(this.connectionId);
 
-      this.host = this.peer.connect(this.fullyQualifiedId(code), { metadata: this.player });
+      this.host = this.peer.connect(this.fullyQualifiedId(code), { metadata: classToPlain(this.player) });
       this.code = code;
 
       this.host.peerConnection.onconnectionstatechange = (ev: any) => {

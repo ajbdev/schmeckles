@@ -44,6 +44,20 @@ export function generateRandomName() {
   return names[Math.floor(Math.random()*names.length)];;
 }
 
+export function victoryPoints(p: Player) {
+  let total = 0;
+
+  if (p.cards.cards.length > 0) {
+    total += p.cards.cards.map(c => c.points).reduce((a,b) => a+b);
+  }
+
+  if (p.nobles.length > 0) {
+    total += p.nobles.map(n => n.points).reduce((a,b) => a+b);
+  }
+
+  return total;
+}
+
 export class Player {
   id: string;
   name: string;
@@ -59,33 +73,19 @@ export class Player {
   avatar: string;
   winner: boolean;
 
-  constructor(name: string, avatar: string) {    
+  constructor(name: string, avatar: string) {
     this.id = name;
     this.name = name;
     this.avatar = avatar;
     this.gems = emptyGemStash();
     this.cards = new CardPile();
     this.reservedCards = [];
-    this.gemOrder = []; 
+    this.gemOrder = [];
     this.nobles = [];
     this.connected = false;
     this.connectionId = '';
     this.computer = false;
     this.winner = false;
     this.turn = 0;
-  }
-
-  victoryPoints() {
-    let total = 0;
-
-    if (this.cards.cards.length > 0) {
-      total += this.cards.cards.map(c => c.points).reduce((a,b) => a+b);
-    }
-
-    if (this.nobles.length > 0) {
-      total += this.nobles.map(n => n.points).reduce((a,b) => a+b);
-    }
-
-    return total;
   }
 }

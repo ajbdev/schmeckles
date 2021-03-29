@@ -6,7 +6,7 @@ import { TypedEmitter } from 'tiny-typed-emitter';
 import { BaseAction, IAction, Action } from './Actions';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { computeAction } from './Computer';
-import { Player } from './Player';
+import { Player, victoryPoints } from './Player';
 
 export const WIN_THRESHOLD = 15;
 
@@ -243,7 +243,7 @@ export class GameState {
   }
 
   checkForWinner() {
-    const eligible = this.players.filter(p => p.victoryPoints() >= WIN_THRESHOLD);
+    const eligible = this.players.filter(p => victoryPoints(p) >= WIN_THRESHOLD);
 
     if (eligible.length === 1) {
       this.ended = true;
@@ -251,9 +251,9 @@ export class GameState {
     }
 
     if (eligible.length > 1) {
-      const sorted = eligible.sort((a, b) => a.victoryPoints() > b.victoryPoints() ? -1 : 1);
+      const sorted = eligible.sort((a, b) => victoryPoints(a) > victoryPoints(b) ? -1 : 1);
 
-      if (sorted[0].victoryPoints() > sorted[1].victoryPoints()) {
+      if (victoryPoints(sorted[0]) > victoryPoints(sorted[1])) {
         this.ended = true;
         sorted[0].winner = true;
       }

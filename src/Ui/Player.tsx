@@ -1,6 +1,6 @@
 
 import Game, { Card, emptyGemStash, Gem, GemStash, PlayerTurn, GameState } from '../Game';
-import { Player } from '../Player';
+import { Player, victoryPoints } from '../Player';
 import styled, { keyframes } from 'styled-components';
 import React, { useState } from 'react';
 import { GemUI, IconSize } from './Gems';
@@ -281,7 +281,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
             </NobleStackStyle>
 
             <VictoryPointsStyle>
-              {this.props.player.victoryPoints()}
+              {victoryPoints(this.props.player)}
             </VictoryPointsStyle>
 
             {this.props.isPlayersTurn && this.props.isContextPlayer
