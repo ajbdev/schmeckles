@@ -1,4 +1,4 @@
-import { GameState, GemStash, Gem, Card, Tier, CardPile, emptyGemStash } from './Game';
+import { GameState, GemStash, Gem, Card, Tier, CardPile, emptyGemStash, drawCards } from './Game';
 import { Player } from './Player';
 import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted, isValidGems, gatherGemsForPurchase } from './Rules';
 
@@ -236,7 +236,7 @@ export class PurchaseCard extends BaseAction {
     const cards = gameState.getTierCards(card.tier);
     const drawPile = gameState.getDrawPileCards(card.tier);
     
-    drawPile.draw(1, cards, this.index);
+    drawCards(drawPile, cards, 1, this.index);
   }
 }
 
@@ -290,6 +290,7 @@ export class ReserveCard extends BaseAction {
     const cards = gameState.getTierCards(card.tier);
     const drawPile = gameState.getDrawPileCards(card.tier);
     
-    drawPile.draw(1, cards, this.index);
+    
+    drawCards(drawPile, cards, 1, this.index);
   }
 }

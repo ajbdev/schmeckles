@@ -125,6 +125,15 @@ export class Card {
   }
 }
 
+export const drawCards = (from: CardPile, destination: CardPile, n: number, atIndex: number = -1) => {
+  const cards = from.cards.splice(0, n);
+
+  cards.forEach(c => {
+    c.drawn = true;
+    destination.cards.splice(atIndex, 0, c);
+  });
+}
+
 export class CardPile {
   cards: Card[];
   tier?: Tier;
@@ -137,15 +146,6 @@ export class CardPile {
     } else {
       this.cards = [];
     }
-  }
-
-  draw(n: number, destination: CardPile, atIndex = -1) {
-    const cards = this.cards.splice(0, n)
-      
-    cards.forEach(c => {
-      c.drawn = true;
-      destination.cards.splice(atIndex, 0, c);
-    });
   }
 }
 
@@ -261,9 +261,9 @@ export class GameState {
   }
 
   drawVisibleCards() {
-    this.tierIDrawPile.draw(4-this.tierICards.cards.length, this.tierICards);
-    this.tierIIDrawPile.draw(4-this.tierIICards.cards.length, this.tierIICards);
-    this.tierIIIDrawPile.draw(4-this.tierIIICards.cards.length, this.tierIIICards);
+    drawCards(this.tierIDrawPile, this.tierICards, 4 - this.tierICards.cards.length);
+    drawCards(this.tierIIDrawPile, this.tierIICards, 4 - this.tierIICards.cards.length);
+    drawCards(this.tierIIIDrawPile, this.tierIIICards, 4 - this.tierIIICards.cards.length);
   }
 }
 

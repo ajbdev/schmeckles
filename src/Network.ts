@@ -119,7 +119,9 @@ export class Host extends Network {
       }
     });
     
-    this.players.splice(this.players.findIndex(p => p.id === player.id),1);
+    this.players.splice(this.players.findIndex(p => p.id === player.id), 1);
+    
+    this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
   }
 
   broadcast(m: HostNetworkMessage, exclude?: Player[]) {

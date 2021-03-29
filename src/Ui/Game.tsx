@@ -128,8 +128,6 @@ export default class GameUI extends React.Component<GameUIProps> {
     for (let i in this.props.gameState!.players) {
       this.animationRefs.players.push(React.createRef());
     }
-
-    
   }
 
   async componentDidUpdate(prevProps: GameUIProps) {
