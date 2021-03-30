@@ -85,8 +85,10 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
           this.setState({ players: msg.payload });
           break;
         case HostBroadcastType.ACTION:
+          const player = game.gameState.players.find(p => p.id === msg.payload.player.id);
+
           game.receiveAction(BaseAction.create(
-            msg.payload.player,
+            player!,
             Action[msg.payload.action as Action],
             msg.payload.meta
           ));

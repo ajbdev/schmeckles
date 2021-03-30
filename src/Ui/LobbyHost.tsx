@@ -76,8 +76,10 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
           case ClientMessageType.DISCONNECTING:
             break;
           case ClientMessageType.ACTION:
+            const player = game.gameState.players.find(p => p.id === msg.payload.player.id);
+
             game.sendAction(
-              msg.payload.player,
+              player!,
               Action[msg.payload.action as Action],
               msg.payload.meta
             )
