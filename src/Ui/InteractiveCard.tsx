@@ -80,11 +80,16 @@ interface InteractiveCardUIProps {
 
 
 const purchaseCard = (player: Player, cards: Card[], ix: number) => {
-  game.sendAction(player, Action.PurchaseCard, { cards, index: ix });
+  
+  const p = game.gameState.getPlayer(player.id);
+
+  game.sendAction(p!, Action.PurchaseCard, { cards, index: ix });
 }
 
 const reserveCard = (player: Player, cards: Card[], ix: number) => {
-  game.sendAction(player, Action.ReserveCard, { cards, index: ix });
+  const p = game.gameState.getPlayer(player.id);
+
+  game.sendAction(p!, Action.ReserveCard, { cards, index: ix });
 }
 
 export async function animateCardTo(animator: AnimationControls, startX: number, startY: number) {

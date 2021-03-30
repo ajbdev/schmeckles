@@ -127,7 +127,9 @@ const HoldGemUI = (props: HoldGemUIProps) => {
       gems[g as Gem]++;
     })
 
-    game.sendAction(props.player, Action.TakeGems, { gems });
+    const p = game.gameState.getPlayer(props.player.id);
+
+    game.sendAction(p!, Action.TakeGems, { gems });
 
     props.setHeldGems([]);
   }

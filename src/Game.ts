@@ -198,6 +198,10 @@ export class GameState {
     }
   }
 
+  getPlayer(id: string) {
+    return this.players.find(p => p.id === id);
+  }
+
   addPlayer(p: Player) {
     p.turn = this.players.length+1;
     this.players.push(p);

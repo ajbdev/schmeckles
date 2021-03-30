@@ -200,7 +200,7 @@ export class PurchaseCard extends BaseAction {
 
     this.type = Action.PurchaseCard;
     this.index = meta.index;
-    this.cards = meta.cards;
+    this.cards = [ ...meta.cards ]; // Copy array to drop the reference to the gameState object
     this.card = meta.cards[meta.index];
 
     this.rules = [
@@ -216,7 +216,9 @@ export class PurchaseCard extends BaseAction {
   }
 
   act(gameState: GameState) {
-    const card = this.cards.splice(this.index,1)[0];
+    const boardCards = gameState.getTierCards(this.card.tier);
+
+    const card = boardCards.cards.splice(this.index,1)[0];
 
     const cost = gatherGemsForPurchase(card.costs, this.player);
 
@@ -261,7 +263,7 @@ export class ReserveCard extends BaseAction {
     super(p, meta);
 
     this.type = Action.ReserveCard;
-    this.cards = meta.cards;
+    this.cards = [ ...meta.cards ]; // Copy array to drop the reference to the gameState object
     this.index = meta.index;
     this.card = meta.cards[meta.index];
 
@@ -274,7 +276,9 @@ export class ReserveCard extends BaseAction {
   }
 
   act(gameState: GameState) {
-    const card = this.cards.splice(this.index,1)[0];
+    const boardCards = gameState.getTierCards(this.card.tier);
+
+    const card = boardCards.cards.splice(this.index,1)[0];
 
     const gems = emptyGemStash();
     gems.star = 1;
@@ -287,10 +291,8 @@ export class ReserveCard extends BaseAction {
     this.player.reservedCards.push(card);
     this.nextTurn(gameState);
 
-    const cards = gameState.getTierCards(card.tier);
     const drawPile = gameState.getDrawPileCards(card.tier);
-    
-    
-    drawCards(drawPile, cards, 1, this.index);
+
+    drawCards(drawPile, boardCards, 1, this.index);
   }
 }

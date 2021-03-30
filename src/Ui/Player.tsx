@@ -222,7 +222,9 @@ const passTurn = (player: Player) => {
   if (window.confirm('Are you sure you want to pass your turn?')) {
     const game = Game.getInstance();
 
-    game.sendAction(player, Action.PassTurn, {});
+    const p = game.gameState.getPlayer(player.id);
+
+    game.sendAction(p!, Action.PassTurn, {});
   }
 }
 

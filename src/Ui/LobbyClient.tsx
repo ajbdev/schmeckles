@@ -54,14 +54,18 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
     });
 
     game.events.on(GameEvent.ActionReceived, (a: BaseAction, gameState: GameState) => {
+      console.log('Action recieved: ', a, gameState);
       this.setState({ gameState, lastAction: a });
+      console.log('Updating game state....')
     });
 
     game.events.on(GameEvent.ActionStarted, (a: BaseAction) => {
+      console.log('Action started: ', a);
       this.client.send({ type: ClientMessageType.ACTION, payload: { player: a.player, action: a.type, meta: a.meta } });
     });
 
     game.events.on(GameEvent.ActionFailed, (a: BaseAction) => {
+      console.log('Action failed: ', a);
       if (a.player.id === this.player.id) {
         this.setState({
           gameErrors: a.failedRules.map(fr => fr.message)
