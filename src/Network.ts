@@ -139,10 +139,8 @@ export class Host extends Network {
 
     serialized.payload = classToPlain(serialized.payload);
 
-    console.log(serialized);
-
     clients.forEach(c => {
-      c.send(m);
+      c.send(serialized);
     })
   }
 
