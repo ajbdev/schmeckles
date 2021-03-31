@@ -60,31 +60,27 @@ export interface GemStash {
   [Gem.Star]: number;
 }
 
-export const emptyGemStash = () => {
-  return {
+export const emptyGemStash = () => ({
     [Gem.Ruby]: 0,
     [Gem.Sapphire]: 0,
     [Gem.Diamond]: 0,
     [Gem.Onyx]: 0,
     [Gem.Emerald]: 0,
     [Gem.Star]: 0
-  }
-}
+});
 
 
 const mapNobleValuesJsonToNobleType = (noblesValues: NobleJsonValues[]) => noblesValues.map(
-  n => {
-    return {
-      points: n.points,
-      costs: {
-        [Gem.Ruby]: n.ruby || 0,
-        [Gem.Sapphire]: n.sapphire || 0,
-        [Gem.Diamond]: n.diamond || 0,
-        [Gem.Onyx]: n.onyx || 0,
-        [Gem.Emerald]: n.emerald || 0
-      }
+  n => ({
+    points: n.points,
+    costs: {
+      [Gem.Ruby]: n.ruby || 0,
+      [Gem.Sapphire]: n.sapphire || 0,
+      [Gem.Diamond]: n.diamond || 0,
+      [Gem.Onyx]: n.onyx || 0,
+      [Gem.Emerald]: n.emerald || 0
     }
-  }
+  })
 );
 
 const mapCardValuesJsonToCardType = (cardValues: CardJsonValues[]) => cardValues.map(
