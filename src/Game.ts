@@ -9,6 +9,8 @@ import { computeAction } from './Computer';
 import { Player, victoryPoints } from './Player';
 
 export const WIN_THRESHOLD = 15;
+export const TURN_SECONDS_WARNING = 30;
+export const TURN_SECONDS_TIMEOUT = 60;
 
 interface NobleJsonValues {
   points: number;
@@ -166,6 +168,8 @@ export class GameState {
   turn: PlayerTurn;
   fullTurns: PlayerTurn;
   background?: string;
+  turnTimer?: ReturnType<typeof setInterval>;
+  turnSeconds: number;
 
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
@@ -187,6 +191,7 @@ export class GameState {
     this.fullTurns = 0;
     this.started = false;
     this.ended = false;
+    this.turnSeconds = 0;
 
     this.gems = {
       [Gem.Ruby]: 7,
@@ -356,6 +361,26 @@ export default class Game {
     Game.instance = undefined;
 
     return this.getInstance();
+  }
+
+  resetTurnTimer() {
+    if (this.gameState.turnTimer) {
+      clearInterval(this.gameState.turnTimer);
+      this.gameState.turnTimer = undefined;
+      this.gameState.turnSeconds = 0;
+    }
+  }
+
+  startTurnTimer() {
+    this.resetTurnTimer();
+
+    this.gameState.turnTimer = setInterval(() => {
+      this.gameState.turnSeconds++;
+
+      if (this.gameState.turnSeconds > TURN_SECONDS_WARNING) {
+        this.updateGameState(this.gameState);
+      }
+    }, 1000);
   }
 
   receiveAction(action: IAction) {
