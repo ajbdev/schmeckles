@@ -124,6 +124,7 @@ const ExitLink = styled.a`
   border: 1px solid #ff0000;
   border-radius: 3px;
   color: #eee;
+  user-select: none;
   background: rgba(214, 38, 15, 0.5);
   margin-left: 10px;
   padding: 4px;
@@ -133,6 +134,7 @@ const ExitToMainMenuStyle = styled.button`
   font-size: 28px;
   padding: 10px;
   margin: 10px;
+  user-select: none;
   cursor: pointer;
   background: transparent;
   color: #fff;
@@ -146,6 +148,7 @@ const StartGameButtonStyle = styled.button`
   border-radius: 0;
   font-size: 28px;
   cursor: pointer;
+  user-select: none;
   padding: 10px;
   background: #91a4e6;
   border: 2px solid #3451b3;
@@ -163,6 +166,27 @@ const ButtonsStyle = styled.div`
   flex-direction: column;
   width: 350px;
   align-self: center;
+`
+const CountdownMaskStyle = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  user-select: none;
+  background: rgba(50,50,50,0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const CountdownStyle = styled.div`
+  padding: 10px;
+  margin-bottom: 100px;
+  font-size: 40px;
+  user-select: none;
+  font-weight: bold;
 `
 
 const PlayerNameConnectingStyle = styled.span`
@@ -182,14 +206,16 @@ const game = Game.getInstance();
 interface LobbyProps {
   code: string;
   players: Player[];
-  startGame?: () => void;
+  startCountdown?: () => void;
   addBot?: () => void;
   disbandLobby?: () => void;
   exitLobby?: () => void;
   removePlayer?: (p: Player) => void;
   contextPlayer: Player;
   errorMessage: string;
+  countdown?: number;
 }
+
 
 export default class Lobby extends React.Component<LobbyProps> {
   codeInput: React.RefObject<HTMLInputElement>;
@@ -232,11 +258,45 @@ export default class Lobby extends React.Component<LobbyProps> {
     }
   }
 
+  // start() {
+  //   const countdown = 10;
+  //   this.setState({ countdown })
+
+  //   const t = setInterval(() => {
+  //     const newTime = this.state.countdown - 1;
+  //     this.setState({ countdown: newTime })
+  //   }, 1000);
+
+  //   setTimeout(() => {
+  //     this.props.startCountdown && this.props.startCountdown();
+  //     clearInterval(t);
+  //   }, 10000);
+  // }
+
   render() {
     return (
       <LobbyPageStyle>
         <ContentColumnStyle>
           <GameTitle />
+          {this.props.countdown !== undefined && this.props.countdown >= 0
+            ? (
+              <CountdownMaskStyle>
+                <h3>Game will begin in</h3>
+                <CountdownStyle>{this.props.countdown}</CountdownStyle>
+
+                {this.props.disbandLobby
+                  ? <ExitToMainMenuStyle onClick={() => this.props.disbandLobby!()}>Cancel</ExitToMainMenuStyle>
+                  : null
+                }
+                
+                {this.props.exitLobby
+                  ? <ExitToMainMenuStyle onClick={() => this.props.exitLobby!()}>Cancel</ExitToMainMenuStyle>
+                  : null
+                }
+              </CountdownMaskStyle>
+            )
+            : null
+          }
           {this.props.code
             ? (
               <>
@@ -302,7 +362,7 @@ export default class Lobby extends React.Component<LobbyProps> {
               ? (<>
                 {[...Array(4 - this.props.players.length)].map((_,ix) =>
                   <WaitingForPlayerBoxStyle key={`player_box_${ix}`}>
-                    {this.props.startGame
+                    {this.props.startCountdown
                       ? (
                         <span>
                           Waiting for 
@@ -326,14 +386,22 @@ export default class Lobby extends React.Component<LobbyProps> {
               ? <NoticeStyle>Although you can play with more than four players, gameplay may suffer with more than four players.</NoticeStyle>
               : <NoticeStyle>&nbsp;</NoticeStyle>
           }
-          {this.props.startGame && this.props.disbandLobby
+          {this.props.startCountdown && this.props.disbandLobby && this.props.countdown === undefined
             ? (
               <ButtonsStyle>
-                <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startGame && this.props.startGame()}>Start Game</StartGameButtonStyle>
+                <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startCountdown && this.props.startCountdown()}>Start Game</StartGameButtonStyle>
                 <ExitToMainMenuStyle onClick={() => this.props.disbandLobby!()}>Exit to Main Menu</ExitToMainMenuStyle>
               </ButtonsStyle>
             )
-            : <p>Game will begin when the host start the game.</p>
+            : <NoticeStyle>Game will begin when the host start the game.</NoticeStyle>
+          }
+          {this.props.exitLobby
+            ? (
+              <ButtonsStyle>
+                <ExitToMainMenuStyle onClick={() => this.props.exitLobby!()}>Exit to Main Menu</ExitToMainMenuStyle>
+              </ButtonsStyle>
+            )
+            : null
           }
         </ContentColumnStyle>
       </LobbyPageStyle>

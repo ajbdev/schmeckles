@@ -166,6 +166,8 @@ export class GameState {
   background?: string;
   turnTimer?: ReturnType<typeof setInterval>;
   turnSeconds: number;
+  gameSeconds: number;
+  gameTimer?: ReturnType<typeof setInterval>
 
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
@@ -188,6 +190,7 @@ export class GameState {
     this.started = false;
     this.ended = false;
     this.turnSeconds = 0;
+    this.gameSeconds = 0;
 
     this.gems = {
       [Gem.Ruby]: 7,

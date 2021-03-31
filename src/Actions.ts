@@ -125,6 +125,10 @@ export class StartGame extends BaseAction {
   act(gameState: GameState) {
     gameState.started = true;
     gameState.turn = 1;
+    gameState.gameSeconds = 0;
+    gameState.gameTimer = setInterval(() => {
+      gameState.gameSeconds++;
+    }, 1000);
   }
 }
 

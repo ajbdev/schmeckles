@@ -22,7 +22,8 @@ interface LobbyClientState {
   players: Player[]
   contextPlayer: Player | null
   gameState: GameState | null
-  lastAction?: IAction,
+  lastAction?: IAction
+  countdown?: number
   gameErrors: string[]
 }
 
@@ -39,6 +40,7 @@ const game = Game.getInstance();
 export default class LobbyClient extends React.Component<LobbyClientProps, LobbyClientState> {
   player: Player
   client: Client
+  countdownTimer?: ReturnType<typeof setInterval>
 
   constructor(props: LobbyClientProps) {
     super(props);
@@ -56,7 +58,6 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
     game.events.on(GameEvent.ActionReceived, (a: BaseAction, gameState: GameState) => {
       console.log('Action recieved: ', a, gameState);
       this.setState({ gameState, lastAction: a });
-      console.log('Updating game state....')
     });
 
     game.events.on(GameEvent.ActionStarted, (a: BaseAction) => {
@@ -87,6 +88,18 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
           break;
         case HostBroadcastType.LOBBY_PLAYERS:
           this.setState({ players: msg.payload });
+          break;
+        case HostBroadcastType.LOBBY_COUNTDOWN:
+          this.setState({ countdown: 10 });
+          this.countdownTimer = setInterval(() => {
+            if (this.state.countdown !== undefined && this.state.countdown <= 0 && this.countdownTimer) {
+              clearInterval(this.countdownTimer);
+              this.countdownTimer = undefined;
+              this.setState({ countdown: undefined });
+            }
+
+            this.setState({ countdown: this.state.countdown! - 1 });
+          }, 1000);
           break;
         case HostBroadcastType.ACTION:
           const player = game.gameState.players.find(p => p.id === msg.payload.player.id);
@@ -151,6 +164,7 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
     return (
       <LobbyUI
         code={this.state.code} 
+        countdown={this.state.countdown}
         players={this.state.players} 
         contextPlayer={this.props.player}
         errorMessage={this.props.errorMessage} 

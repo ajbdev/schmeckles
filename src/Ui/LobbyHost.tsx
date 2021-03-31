@@ -23,6 +23,7 @@ interface LobbyHostState {
   contextPlayer: Player | null
   gameState: GameState | null
   lastAction?: IAction
+  countdown?: number
   gameErrors: string[]
 }
 
@@ -39,6 +40,7 @@ const game = Game.getInstance();
 export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHostState> {
   player: Player
   host: Host
+  countdownTimer?: ReturnType<typeof setInterval>
 
   constructor(props: LobbyHostProps) {
     super(props);
@@ -153,6 +155,8 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
     this.setState({
       players: this.host.players,
     });
+
+    this.sendGameState();
   }
 
   removePlayer(player: Player) {
@@ -169,6 +173,22 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
 
   broadcastAction(p: Player, a: Action, meta: any, exclude?: Player[]) {
     this.host.broadcast({ type: HostBroadcastType.ACTION, payload: { player: p, action: a, meta } }, exclude)
+  }
+
+  startCountdown() {
+    this.host.broadcast({ type: HostBroadcastType.LOBBY_COUNTDOWN });
+
+    this.setState({ countdown: 10 });
+    this.countdownTimer = setInterval(() => {
+      if (this.state.countdown !== undefined && this.state.countdown <= 0 && this.countdownTimer) {
+        clearInterval(this.countdownTimer);
+        this.countdownTimer = undefined;
+        this.setState({ countdown: undefined });
+        this.startGame();
+      }
+
+      this.setState({ countdown: this.state.countdown! - 1 });
+    }, 1000);
   }
 
   startGame() {
@@ -200,11 +220,12 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
         code={this.state.code}
         addBot={() => this.addBot()}
         players={this.state.players}
+        countdown={this.state.countdown}
         contextPlayer={this.props.player}
         removePlayer={(p:Player) => this.removePlayer(p)}
         errorMessage={this.props.errorMessage}
         disbandLobby={() => this.disbandLobby()}
-        startGame={() => this.startGame()}
+        startCountdown={() => this.startCountdown()}
       />
     )
   }
