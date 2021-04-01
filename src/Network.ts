@@ -103,6 +103,13 @@ export class Host extends Network {
           this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
           onPlayerUpdate(this.players);
         })
+
+        client.on('disconnected', () => {
+          console.log('client disconnected', this.players.findIndex(p => p.id === client.peer));
+          this.players.splice(this.players.findIndex(p => p.id === client.peer), 1)
+          this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
+          onPlayerUpdate(this.players);
+        })
     
         client.on('data', function(data: ClientNetworkMessage) {
           console.log('Received from client: ', data);

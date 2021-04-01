@@ -156,7 +156,7 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
       players: this.host.players,
     });
 
-    this.sendGameState();
+    this.host.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.host.players })
   }
 
   removePlayer(player: Player) {
