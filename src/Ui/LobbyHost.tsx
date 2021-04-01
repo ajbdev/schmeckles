@@ -1,9 +1,8 @@
 import React from "react"
 import { BackgroundType, getRandomBackground, ErrorMessage } from './Splash';
 import { Host, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
-import { GameEvent, GameState } from '../Game';
+import Game, { GameEvent, GameState, LOBBY_COUNTDOWN_FROM } from '../Game';
 import { Player, generateRandomName, getAvatarFromName } from '../Player';
-import Game from '../Game';
 import { Action, BaseAction, IAction } from '../Actions';
 import GameUI from './Game';
 import LobbyUI from './Lobby';
@@ -178,7 +177,7 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
   startCountdown() {
     this.host.broadcast({ type: HostBroadcastType.LOBBY_COUNTDOWN });
 
-    this.setState({ countdown: 10 });
+    this.setState({ countdown: LOBBY_COUNTDOWN_FROM });
     this.countdownTimer = setInterval(() => {
       if (this.state.countdown !== undefined && this.state.countdown <= 0 && this.countdownTimer) {
         clearInterval(this.countdownTimer);

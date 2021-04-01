@@ -1,6 +1,6 @@
 import React from "react"
 import { Client, HostBroadcastType, ClientMessageType } from '../Network';
-import { GameEvent, GameState } from '../Game';
+import { GameEvent, GameState, LOBBY_COUNTDOWN_FROM } from '../Game';
 import { Player } from '../Player';
 import Game from '../Game';
 import { Action, BaseAction, IAction } from '../Actions';
@@ -90,7 +90,7 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
           this.setState({ players: msg.payload });
           break;
         case HostBroadcastType.LOBBY_COUNTDOWN:
-          this.setState({ countdown: 10 });
+          this.setState({ countdown: LOBBY_COUNTDOWN_FROM });
           this.countdownTimer = setInterval(() => {
             if (this.state.countdown !== undefined && this.state.countdown <= 0 && this.countdownTimer) {
               clearInterval(this.countdownTimer);

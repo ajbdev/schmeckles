@@ -10,6 +10,7 @@ import GameUI from './Game';
 import { AvatarSize, AvatarUI } from './Avatars';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 
+
 const LobbyPageStyle = styled.div`
   display: flex;
   flex-direction: row;

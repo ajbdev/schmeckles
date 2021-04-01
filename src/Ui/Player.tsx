@@ -265,7 +265,14 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           key={this.props.player.id}
           isContextPlayer={this.props.isContextPlayer}
         >
-          {this.props.isPlayersTurn ? <TurnMarkerStyle>▸</TurnMarkerStyle> : null}
+          {this.props.isPlayersTurn ?
+            (
+              <TurnMarkerStyle>
+                Timer go here
+                ▸
+              </TurnMarkerStyle>
+            )
+            : null}
 
           <TopRow>
             <AvatarUI 
