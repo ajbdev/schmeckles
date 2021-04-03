@@ -168,6 +168,7 @@ export default class GameUI extends React.Component<GameUIProps> {
                     ? (
                       <PlayerUI
                         player={p}
+                        turnSeconds={this.props.gameState!.turnSeconds}
                         animationRefs={this.animationRefs}
                         lastAction={this.props.lastAction}
                         ref={this.animationRefs.players[ix]}
@@ -192,6 +193,7 @@ export default class GameUI extends React.Component<GameUIProps> {
                       <PlayerUI
                         player={p}
                         animationRefs={this.animationRefs}
+                        turnSeconds={this.props.gameState!.turnSeconds}
                         lastAction={this.props.lastAction}
                         ref={this.animationRefs.players[ix]}
                         key={p.id}

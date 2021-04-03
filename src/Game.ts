@@ -10,8 +10,8 @@ import { Player, victoryPoints } from './Player';
 
 export const WIN_THRESHOLD = 15;
 export const TURN_SECONDS_WARNING = 6;
-export const TURN_SECONDS_TIMEOUT = 3;
-export const LOBBY_COUNTDOWN_FROM = 3;
+export const TURN_SECONDS_TIMEOUT = 12;
+export const LOBBY_COUNTDOWN_FROM = 5;
 
 interface NobleJsonValues {
   points: number;
@@ -251,6 +251,27 @@ export class GameState {
     });
   }
 
+  
+  resetTurnTimer() {
+    if (this.turnTimer) {
+      clearInterval(this.turnTimer);
+      this.turnTimer = undefined;
+      this.turnSeconds = 0;
+    }
+  }
+
+  startTurnTimer() {
+    this.resetTurnTimer();
+
+    this.turnTimer = setInterval(() => {
+      this.turnSeconds++;
+
+      if (this.turnSeconds > TURN_SECONDS_WARNING) {
+        //this.updateGameState(this);
+      }
+    }, 1000);
+  }
+
   checkForWinner() {
     const eligible = this.players.filter(p => victoryPoints(p) >= WIN_THRESHOLD);
 
@@ -361,26 +382,6 @@ export default class Game {
     Game.instance = undefined;
 
     return this.getInstance();
-  }
-
-  resetTurnTimer() {
-    if (this.gameState.turnTimer) {
-      clearInterval(this.gameState.turnTimer);
-      this.gameState.turnTimer = undefined;
-      this.gameState.turnSeconds = 0;
-    }
-  }
-
-  startTurnTimer() {
-    this.resetTurnTimer();
-
-    this.gameState.turnTimer = setInterval(() => {
-      this.gameState.turnSeconds++;
-
-      if (this.gameState.turnSeconds > TURN_SECONDS_WARNING) {
-        this.updateGameState(this.gameState);
-      }
-    }, 1000);
   }
 
   receiveAction(action: IAction) {

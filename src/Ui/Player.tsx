@@ -1,5 +1,5 @@
 
-import Game, { Card, emptyGemStash, Gem, GemStash, PlayerTurn, GameState } from '../Game';
+import Game, { Card, emptyGemStash, Gem, GemStash, PlayerTurn, GameState, TURN_SECONDS_WARNING, TURN_SECONDS_TIMEOUT } from '../Game';
 import { Player, victoryPoints } from '../Player';
 import styled, { keyframes } from 'styled-components';
 import React, { useState } from 'react';
@@ -40,6 +40,45 @@ const NumberChangeStyle = styled.div`
   margin-top: 16px;
   margin-left: -12px;
 `
+
+const MarkerStyle = styled.div`
+  position: relative;
+  right: 8px;
+  top: 8px;
+  color: #fff;
+  font-size: 20px;
+  width: 26px;
+  text-align: center;
+  
+
+  &:after {
+    display: block;
+    top: 4px;
+    right: -12px;
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-width: 8px 0 8px 10px;
+    border-color: transparent transparent transparent var(--gold);
+    border-style: solid;
+  }
+`
+
+const TurnMarkerUI = (props: { turnSeconds: number }) => {
+  return (
+    <MarkerStyle>
+      {props.turnSeconds > TURN_SECONDS_WARNING ?
+        (
+          <>
+            {TURN_SECONDS_TIMEOUT - props.turnSeconds}
+          </>
+        )
+        : null}
+        {props.turnSeconds}
+    </MarkerStyle>
+  )
+}
 
 export const PlayerGemsTallyUI = (props: { gems: GemStash, diff?: GemStash }) => (
   <GemsStyle>
@@ -203,7 +242,8 @@ const PassButtonStyle = styled.button`
 
 interface PlayerUIProps { 
   player: Player
-  animationRefs: AnimationRefs;
+  animationRefs: AnimationRefs
+  turnSeconds: number
   isPlayersTurn: boolean
   isContextPlayer: boolean 
   lastAction?: IAction
@@ -253,12 +293,8 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
     return gems;
   }
 
-  getCardAnimation(c:Card) {
-
-  }
 
   render() {
-
     return (
       <>
         <ListItemStyle 
@@ -268,8 +304,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           {this.props.isPlayersTurn ?
             (
               <TurnMarkerStyle>
-                Timer go here
-                ▸
+                <TurnMarkerUI turnSeconds={this.props.turnSeconds} />
               </TurnMarkerStyle>
             )
             : null}
