@@ -218,31 +218,39 @@ export class PurchaseCard extends BaseAction {
       }
     ]
   }
+  
+  getReservedCard(gameState: GameState) {
+    return this.player.reservedCards.splice(this.index, 1)[0];
+  }
 
-  act(gameState: GameState) {
+  getBoardCard(gameState: GameState) {
     const boardCards = gameState.getTierCards(this.card.tier);
 
-    const card = boardCards.cards.splice(this.index,1)[0];
+    return boardCards.cards.splice(this.index, 1)[0];
+  }
+
+  act(gameState: GameState) {
+    const card = this.card.reserved ? this.getReservedCard(gameState) : this.getBoardCard(gameState);
 
     const cost = gatherGemsForPurchase(card.costs, this.player);
 
     moveGemsFromPlayer(this.player, gameState.gems, cost as GemStash);
 
+    card.drawn = false;
+    this.player.cards.cards.push(card);
+
     if (card.reserved) {
       card.reserved = false;
+    } else {
+      const cards = gameState.getTierCards(card.tier);
+      const drawPile = gameState.getDrawPileCards(card.tier);
+      
+      drawCards(drawPile, cards, 1, this.index);
     }
 
-    card.drawn = false;
-
-    this.player.cards.cards.push(card);
     this.nextTurn(gameState);
 
     gameState.awardNobles(this.player);
-    
-    const cards = gameState.getTierCards(card.tier);
-    const drawPile = gameState.getDrawPileCards(card.tier);
-    
-    drawCards(drawPile, cards, 1, this.index);
   }
 }
 
