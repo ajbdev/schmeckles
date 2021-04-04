@@ -89,6 +89,10 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
       }
     );
 
+    game.events.on(GameEvent.StateUpdated, (gameState: GameState) => {
+      this.setState({ gameState });
+    });
+
     game.events.on(GameEvent.ActionReceived, (a: BaseAction, gameState: GameState) => {
       this.setState({ gameState, lastAction: a });
     });

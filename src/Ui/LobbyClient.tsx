@@ -55,6 +55,10 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
       contextPlayer: this.player
     });
 
+    game.events.on(GameEvent.StateUpdated, (gameState: GameState) => {
+      this.setState({ gameState });
+    });
+
     game.events.on(GameEvent.ActionReceived, (a: BaseAction, gameState: GameState) => {
       console.log('Action recieved: ', a, gameState);
       this.setState({ gameState, lastAction: a });

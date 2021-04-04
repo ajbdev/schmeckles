@@ -68,14 +68,13 @@ const MarkerStyle = styled.div`
 const TurnMarkerUI = (props: { turnSeconds: number }) => {
   return (
     <MarkerStyle>
-      {props.turnSeconds > TURN_SECONDS_WARNING ?
+      {props.turnSeconds >= TURN_SECONDS_WARNING ?
         (
           <>
             {TURN_SECONDS_TIMEOUT - props.turnSeconds}
           </>
         )
         : null}
-        {props.turnSeconds}
     </MarkerStyle>
   )
 }
@@ -215,7 +214,7 @@ const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) =>
 }))`
   color: ${props => props.isContextPlayer ? '#fff' : '#222'}; 
   font-size: 20px;
-  height: 260px;
+  min-height: 260px;
   font-weight: bold;
   padding-left: 10px;
   position: relative;

@@ -12,7 +12,7 @@ import { AnimationControls, useAnimation } from 'framer';
 const GameStyle = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-evenly;
 `
 
 const ColumnStyle = styled.div`
@@ -24,7 +24,7 @@ const ColumnStyle = styled.div`
 const SideColumnStyle = styled.div`
   display: flex;
   flex-direction: column;
-  align-self: flex-start;
+  align-self: center;
   justify-content: space-around;
   padding: 20px 0;
 `
