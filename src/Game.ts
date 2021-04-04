@@ -251,27 +251,6 @@ export class GameState {
     });
   }
 
-  
-  resetTurnTimer() {
-    if (this.turnTimer) {
-      clearInterval(this.turnTimer);
-      this.turnTimer = undefined;
-      this.turnSeconds = 0;
-    }
-  }
-
-  startTurnTimer() {
-    this.resetTurnTimer();
-
-    this.turnTimer = setInterval(() => {
-      this.turnSeconds++;
-
-      if (this.turnSeconds > TURN_SECONDS_WARNING) {
-        //this.updateGameState(this);
-      }
-    }, 1000);
-  }
-
   checkForWinner() {
     const eligible = this.players.filter(p => victoryPoints(p) >= WIN_THRESHOLD);
 
@@ -289,7 +268,7 @@ export class GameState {
       }
     }
   }
-
+  
   drawVisibleCards() {
     drawCards(this.tierIDrawPile, this.tierICards, 4 - this.tierICards.cards.length);
     drawCards(this.tierIIDrawPile, this.tierIICards, 4 - this.tierIICards.cards.length);
@@ -384,6 +363,34 @@ export default class Game {
     return this.getInstance();
   }
 
+  resetTurnTimer() {
+    if (this.gameState.turnTimer) {
+      clearInterval(this.gameState.turnTimer);
+      this.gameState.turnTimer = undefined;
+      this.gameState.turnSeconds = 0;
+    }
+  }
+
+  startTurnTimer() {
+    this.resetTurnTimer();
+
+    this.gameState.turnTimer = setInterval(() => {
+      this.gameState.turnSeconds++;
+
+      if (this.gameState.turnSeconds > TURN_SECONDS_WARNING) {
+        this.updateGameState(this.gameState);
+      }
+
+      if (this.gameState.turnSeconds > TURN_SECONDS_TIMEOUT) {
+        this.sendAction(
+          this.gameState.players[this.gameState.turn - 1],
+          Action.PassTurn,
+          {}
+        );
+      }
+    }, 1000);
+  }
+
   receiveAction(action: IAction) {
     if (action.checkRules(this.gameState)) {
       action.act(this.gameState);
@@ -399,5 +406,7 @@ export default class Game {
     if (nextPlayer.computer) {
       setTimeout(() => this.computerAction(nextPlayer), 3000);
     }
+
+    this.startTurnTimer();
   }
 }

@@ -1,4 +1,4 @@
-import { GameState, GemStash, Gem, Card, Tier, CardPile, emptyGemStash, drawCards } from './Game';
+import { GameState, GemStash, Gem, Card, Tier, CardPile, emptyGemStash, drawCards, TURN_SECONDS_TIMEOUT } from './Game';
 import { Player } from './Player';
 import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted, isValidGems, gatherGemsForPurchase } from './Rules';
 
@@ -50,8 +50,8 @@ export abstract class BaseAction implements IAction {
   }
 
   checkRules(gameState: Readonly<GameState>): boolean {
-    this.rules.forEach(r => {
-      const result = r(gameState);
+    this.rules.forEach(rule => {
+      const result = rule(gameState);
 
       if (!result.passed) {
         this.failedRules.push(result);
@@ -75,6 +75,8 @@ export abstract class BaseAction implements IAction {
 
     gameState.turn = turn;
   }
+  
+
 
   abstract act(gameState: GameState): void;
 }
