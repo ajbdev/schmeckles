@@ -134,10 +134,17 @@ export const canReserveCard = (player: Player): Result => {
   }
 }
 
+export const tenGemsMax = (totalGems: number, player: Player): Result => {
+  return {
+    passed: Object.values(player.gems).reduce((a,b) => a+b) + totalGems <= 10,
+    message: 'Only a maximum of ten gems can be taken.'
+  }
+}
+
 export const isTakingTwoOrThreeGems = (totalGems:number): Result => {
   return {
     passed: totalGems >= 2 && totalGems <= 3,
-    message: 'Only two or three gems can be taken per turn.'
+    message: 'Only two of one gem or three unique gems can be taken per turn.'
   }
 }
 
