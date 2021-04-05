@@ -163,11 +163,14 @@ export const SchmeckleGemCoinUI = React.forwardRef((props: SchmeckleGemCoinProps
     if (frameRef.current && props.animationRefs && props.lastAction) {
       const board = props.animationRefs.board.current as any;
 
-      const originalGemArea = board.gemBankRef.current.gemRefs[props.gem].current.getBoundingClientRect();
-      const destinationArea = frameRef.current.getBoundingClientRect();
-
-      const x = originalGemArea.x - destinationArea.x;
-      const y = originalGemArea.y - destinationArea.y;
+      let x = 0, y = 0;
+      if (board.gemBankRef.current.gemRefs[props.gem].current && frameRef.current) {
+        const originalGemArea = board.gemBankRef.current.gemRefs[props.gem].current.getBoundingClientRect();
+        const destinationArea = frameRef.current.getBoundingClientRect();
+  
+        x = originalGemArea.x - destinationArea.x;
+        y = originalGemArea.y - destinationArea.y;
+      }
 
       animateGemTo(animate,x,y);
     }
