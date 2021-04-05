@@ -94,9 +94,9 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
 
       if (game.gameState.turnSeconds > TURN_SECONDS_TIMEOUT) {
         game.sendAction(
-          game.gameState.players[game.gameState.turn - 1],
+          this.player,
           Action.PassTurn,
-          {}
+          { forPlayer: game.gameState.players[game.gameState.turn - 1] }
         );
       }
     });

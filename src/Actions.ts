@@ -262,6 +262,12 @@ export class PassTurn extends BaseAction {
     super(p, meta);
 
     this.type = Action.PassTurn;
+
+    const forPlayer = meta.forPlayer ? meta.forPlayer : p;
+    
+    this.rules = [
+      (g: Readonly<GameState>) => isPlayersTurn(forPlayer, g.players, g.turn)
+    ]
   }
 
   act(gameState: GameState) {
