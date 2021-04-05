@@ -259,21 +259,6 @@ export default class Lobby extends React.Component<LobbyProps> {
     }
   }
 
-  // start() {
-  //   const countdown = 10;
-  //   this.setState({ countdown })
-
-  //   const t = setInterval(() => {
-  //     const newTime = this.state.countdown - 1;
-  //     this.setState({ countdown: newTime })
-  //   }, 1000);
-
-  //   setTimeout(() => {
-  //     this.props.startCountdown && this.props.startCountdown();
-  //     clearInterval(t);
-  //   }, 10000);
-  // }
-
   render() {
     return (
       <LobbyPageStyle>
@@ -387,14 +372,21 @@ export default class Lobby extends React.Component<LobbyProps> {
               ? <NoticeStyle>Although you can play with more than four players, gameplay may suffer with more than four players.</NoticeStyle>
               : <NoticeStyle>&nbsp;</NoticeStyle>
           }
-          {this.props.startCountdown && this.props.disbandLobby && this.props.countdown === undefined
+          {this.props.countdown === undefined
             ? (
-              <ButtonsStyle>
-                <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startCountdown && this.props.startCountdown()}>Start Game</StartGameButtonStyle>
-                <ExitToMainMenuStyle onClick={() => this.props.disbandLobby!()}>Exit to Main Menu</ExitToMainMenuStyle>
-              </ButtonsStyle>
+              <>
+                {this.props.startCountdown && this.props.disbandLobby 
+                  ? (
+                    <ButtonsStyle>
+                      <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startCountdown && this.props.startCountdown()}>Start Game</StartGameButtonStyle>
+                      <ExitToMainMenuStyle onClick={() => this.props.disbandLobby!()}>Exit to Main Menu</ExitToMainMenuStyle>
+                    </ButtonsStyle>
+                  )
+                  : <NoticeStyle>Game will begin when the host start the game.</NoticeStyle>
+                }
+              </>
             )
-            : <NoticeStyle>Game will begin when the host start the game.</NoticeStyle>
+            : null
           }
           {this.props.exitLobby
             ? (

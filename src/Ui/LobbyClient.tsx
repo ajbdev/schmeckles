@@ -159,6 +159,7 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
         <GameUI 
           gameState={this.state.gameState} 
           contextPlayer={this.state.contextPlayer!}
+          lobbyCode={this.state.code}
           gameErrors={this.state.gameErrors}
           lastAction={this.state.lastAction}
         />

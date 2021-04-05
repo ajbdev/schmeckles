@@ -74,6 +74,7 @@ export abstract class BaseAction implements IAction {
     }
 
     gameState.turn = turn;
+    gameState.turnSeconds = 0;
   }
   
 

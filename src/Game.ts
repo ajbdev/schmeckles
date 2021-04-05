@@ -11,7 +11,7 @@ import { Player, victoryPoints } from './Player';
 export const WIN_THRESHOLD = 15;
 export const TURN_SECONDS_WARNING = 30;
 export const TURN_SECONDS_TIMEOUT = 60;
-export const LOBBY_COUNTDOWN_FROM = 10;
+export const LOBBY_COUNTDOWN_FROM = 5;
 
 interface NobleJsonValues {
   points: number;
@@ -376,15 +376,6 @@ export default class Game {
 
     this.gameState.turnTimer = setInterval(() => {
       this.gameState.turnSeconds++;
-
-      if (this.gameState.turnSeconds > TURN_SECONDS_TIMEOUT) {
-        this.gameState.turnSeconds = 0;
-        this.sendAction(
-          this.gameState.players[this.gameState.turn - 1],
-          Action.PassTurn,
-          {}
-        );
-      }
 
       this.updateGameState(this.gameState);
     }, 1000);

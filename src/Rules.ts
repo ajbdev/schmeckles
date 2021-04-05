@@ -79,7 +79,7 @@ export const gatherGemsForPurchase = (c: GemStash, player: Player): GemStash | b
       if (stars >= diff) {
         payment[g as Gem] -= diff;
         payment.star += diff;
-        stars--;
+        stars -= diff;
       } else {
         return false
       }

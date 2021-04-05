@@ -65,16 +65,29 @@ const MarkerStyle = styled.div`
   }
 `
 
+const TurnTimeoutWarningStyle = styled.div`
+  animation: blink-animation 1s steps(5, start) infinite;
+  @keyframes blink-animation {
+    to {
+      visibility: hidden;
+    }
+  }
+`
+
 const TurnMarkerUI = (props: { turnSeconds: number }) => {
+const t = TURN_SECONDS_TIMEOUT - props.turnSeconds;
+
   return (
     <MarkerStyle>
-      {props.turnSeconds >= TURN_SECONDS_WARNING ?
-        (
-          <>
-            {TURN_SECONDS_TIMEOUT - props.turnSeconds}
-          </>
+      {props.turnSeconds >= TURN_SECONDS_WARNING 
+      ? props.turnSeconds >= (TURN_SECONDS_TIMEOUT-10)
+        ? (
+          <TurnTimeoutWarningStyle>
+            {t >= 0 ? t : 0}
+          </TurnTimeoutWarningStyle>
         )
-        : null}
+        : <>{t >= 0 ? t : 0}</>
+      : null}
     </MarkerStyle>
   )
 }

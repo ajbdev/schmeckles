@@ -1,10 +1,10 @@
 import React, { LegacyRef, RefObject } from 'react';
 import { BoardUI } from './Board';
-import Game, { GameState, Tier } from '../Game';
+import Game, { GameState, Tier, TURN_SECONDS_TIMEOUT, TURN_SECONDS_WARNING } from '../Game';
 import { Player } from '../Player';
 import { Action, IAction, ReserveCard } from '../Actions';
 import styled from 'styled-components';
-import { BackgroundType } from './Splash';
+import { BackgroundType, GameTitle } from './Splash';
 import { PlayerUI } from './Player';
 import { AvatarUI } from './Avatars';
 import { AnimationControls, useAnimation } from 'framer';
@@ -85,6 +85,33 @@ const GameErrorsStyle = styled.ul`
   }
 `
 
+const GameHeaderStyle = styled.div`
+  text-align: center;
+  position: relative;
+`
+
+const TertiaryMenuStyle = styled.div`
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  user-select: text;
+  color: #fff;
+  text-shadow: 1px 1px 1px #000;
+  font-size: 12px; 
+`
+
+const LobbyCodeInputStyle = styled.input`
+  background: transparent;
+  border: 0;
+  color: #fff;
+  text-shadow: 1px 1px 1px #000;
+  font-size: 12px; 
+  width: 30px;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+`
+
 const WinnerSplashUI = (props: { gameState: GameState }) => {
   const winner = props.gameState.players.filter(p => p.winner)[0];
 
@@ -103,6 +130,7 @@ interface GameUIProps {
   gameState: GameState | null
   contextPlayer: Player
   lastAction?: IAction
+  lobbyCode: string
   gameErrors?: string[]
 }
 
@@ -113,15 +141,18 @@ export interface AnimationRefs {
 
 export default class GameUI extends React.Component<GameUIProps> {
   animationRefs: AnimationRefs;
+  originalTitle: string;
+  lastTitle: string;
 
   constructor(props: GameUIProps) {
     super(props);
+    this.originalTitle = `[${props.lobbyCode}] Schmeckles`
+    this.lastTitle = '';
 
     this.animationRefs = {
       players: [],
       board: React.createRef()
     }
-
   }
 
   componentDidMount() {
@@ -130,10 +161,28 @@ export default class GameUI extends React.Component<GameUIProps> {
     }
   }
 
-  async componentDidUpdate(prevProps: GameUIProps) {
-    if (this.props.lastAction !== prevProps.lastAction) {
-      // Await animations here before transitioning to authoritative gameState
+  updatePlayerTurnWindowTitle() {
+    this.lastTitle = document.title;
 
+    let newTitle = `**YOUR TURN** ${this.originalTitle}`;
+
+    if (this.props.gameState!.turnSeconds >= TURN_SECONDS_WARNING) {
+      newTitle = `${TURN_SECONDS_TIMEOUT - this.props.gameState!.turnSeconds} - ${newTitle}`;
+    }
+
+    if (this.lastTitle !== newTitle) {
+      document.title = newTitle;
+    }
+  }
+
+  async componentDidUpdate(prevProps: GameUIProps) {
+    if (this.props.contextPlayer.turn === this.props.gameState!.turn) {
+      this.updatePlayerTurnWindowTitle();
+    } else if (document.title !== this.originalTitle) {
+      document.title = this.originalTitle;
+    }
+
+    if (this.props.lastAction !== prevProps.lastAction) {
       const playSound = () => {
         if ([Action.ReserveCard, Action.PurchaseCard, Action.TakeGems].includes(this.props.lastAction!.type!)) {
           const sound = new Audio(`${process.env.PUBLIC_URL}/sounds/${this.props.lastAction!.type!}.wav`);
@@ -148,71 +197,79 @@ export default class GameUI extends React.Component<GameUIProps> {
 
   render() {
     return (
-      <GameStyle>
-        {this.props.gameErrors && this.props.gameErrors.length > 0
-          ? (
-            <GameErrorsStyle>
-              {this.props.gameErrors.map(e => 
-                <li>{e}</li>  
-              )}
-            </GameErrorsStyle>
-          )
-          : null
-        }
-        {this.props.gameState ?
-          (
-            <>
-              <SideColumnStyle>
-                {this.props.gameState.players.map((p, ix) =>
-                  ix % 2 === 0
-                    ? (
-                      <PlayerUI
-                        player={p}
-                        turnSeconds={this.props.gameState!.turnSeconds}
-                        animationRefs={this.animationRefs}
-                        lastAction={this.props.lastAction}
-                        ref={this.animationRefs.players[ix]}
-                        key={p.id}
-                        isContextPlayer={this.props.contextPlayer!.id === p.id}
-                        isPlayersTurn={this.props.gameState!.turn === p.turn}
-                      />
-                    ) : null
+      <>
+        <GameHeaderStyle>
+          <GameTitle />
+          <TertiaryMenuStyle >
+            Lobby Code: <LobbyCodeInputStyle value={this.props.lobbyCode} type="text" />
+          </TertiaryMenuStyle>
+        </GameHeaderStyle>
+        <GameStyle>
+          {this.props.gameErrors && this.props.gameErrors.length > 0
+            ? (
+              <GameErrorsStyle>
+                {this.props.gameErrors.map(e => 
+                  <li>{e}</li>  
                 )}
-              </SideColumnStyle>
-              <ColumnStyle>
-                <BoardUI
-                  gameState={this.props.gameState}
-                  contextPlayer={this.props.contextPlayer}
-                  ref={this.animationRefs.board}
-                />
-              </ColumnStyle>
-              <SideColumnStyle>
-                {this.props.gameState.players.map((p, ix) =>
-                  ix % 2 !== 0
-                    ? (
-                      <PlayerUI
-                        player={p}
-                        animationRefs={this.animationRefs}
-                        turnSeconds={this.props.gameState!.turnSeconds}
-                        lastAction={this.props.lastAction}
-                        ref={this.animationRefs.players[ix]}
-                        key={p.id}
-                        isContextPlayer={this.props.contextPlayer!.id === p.id}
-                        isPlayersTurn={this.props.gameState!.turn === p.turn}
-                      />
-                    ) : null
-                )}
-              </SideColumnStyle>
-              {this.props.gameState.ended
-                ? (
-                  <WinnerSplashUI gameState={this.props.gameState} />
-                )
-                : null}
-            </>
-          )
-          : null
-        }
-      </GameStyle>
+              </GameErrorsStyle>
+            )
+            : null
+          }
+          {this.props.gameState ?
+            (
+              <>
+                <SideColumnStyle>
+                  {this.props.gameState.players.map((p, ix) =>
+                    ix % 2 === 0
+                      ? (
+                        <PlayerUI
+                          player={p}
+                          turnSeconds={this.props.gameState!.turnSeconds}
+                          animationRefs={this.animationRefs}
+                          lastAction={this.props.lastAction}
+                          ref={this.animationRefs.players[ix]}
+                          key={p.id}
+                          isContextPlayer={this.props.contextPlayer!.id === p.id}
+                          isPlayersTurn={this.props.gameState!.turn === p.turn}
+                        />
+                      ) : null
+                  )}
+                </SideColumnStyle>
+                <ColumnStyle>
+                  <BoardUI
+                    gameState={this.props.gameState}
+                    contextPlayer={this.props.contextPlayer}
+                    ref={this.animationRefs.board}
+                  />
+                </ColumnStyle>
+                <SideColumnStyle>
+                  {this.props.gameState.players.map((p, ix) =>
+                    ix % 2 !== 0
+                      ? (
+                        <PlayerUI
+                          player={p}
+                          animationRefs={this.animationRefs}
+                          turnSeconds={this.props.gameState!.turnSeconds}
+                          lastAction={this.props.lastAction}
+                          ref={this.animationRefs.players[ix]}
+                          key={p.id}
+                          isContextPlayer={this.props.contextPlayer!.id === p.id}
+                          isPlayersTurn={this.props.gameState!.turn === p.turn}
+                        />
+                      ) : null
+                  )}
+                </SideColumnStyle>
+                {this.props.gameState.ended
+                  ? (
+                    <WinnerSplashUI gameState={this.props.gameState} />
+                  )
+                  : null}
+              </>
+            )
+            : null
+          }
+        </GameStyle>
+      </>
     )
   }
 }
