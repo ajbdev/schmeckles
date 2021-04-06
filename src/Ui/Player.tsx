@@ -222,14 +222,16 @@ const TopRow = styled.div`
   align-items: center;
 `
 
-const ListItemStyle = styled.span.attrs((props: { isContextPlayer: boolean }) => ({
+const ListItemStyle = styled.div.attrs((props: { isContextPlayer: boolean }) => ({
   isContextPlayer: props.isContextPlayer || false
 }))`
   color: ${props => props.isContextPlayer ? '#fff' : '#222'}; 
   font-size: 20px;
   min-height: 260px;
+  padding-left: 25px;
   font-weight: bold;
-  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
   position: relative;
 `
 

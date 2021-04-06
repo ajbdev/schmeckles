@@ -15,10 +15,11 @@ const GameStyle = styled.div`
   justify-content: space-evenly;
 `
 
-const ColumnStyle = styled.div`
+const CenterColumnStyle = styled.div`
   display: flex;
   flex-direction: column;
   align-self: center;
+  width: 50vw;
 `
 
 const SideColumnStyle = styled.div`
@@ -26,7 +27,7 @@ const SideColumnStyle = styled.div`
   flex-direction: column;
   align-self: center;
   justify-content: space-around;
-  padding: 20px 0;
+  width: 25vw;
 `
 
 const WinnerOverlayStyle = styled.div`
@@ -235,13 +236,13 @@ export default class GameUI extends React.Component<GameUIProps> {
                       ) : null
                   )}
                 </SideColumnStyle>
-                <ColumnStyle>
+                <CenterColumnStyle>
                   <BoardUI
                     gameState={this.props.gameState}
                     contextPlayer={this.props.contextPlayer}
                     ref={this.animationRefs.board}
                   />
-                </ColumnStyle>
+                </CenterColumnStyle>
                 <SideColumnStyle>
                   {this.props.gameState.players.map((p, ix) =>
                     ix % 2 !== 0

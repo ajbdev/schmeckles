@@ -36,7 +36,6 @@ const TilesStyle = styled.div`
   border-radius: 4px;
 `
 
-
 const HudGutterAreaStyle = styled.div`
   display: flex;
   justify-content: center;
