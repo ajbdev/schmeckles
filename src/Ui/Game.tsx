@@ -31,11 +31,9 @@ const SideColumnStyle = styled.div`
 `
 
 const LeftSideColumnStyle = styled(SideColumnStyle)`
-  padding-left: 25px;
 `;
 
 const RightSideColumnStyle = styled(SideColumnStyle)`
-  padding-right: 25px;
 `
 
 const WinnerOverlayStyle = styled.div`
@@ -210,7 +208,8 @@ export default class GameUI extends React.Component<GameUIProps> {
         <GameHeaderStyle>
           <GameTitle />
           <TertiaryMenuStyle >
-            Lobby Code: <LobbyCodeInputStyle value={this.props.lobbyCode} type="text" />
+            Lobby Code: <LobbyCodeInputStyle value={this.props.lobbyCode} type="text" /> <br />
+            Player: {this.props.contextPlayer.name}
           </TertiaryMenuStyle>
         </GameHeaderStyle>
         <GameStyle>

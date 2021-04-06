@@ -16,29 +16,16 @@ const GemsStyle = styled.div`
   display: flex;
   flex-direction: row;
 `
-const NumberChangeAnimation = keyframes`  
-  from { opacity: 1; margin-top: 16px;  }
-  to { opacity: 0; margin-top: 0px; }
-`; 
 
 const GemValueStyle = styled.div`
-  margin-right: 10px;
   display: flex;
+  font-size: 2.5vh;
   vertical-align: middle;
+  margin-right: 1vh;
 `
 
 const NumberStyle = styled.div`
-  margin-right: 5px;
-`
-
-const NumberChangeStyle = styled.div`
-  color: #fa9600;
-  position: absolute;
-  animation-name: ${NumberChangeAnimation};
-  animation-duration: 1.2s;
-  animation-timing-function: 'ease';
-  margin-top: 16px;
-  margin-left: -12px;
+  margin-left: 1vh;
 `
 
 const MarkerStyle = styled.div`
@@ -74,21 +61,15 @@ const TurnTimeoutWarningStyle = styled.div`
   }
 `
 
-export const PlayerGemsTallyUI = (props: { gems: GemStash, diff?: GemStash }) => (
+export const PlayerGemsTallyUI = (props: { gems: GemStash }) => (
   <GemsStyle>
     {Object.keys(props.gems).map(
       g => (
         <GemValueStyle key={`gem_${g}`}>
+          <GemUI gem={g as Gem} size={IconSize.sm} />
           <NumberStyle>
             {props.gems[g as Gem]}
           </NumberStyle>
-          {props.diff && props.diff[g as Gem] !== 0
-            ? <NumberChangeStyle>
-                {props.diff[g as Gem] > 0 ? '+' : ''}{props.diff[g as Gem]}
-              </NumberChangeStyle>
-            : null
-          }
-          <GemUI gem={g as Gem} size={IconSize.sm} />
         </GemValueStyle>
       )
     )}
@@ -100,26 +81,19 @@ const NameStyle = styled.span.attrs((props: { border: string }) => ({
 }))`
   border-bottom: ${props => props.border};
   user-select: none;
-  margin-left: 8px;
+  margin-left: 1vw;
 `;
 
-const TurnMarkerStyle = styled.span`
-  font-size: 40px;
-  font-weight: bold;
-  position: absolute;
-  margin-left: -34px;
-  color: var(--gold);
-`
 
 const VictoryPointsStyle = styled.div`
-  margin-right: -30px;
-  font-size: 26px;
+  font-size: 3vh;
   font-weight: bold;
   display: inline-block;
-  margin-left: 10px;
+  margin-left: 1vw;
+  margin-right: 1vw;
   border-radius: 100%;
-  width: 32px;
-  height: 32px;
+  width: 2vw;
+  height: 2vw;
   color: #fff;
   background: var(--gold);
   border: 4px solid #a3803f;
@@ -132,7 +106,6 @@ const CardStackStyle = styled.div`
   position: relative;
   flex-direction: row;
   flex-wrap: wrap;
-  width: 315px;
   
   & label {
     position: absolute;
@@ -156,7 +129,6 @@ const ReservedCardSlotStyle = styled.div`
 
 const GemTallyStyle = styled.div`
   padding-top: 10px;
-  width: 315px;
 `
 
 const CoinStackStyle = styled.div`
@@ -210,6 +182,7 @@ const ListItemStyle = styled.div.attrs((props: { isContextPlayer: boolean }) => 
   color: ${props => props.isContextPlayer ? '#fff' : '#222'};
   font-size: 20px;
   min-height: 260px;
+  padding-left: 2vw;
   font-weight: bold;
   display: flex;
   flex-direction: column;
@@ -232,7 +205,6 @@ const ReserveGutterStyle = styled.div`
 `
 
 const PassButtonStyle = styled.button`
-  margin-left: 50px;
 `
 
 interface PlayerUIProps { 
@@ -362,7 +334,6 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
                   animationRefs={this.props.animationRefs}
                   key={`${this.props.player.id}_gem_${gem}_${ix}`} 
                 />
-              
               )}
             </>
             <div ref={this.gemsRef} />

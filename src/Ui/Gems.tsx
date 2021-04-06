@@ -11,7 +11,7 @@ import { Player } from '../Player';
 
 export enum GemCostSize { xs, sm, md, lg, xl }
 
-export enum IconSize { xs = '16px', sm = '24px', md = '32px', lg = '48px', xl = '64px' };
+export enum IconSize { xs = '1vw', sm = '1.5vw', md = '2vw', lg = '2.5vw', xl = '3vw' };
 
 interface IconProps {
   size?: IconSize;
