@@ -54,7 +54,7 @@ const MarkerStyle = styled.div`
   &:after {
     display: block;
     top: 4px;
-    right: -12px;
+    left: -8px;
     content: '';
     position: absolute;
     width: 0;
@@ -73,24 +73,6 @@ const TurnTimeoutWarningStyle = styled.div`
     }
   }
 `
-
-const TurnMarkerUI = (props: { turnSeconds: number }) => {
-const t = TURN_SECONDS_TIMEOUT - props.turnSeconds;
-
-  return (
-    <MarkerStyle>
-      {props.turnSeconds >= TURN_SECONDS_WARNING 
-      ? props.turnSeconds >= (TURN_SECONDS_TIMEOUT-10)
-        ? (
-          <TurnTimeoutWarningStyle>
-            {t >= 0 ? t : 0}
-          </TurnTimeoutWarningStyle>
-        )
-        : <>{t >= 0 ? t : 0}</>
-      : null}
-    </MarkerStyle>
-  )
-}
 
 export const PlayerGemsTallyUI = (props: { gems: GemStash, diff?: GemStash }) => (
   <GemsStyle>
@@ -225,10 +207,9 @@ const TopRow = styled.div`
 const ListItemStyle = styled.div.attrs((props: { isContextPlayer: boolean }) => ({
   isContextPlayer: props.isContextPlayer || false
 }))`
-  color: ${props => props.isContextPlayer ? '#fff' : '#222'}; 
+  color: ${props => props.isContextPlayer ? '#fff' : '#222'};
   font-size: 20px;
   min-height: 260px;
-  padding-left: 25px;
   font-weight: bold;
   display: flex;
   flex-direction: column;
@@ -309,6 +290,8 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
 
 
   render() {
+    const t = TURN_SECONDS_TIMEOUT - this.props.turnSeconds;
+
     return (
       <>
         <ListItemStyle 
@@ -317,9 +300,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
         >
           {this.props.isPlayersTurn ?
             (
-              <TurnMarkerStyle>
-                <TurnMarkerUI turnSeconds={this.props.turnSeconds} />
-              </TurnMarkerStyle>
+              <MarkerStyle />
             )
             : null}
 
@@ -348,6 +329,17 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
               )
               : null
             }
+
+          {this.props.turnSeconds >= TURN_SECONDS_WARNING 
+          ? this.props.turnSeconds >= (TURN_SECONDS_TIMEOUT-10)
+            ? (
+              <TurnTimeoutWarningStyle>
+                {t >= 0 ? t : 0}
+              </TurnTimeoutWarningStyle>
+            )
+            : <>{t >= 0 ? t : 0}</>
+          : null}
+
           </TopRow>
           <GemTallyStyle>
             <PlayerGemsTallyUI gems={this.addGemTotal()} />

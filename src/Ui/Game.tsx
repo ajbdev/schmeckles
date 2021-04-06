@@ -30,6 +30,14 @@ const SideColumnStyle = styled.div`
   width: 25vw;
 `
 
+const LeftSideColumnStyle = styled(SideColumnStyle)`
+  padding-left: 25px;
+`;
+
+const RightSideColumnStyle = styled(SideColumnStyle)`
+  padding-right: 25px;
+`
+
 const WinnerOverlayStyle = styled.div`
   position: fixed;
   top: 0;
@@ -219,7 +227,7 @@ export default class GameUI extends React.Component<GameUIProps> {
           {this.props.gameState ?
             (
               <>
-                <SideColumnStyle>
+                <LeftSideColumnStyle>
                   {this.props.gameState.players.map((p, ix) =>
                     ix % 2 === 0
                       ? (
@@ -235,7 +243,7 @@ export default class GameUI extends React.Component<GameUIProps> {
                         />
                       ) : null
                   )}
-                </SideColumnStyle>
+                </LeftSideColumnStyle>
                 <CenterColumnStyle>
                   <BoardUI
                     gameState={this.props.gameState}
@@ -243,7 +251,7 @@ export default class GameUI extends React.Component<GameUIProps> {
                     ref={this.animationRefs.board}
                   />
                 </CenterColumnStyle>
-                <SideColumnStyle>
+                <RightSideColumnStyle>
                   {this.props.gameState.players.map((p, ix) =>
                     ix % 2 !== 0
                       ? (
@@ -259,7 +267,7 @@ export default class GameUI extends React.Component<GameUIProps> {
                         />
                       ) : null
                   )}
-                </SideColumnStyle>
+                </RightSideColumnStyle>
                 {this.props.gameState.ended
                   ? (
                     <WinnerSplashUI gameState={this.props.gameState} />
