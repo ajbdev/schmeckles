@@ -168,6 +168,13 @@ export default class GameUI extends React.Component<GameUIProps> {
     }
   }
 
+  printDebugInfo() {
+    console.log('DEBUG INFO:');
+    console.log('contextPlayer: ', this.props.contextPlayer);
+    console.log('gameState: ', this.props.gameState);
+    console.log('lastAction: ', this.props.lastAction);
+  }
+
   updatePlayerTurnWindowTitle() {
     this.lastTitle = document.title;
 
@@ -208,8 +215,8 @@ export default class GameUI extends React.Component<GameUIProps> {
         <GameHeaderStyle>
           <GameTitle />
           <TertiaryMenuStyle >
-            Lobby Code: <LobbyCodeInputStyle value={this.props.lobbyCode} type="text" /> <br />
-            Player: {this.props.contextPlayer.name}
+            Lobby Code: <LobbyCodeInputStyle value={this.props.lobbyCode} type="text" readOnly /> <br />
+            Player: <span onClick={() => this.printDebugInfo()}>{this.props.contextPlayer.name}</span>
           </TertiaryMenuStyle>
         </GameHeaderStyle>
         <GameStyle>

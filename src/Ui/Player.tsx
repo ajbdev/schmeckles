@@ -86,14 +86,14 @@ const NameStyle = styled.span.attrs((props: { border: string }) => ({
 
 
 const VictoryPointsStyle = styled.div`
-  font-size: 3vh;
+  font-size: 3.2vh;
   font-weight: bold;
   display: inline-block;
   margin-left: 1vw;
   margin-right: 1vw;
   border-radius: 100%;
-  width: 2vw;
-  height: 2vw;
+  width: 3.5vh;
+  height: 3.5vh;
   color: #fff;
   background: var(--gold);
   border: 4px solid #a3803f;
