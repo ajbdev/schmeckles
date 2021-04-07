@@ -96,12 +96,13 @@ export async function animateCardTo(animator: AnimationControls, startX: number,
   await animator.start(i => ({
     x: startX,
     y: startY,
+    scale: 0.547,
     zIndex: 900,
     transition: { duration: 0 }
   }));
   await animator.start((i) => ({
     y: -30,
-    scale: 1.25,
+    scale: 0.547,
     rotate: -20,
     transition: { duration: 0.2 },
   }));
@@ -139,11 +140,15 @@ const InteractiveCardUI = React.forwardRef((props: InteractiveCardUIProps, ref: 
       const board = props.animationRefs.board.current as any;
       const originalCardSpot = board[`tier${Tier[props.lastAction.card.tier]}CardRefs`][props.lastAction.index];
 
-      const originalCardArea = originalCardSpot.current.getBoundingClientRect();
-      const destinationArea = frameRef.current.getBoundingClientRect();
-
-      const x = originalCardArea.x  - destinationArea.x;
-      const y = originalCardArea.y  - destinationArea.y;
+      let x = 0, y = 0;
+      if (originalCardSpot.current) {
+  
+        const originalCardArea = originalCardSpot.current.getBoundingClientRect();
+        const destinationArea = frameRef.current.getBoundingClientRect();
+  
+        x = originalCardArea.x  - destinationArea.x;
+        y = originalCardArea.y  - destinationArea.y;
+      }
 
       animateCardTo(animate, x, y).then(r => setIsAnimating(false));
     } else if (frameRef.current && props.card.drawn) {

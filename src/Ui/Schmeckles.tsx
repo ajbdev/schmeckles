@@ -88,7 +88,7 @@ export const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boole
   width: 80px;
   background: #666;
   border-radius: 46px;
-  height: 50px;
+  height: 56px;
   padding-left: 2px;
   box-shadow: -1px -1px 1px #4d4d4d;
 
@@ -164,7 +164,7 @@ export const SchmeckleGemCoinUI = React.forwardRef((props: SchmeckleGemCoinProps
       const board = props.animationRefs.board.current as any;
 
       let x = 0, y = 0;
-      if (board.gemBankRef.current.gemRefs[props.gem].current && frameRef.current) {
+      if (board.gemBankRef.current.gemRefs[props.gem].current) {
         const originalGemArea = board.gemBankRef.current.gemRefs[props.gem].current.getBoundingClientRect();
         const destinationArea = frameRef.current.getBoundingClientRect();
   

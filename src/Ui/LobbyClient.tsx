@@ -55,13 +55,21 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
       contextPlayer: this.player
     });
 
+    // When the game state is deserialized from the network connection, the local context player object is dereferenced
+    // so we must setup a new reference any time we set state.
+    const getContextPlayerFromState = (gameState: GameState) => {
+      const result = gameState.players.find(p => p.id === this.state.contextPlayer!.id) || this.state.contextPlayer;
+
+      return result || null;
+    }
+
     game.events.on(GameEvent.StateUpdated, (gameState: GameState) => {
-      this.setState({ gameState });
+      this.setState({ gameState, contextPlayer: getContextPlayerFromState(gameState) });
     });
 
     game.events.on(GameEvent.ActionReceived, (a: BaseAction, gameState: GameState) => {
       console.log('Action recieved: ', a, gameState);
-      this.setState({ gameState, lastAction: a });
+      this.setState({ gameState, lastAction: a, contextPlayer: getContextPlayerFromState(gameState) });
     });
 
     game.events.on(GameEvent.ActionStarted, (a: BaseAction) => {

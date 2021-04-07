@@ -119,6 +119,7 @@ const CardStackStyle = styled.div`
 
 const CardSlotStyle = styled.div`
   width: 25px;
+  height: 90px;
   &:hover {
     z-index: 101;
   }
@@ -183,6 +184,7 @@ const ListItemStyle = styled.div.attrs((props: { isContextPlayer: boolean }) => 
   font-size: 20px;
   min-height: 260px;
   padding-left: 2vw;
+  margin-bottom: 4vh;
   font-weight: bold;
   display: flex;
   flex-direction: column;

@@ -1,7 +1,7 @@
 import React from "react"
 import { BackgroundType, getRandomBackground, ErrorMessage } from './Splash';
 import { Host, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
-import Game, { GameEvent, GameState, LOBBY_COUNTDOWN_FROM, TURN_SECONDS_TIMEOUT } from '../Game';
+import Game, { GameEvent, GameState, LOBBY_COUNTDOWN_FROM, shuffle, TURN_SECONDS_TIMEOUT } from '../Game';
 import { Player, generateRandomName, getAvatarFromName } from '../Player';
 import { Action, BaseAction, IAction } from '../Actions';
 import GameUI from './Game';
@@ -203,6 +203,8 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
   }
 
   startGame() {
+    this.host.players = shuffle(this.host.players);
+
     this.host.players.forEach(p => {
       game.sendAction(this.player, Action.JoinGame, { joiningPlayer: p });
     });
