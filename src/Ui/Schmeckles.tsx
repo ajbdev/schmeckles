@@ -86,9 +86,7 @@ export const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boole
   display: flex;
   flex-direction: row;
   width: 80px;
-  background: #666;
   border-radius: 46px;
-  height: 56px;
   padding-left: 2px;
   box-shadow: -1px -1px 1px #4d4d4d;
 

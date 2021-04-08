@@ -140,7 +140,7 @@ const CoinStackStyle = styled.div`
   position: relative;
   margin-bottom: 10px;
   & div {
-    width: 15px;
+    width: 2vw;
   }
 
   & label {
@@ -320,7 +320,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
           </GemTallyStyle>
 
           <CoinStackStyle>
-            {this.props.player.reservedCards.length > 0 && this.props.isContextPlayer ? <label>Gems</label> : null}
+            {this.props.player.gemOrder.length > 0 && this.props.isContextPlayer ? <label>Gems</label> : null}
             <>
               {this.props.player.gemOrder.map((gem, ix) => 
                 <SchmeckleGemCoinUI 
