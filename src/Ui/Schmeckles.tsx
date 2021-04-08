@@ -88,7 +88,6 @@ export const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boole
   width: 80px;
   border-radius: 46px;
   padding-left: 2px;
-  box-shadow: -1px -1px 1px #4d4d4d;
 
   &:not(:last-child) {
     margin-bottom: 6px;

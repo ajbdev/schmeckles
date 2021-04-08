@@ -11,7 +11,6 @@ const GemBankStyle = styled.div`
 
 const GemBankHolderStyle = styled.div`
   border-radius: 5px;
-  background: rgba(55,55,55,0.5);
   padding: 6px;
 `
 

@@ -196,12 +196,31 @@ export default class GameUI extends React.Component<GameUIProps> {
       document.title = this.originalTitle;
     }
 
+    const playYourTurn = () => {
+      if (this.props.contextPlayer.turn === this.props.gameState!.turn) {
+        const yourTurnSound = new Audio(`${process.env.PUBLIC_URL}/sounds/PlayerTurn.wav`);
+
+        setTimeout(
+          () => {
+            yourTurnSound.play();
+          }, 600
+        )
+        
+      }
+    }
+
     if (this.props.lastAction !== prevProps.lastAction) {
-      const playSound = () => {
+      const playSound = async () => {
+
         if ([Action.ReserveCard, Action.PurchaseCard, Action.TakeGems].includes(this.props.lastAction!.type!)) {
           const sound = new Audio(`${process.env.PUBLIC_URL}/sounds/${this.props.lastAction!.type!}.wav`);
   
+          sound.onended = playYourTurn;
+
           sound.play();
+
+        } else {
+          playYourTurn();
         }
       }
 

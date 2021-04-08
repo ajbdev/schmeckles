@@ -23,16 +23,25 @@ const NobleRowStyle = styled.div`
   justify-content: flex-end;
 `
 
-const BoardStyle = styled.div`
+const BoardStyle = styled.div.attrs((props: { isPlayersTurn?: boolean }) => ({
+  isPlayersTurn: !!props.isPlayersTurn
+}))`
   display: flex;
   flex-direction: row;
   align-self: center;
+  border: 4px solid var(--dark-gold);
+  background: rgba(55,55,55,0.5);
+  border-radius: 4px;
+  position: relative;
+  
+  ${props => props.isPlayersTurn && `
+    border: 4px solid var(--gold);
+  `}
 `
 
 const TilesStyle = styled.div`
   display: flex;
   flex-direction: column;
-  background: rgba(55,55,55,0.5);
   border-radius: 4px;
 `
 
@@ -172,6 +181,41 @@ const defaultState = {
   heldGems: []
 }
 
+const StatusStyle = styled.div.attrs((props: { isPlayersTurn?: boolean }) => ({
+  isPlayersTurn: !!props.isPlayersTurn
+}))`
+  position: absolute;
+  text-align: center;
+  left: -4px;
+  right: -4px;
+  bottom: -28px;
+  background: var(--dark-gold);
+  border: 4px solid var(--dark-gold);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  
+  ${props => props.isPlayersTurn && `
+    border: 4px solid var(--gold);
+    background: var(--gold);
+  `}
+`
+
+const statusText = (props: { isPlayersTurn?: boolean, contextPlayer?: Player }) => {
+  if (props.isPlayersTurn) {
+    return `Hey ${props.contextPlayer?.name}, it's your turn!`;
+  }
+
+  if (props.contextPlayer) {
+    return `Playing as ${props.contextPlayer.name}`;
+  }
+}
+
+const StatusUI = (props: { isPlayersTurn?: boolean, contextPlayer?: Player }) => (
+  <StatusStyle isPlayersTurn={props.isPlayersTurn}>
+    {statusText(props)}
+  </StatusStyle>
+)
+
 
 export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
   tierICardRefs: RefObject<HTMLDivElement>[] = []
@@ -225,7 +269,8 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
 
     return (
       <>
-        <BoardStyle>
+        
+        <BoardStyle isPlayersTurn={isTurn}>
           <GemBankUI 
             isPlayersTurn={isTurn}
             ref={this.gemBankRef}
@@ -261,6 +306,7 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
               )}
             </>
           </TilesStyle>
+        <div><StatusUI isPlayersTurn={isTurn} contextPlayer={this.props.contextPlayer} /></div>
         </BoardStyle>
         <HudGutterAreaStyle>
           {this.state.heldGems.length > 0 ? <HoldGemUI player={this.props.contextPlayer!} gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}
