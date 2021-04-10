@@ -127,8 +127,24 @@ export class StartGame extends BaseAction {
 
   act(gameState: GameState) {
     gameState.started = true;
+    gameState.nobles = gameState.nobles.slice(0, gameState.players.length+1);
     gameState.turn = 1;
     gameState.gameSeconds = 0;
+
+    const gemAmount = gameState.players.length === 2 ? 4
+                    : gameState.players.length === 3 ? 5
+                    : 7;
+    
+
+    gameState.gems = {
+      [Gem.Ruby]: gemAmount,
+      [Gem.Sapphire]: gemAmount,
+      [Gem.Diamond]: gemAmount,
+      [Gem.Onyx]: gemAmount,
+      [Gem.Emerald]: gemAmount,
+      [Gem.Star]: 5
+    }
+
     gameState.gameTimer = setInterval(() => {
       gameState.gameSeconds++;
     }, 1000);

@@ -175,7 +175,7 @@ export class GameState {
     const nobles = shuffle(mapNobleValuesJsonToNobleType(noblesJson));
 
     this.players = [];
-    this.nobles = nobles.splice(0, 3);
+    this.nobles = nobles.splice(0, 5);
 
     this.tierICards = new CardPile(Tier.I, []);
     this.tierIICards = new CardPile(Tier.II, []);
