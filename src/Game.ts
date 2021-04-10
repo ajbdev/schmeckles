@@ -9,8 +9,8 @@ import { computeAction } from './Computer';
 import { Player, victoryPoints } from './Player';
 
 export const WIN_THRESHOLD = 15;
-export const TURN_SECONDS_WARNING = 90;
-export const TURN_SECONDS_TIMEOUT = Infinity;
+export const TURN_SECONDS_WARNING = 150;
+export const TURN_SECONDS_TIMEOUT = 180;
 export const LOBBY_COUNTDOWN_FROM = 5;
 
 interface NobleJsonValues {

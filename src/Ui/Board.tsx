@@ -64,10 +64,8 @@ const HoldGemSlotsStyle = styled.div`
 
 const GemSlotStyle = styled.div`
   border-radius: 100%;
-  background: #666;
-  box-shadow: -1px -1px 1px #4d4d4d;
-  width: 41px;
-  height: 41px;
+  width: 2vw;
+  height: 2vh;
   padding: 5px;
   margin-right: 5px;
 
@@ -269,7 +267,6 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
 
     return (
       <>
-        
         <BoardStyle isPlayersTurn={isTurn}>
           <GemBankUI 
             isPlayersTurn={isTurn}
