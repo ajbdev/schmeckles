@@ -134,7 +134,6 @@ export class StartGame extends BaseAction {
     const gemAmount = gameState.players.length === 2 ? 4
                     : gameState.players.length === 3 ? 5
                     : 7;
-    
 
     gameState.gems = {
       [Gem.Ruby]: gemAmount,

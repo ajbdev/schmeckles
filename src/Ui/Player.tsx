@@ -120,9 +120,6 @@ const CardStackStyle = styled.div`
 const CardSlotStyle = styled.div`
   width: 25px;
   height: 90px;
-  &:hover {
-    z-index: 101;
-  }
 `
 
 const ReservedCardSlotStyle = styled.div`
@@ -345,7 +342,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
             {this.props.player.cards.cards.length > 0 && this.props.isContextPlayer ? <label>Purchased</label> : null}
             <>
             {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map((c,ix) =>
-              <CardSlotStyle key={`${this.props.player.id}_card_${c.gem}_${ix}`}>
+              <CardSlotStyle key={`${this.props.player.id}_card_${c.gem}_${ix}`} style={{ zIndex:  this.props.player.cards.cards.length-ix }}>
                 <InteractiveCardUI 
                     card={c} 
                     index={ix}

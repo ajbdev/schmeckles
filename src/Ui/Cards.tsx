@@ -41,13 +41,22 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   box-shadow: ${props => props.outline};
   position: relative;
   user-select: none;
+
 `
 
-export const VictoryPointsStyle = styled.div`
+export const VictoryPointsStyle = styled.div.attrs((props: { size: CardSize }) => ({
+  size: props.size ? props.size : CardSize.xs
+}))`
   font-size: 30px;
   font-weight: bold;
   color: #000;
   margin-left: 3px;
+
+  ${props => props.size === CardSize.xs && `
+    position: absolute;
+    right: 2px;
+    bottom 2px;
+  `}
 `
 
 interface CardUIProps {
@@ -92,7 +101,7 @@ export const CardUI = (props: CardUIProps) => {
 
   return (
     <CardStyle size={props.size ? props.size : CardSize.md} outline={props.outline} onClick={props.onClick}>
-      {props.card.points ? <VictoryPointsStyle>{props.card.points}</VictoryPointsStyle> : null}
+      {props.card.points ? <VictoryPointsStyle size={props.size ? props.size : CardSize.md}>{props.card.points}</VictoryPointsStyle> : null}
       {props.card.costs && !props.hideCosts
         ? (
           <GemCostsUI {...gemCostUIProps} />
