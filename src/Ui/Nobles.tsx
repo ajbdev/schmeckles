@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Noble } from '../Game';
 import { VictoryPointsStyle } from './Cards';
 import { GemCostsUI } from './Gems';
-import { ReactComponent as NobleSvg } from './svg/crown.svg'
+import { ReactComponent as NobleSvg } from './svg/crown.svg';
 
 export enum NobleSize { xs = '50px', sm = '68px', md = '90px', lg = '120px', xl = '160px' }
 

@@ -1,6 +1,6 @@
-import React, { ForwardedRef, RefObject } from "react";
+import React, { RefObject } from "react";
 import styled from "styled-components";
-import { GemStash, Gem } from "../Game";
+import { Gem, GemStash } from "../Game";
 import { SchmeckleGemCoinUI, SchmeckleGemStash } from "./Schmeckles";
 
 const GemBankStyle = styled.div`

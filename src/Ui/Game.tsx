@@ -1,13 +1,12 @@
-import React, { LegacyRef, RefObject } from 'react';
-import { BoardUI } from './Board';
-import Game, { GameState, Tier, TURN_SECONDS_TIMEOUT, TURN_SECONDS_WARNING } from '../Game';
-import { Player } from '../Player';
-import { Action, IAction, ReserveCard } from '../Actions';
+import React, { RefObject } from 'react';
 import styled from 'styled-components';
-import { BackgroundType, GameTitle } from './Splash';
-import { PlayerUI } from './Player';
+import { Action, IAction } from '../Actions';
+import { GameState, TURN_SECONDS_TIMEOUT, TURN_SECONDS_WARNING } from '../Game';
+import { Player } from '../Player';
 import { AvatarUI } from './Avatars';
-import { AnimationControls, useAnimation } from 'framer';
+import { BoardUI } from './Board';
+import { PlayerUI } from './Player';
+import { GameTitle } from './Splash';
 
 const GameStyle = styled.div`
   display: flex;

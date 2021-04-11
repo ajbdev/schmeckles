@@ -1,12 +1,11 @@
-import cardsJson from './cards.json';
-import noblesJson from './nobles.json';
-import namesJson from './names.json';
-
-import { TypedEmitter } from 'tiny-typed-emitter';
-import { BaseAction, IAction, Action } from './Actions';
 import { classToPlain, plainToClass } from 'class-transformer';
+import { TypedEmitter } from 'tiny-typed-emitter';
+import { Action, BaseAction, IAction } from './Actions';
+import cardsJson from './cards.json';
 import { computeAction } from './Computer';
+import noblesJson from './nobles.json';
 import { Player, victoryPoints } from './Player';
+
 
 export const WIN_THRESHOLD = 15;
 export const TURN_SECONDS_WARNING = 150;
@@ -216,13 +215,10 @@ export class GameState {
     switch (t) {
       case Tier.I:
         return this.tierICards;
-        break;
       case Tier.II:
         return this.tierIICards;
-        break;
       case Tier.III:
         return this.tierIIICards;
-        break;
     }
   }
 
@@ -230,13 +226,10 @@ export class GameState {
     switch (t) {
       case Tier.I:
         return this.tierIDrawPile;
-        break;
       case Tier.II:
         return this.tierIIDrawPile;
-        break;
       case Tier.III:
         return this.tierIIIDrawPile;
-        break;
     }
   }
   

@@ -1,9 +1,8 @@
-import React from "react"
-import { Client, HostBroadcastType, ClientMessageType } from '../Network';
-import { GameEvent, GameState, LOBBY_COUNTDOWN_FROM } from '../Game';
-import { Player } from '../Player';
-import Game from '../Game';
+import React from "react";
 import { Action, BaseAction, IAction } from '../Actions';
+import Game, { GameEvent, GameState, LOBBY_COUNTDOWN_FROM } from '../Game';
+import { Client, ClientMessageType, HostBroadcastType } from '../Network';
+import { Player } from '../Player';
 import GameUI from './Game';
 import LobbyUI from './Lobby';
 

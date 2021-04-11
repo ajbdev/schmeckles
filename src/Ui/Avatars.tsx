@@ -1,8 +1,8 @@
 
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { avatars } from '../Player';
 import { shuffle } from '../Game';
+import { avatars } from '../Player';
 
 export enum AvatarSize { xs = '16px', sm = '32px', md = '55px', lg = '80px', xl = '100px' };
 

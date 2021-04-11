@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import GameUI from './Ui/Game';
+import { generateRandomName, getAvatarFromName, Player } from './Player';
 import LobbyClient from './Ui/LobbyClient';
 import LobbyHost from './Ui/LobbyHost';
 import Splash, { BackgroundType, SplashBackground } from './Ui/Splash';
-import { generateRandomName, getAvatarFromName, Player } from './Player';
 
 const AppStyle = styled.div`
   height: 100%;

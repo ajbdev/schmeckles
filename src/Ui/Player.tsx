@@ -1,16 +1,16 @@
 
-import Game, { Card, emptyGemStash, Gem, GemStash, PlayerTurn, GameState, TURN_SECONDS_WARNING, TURN_SECONDS_TIMEOUT } from '../Game';
-import { Player, victoryPoints } from '../Player';
-import styled, { keyframes } from 'styled-components';
-import React, { useState } from 'react';
-import { GemUI, IconSize } from './Gems';
-import { CardSize, CardUI } from './Cards';
-import { SchmeckleGemCoinUI } from './Schmeckles';
-import InteractiveCardUI from './InteractiveCard'
-import { NobleUI, NobleSize } from './Nobles';
-import { AvatarSize, AvatarUI } from './Avatars';
+import React from 'react';
+import styled from 'styled-components';
 import { Action, IAction, PurchaseCard, ReserveCard, TakeGems } from '../Actions';
+import Game, { Gem, GemStash, TURN_SECONDS_TIMEOUT, TURN_SECONDS_WARNING } from '../Game';
+import { Player, victoryPoints } from '../Player';
+import { AvatarSize, AvatarUI } from './Avatars';
+import { CardSize } from './Cards';
 import { AnimationRefs } from './Game';
+import { GemUI, IconSize } from './Gems';
+import InteractiveCardUI from './InteractiveCard';
+import { NobleSize, NobleUI } from './Nobles';
+import { SchmeckleGemCoinUI } from './Schmeckles';
 
 const GemsStyle = styled.div`
   display: flex;

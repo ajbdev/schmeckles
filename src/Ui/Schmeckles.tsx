@@ -1,11 +1,11 @@
-import { Frame, AnimationControls } from 'framer';
-import { useAnimation } from "framer-motion"
-import React, { ForwardedRef, useEffect, useRef, useState }  from "react"
-import styled from "styled-components"
-import { TakeGems } from "../Actions"
-import { Gem } from "../Game"
-import { AnimationRefs } from "./Game"
-import { IconSize, GemUI } from "./Gems"
+import { AnimationControls, Frame } from 'framer';
+import { useAnimation } from "framer-motion";
+import React, { ForwardedRef, useEffect, useRef } from "react";
+import styled from "styled-components";
+import { TakeGems } from "../Actions";
+import { Gem } from "../Game";
+import { AnimationRefs } from "./Game";
+import { GemUI, IconSize } from "./Gems";
 
 
 const SchmeckleSizeMap = {

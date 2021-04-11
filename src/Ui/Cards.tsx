@@ -1,10 +1,8 @@
-import {CardPile} from '../Game';
-import React, { useState } from 'react';
+
+import React from 'react';
 import styled from 'styled-components';
-import { Tier, Card } from '../Game';
-import { GemCostsUI, GemUI, IconSize, GemCostSize } from './Gems';
-import { Player } from '../Player';
-import InteractiveCardUI from './InteractiveCard';
+import { Card, Tier } from '../Game';
+import { GemCostSize, GemCostsUI, GemUI, IconSize } from './Gems';
 
 
 export enum CardSize {
@@ -41,7 +39,6 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   box-shadow: ${props => props.outline};
   position: relative;
   user-select: none;
-
 `
 
 export const VictoryPointsStyle = styled.div.attrs((props: { size: CardSize }) => ({

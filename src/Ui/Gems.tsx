@@ -1,13 +1,11 @@
 import styled from 'styled-components';
-import { ReactComponent as RubySvg } from './svg/ruby.svg';
-import { ReactComponent as EmeraldSvg } from './svg/emerald.svg';
+import { Gem, GemStash } from '../Game';
 import { ReactComponent as DiamondSvg } from './svg/diamond.svg';
+import { ReactComponent as EmeraldSvg } from './svg/emerald.svg';
 import { ReactComponent as OnyxSvg } from './svg/onyx.svg';
+import { ReactComponent as RubySvg } from './svg/ruby.svg';
 import { ReactComponent as SapphireSvg } from './svg/sapphire.svg';
 import { ReactComponent as StarSvg } from './svg/star.svg';
-import { GemStash, Gem } from '../Game';
-import { Player } from '../Player';
-
 
 export enum GemCostSize { xs, sm, md, lg, xl }
 

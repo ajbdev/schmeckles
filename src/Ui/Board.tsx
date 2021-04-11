@@ -1,18 +1,16 @@
-import React, { ReactNode, RefObject, useState } from 'react';
-import ReactDOM from 'react-dom';
+import React, { RefObject } from 'react';
 import styled from 'styled-components';
-import { DrawPileUI, CardUI, CardSize } from './Cards';
-import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
-import { Player } from '../Player';
-import { NobleUI } from './Nobles';
-import { GemUI, IconSize } from './Gems';
 import { Action } from '../Actions';
+import Game, { Card, emptyGemStash, GameState, Gem, Tier } from '../Game';
+import { Player } from '../Player';
+import { isPlayersTurn } from '../Rules';
+import { DrawPileUI } from './Cards';
+import GemBankUI from './GemBank';
+import InteractiveCardUI from './InteractiveCard';
+import { NobleUI } from './Nobles';
+import { SchmeckleGemCoinUI } from './Schmeckles';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
-import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
-import GemBankUI from './GemBank';
-import { SchmeckleGemCoinUI } from './Schmeckles';
-import InteractiveCardUI from './InteractiveCard';
 
 const game = Game.getInstance();
 
