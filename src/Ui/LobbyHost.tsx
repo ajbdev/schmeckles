@@ -1,11 +1,11 @@
-import React from "react"
-import { BackgroundType, getRandomBackground, ErrorMessage } from './Splash';
-import { Host, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
-import Game, { GameEvent, GameState, LOBBY_COUNTDOWN_FROM, shuffle, TURN_SECONDS_TIMEOUT } from '../Game';
-import { Player, generateRandomName, getAvatarFromName } from '../Player';
+import React from "react";
 import { Action, BaseAction, IAction } from '../Actions';
+import Game, { GameEvent, GameState, LOBBY_COUNTDOWN_FROM, shuffle, TURN_SECONDS_TIMEOUT } from '../Game';
+import { ClientMessageType, ClientNetworkMessage, Host, HostBroadcastType } from '../Network';
+import { generateRandomName, getAvatarFromName, Player } from '../Player';
 import GameUI from './Game';
 import LobbyUI from './Lobby';
+import { BackgroundType, getRandomBackground } from './Splash';
 
 
 interface LobbyHostProps {

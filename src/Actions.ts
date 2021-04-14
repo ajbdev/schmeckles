@@ -1,6 +1,6 @@
-import { GameState, GemStash, Gem, Card, Tier, CardPile, emptyGemStash, drawCards, TURN_SECONDS_TIMEOUT } from './Game';
+import { Card, drawCards, emptyGemStash, GameState, Gem, GemStash } from './Game';
 import { Player } from './Player';
-import { Rule, isPlayersTurn, Result, gameIsNotFull, canAffordCard, bankHasEnoughGems, isTakingTwoOrThreeGems, canTakeThreeGems, gemsAreOfSameType, canTakeTwoGems, canReserveCard, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted, isValidGems, gatherGemsForPurchase, tenGemsMax } from './Rules';
+import { bankHasEnoughGems, canAffordCard, canReserveCard, canTakeThreeGems, canTakeTwoGems, gameHasEnoughPlayers, gameHasNotStarted, gameHasStarted, gameIsNotFull, gatherGemsForPurchase, gemsAreOfSameType, isPlayersTurn, isTakingTwoOrThreeGems, isValidGems, Result, Rule, tenGemsMax } from './Rules';
 
 export enum Action {
   JoinGame = 'JoinGame',
@@ -127,8 +127,23 @@ export class StartGame extends BaseAction {
 
   act(gameState: GameState) {
     gameState.started = true;
+    gameState.nobles = gameState.nobles.slice(0, gameState.players.length+1);
     gameState.turn = 1;
     gameState.gameSeconds = 0;
+
+    const gemAmount = gameState.players.length === 2 ? 4
+                    : gameState.players.length === 3 ? 5
+                    : 7;
+
+    gameState.gems = {
+      [Gem.Ruby]: gemAmount,
+      [Gem.Sapphire]: gemAmount,
+      [Gem.Diamond]: gemAmount,
+      [Gem.Onyx]: gemAmount,
+      [Gem.Emerald]: gemAmount,
+      [Gem.Star]: 5
+    }
+
     gameState.gameTimer = setInterval(() => {
       gameState.gameSeconds++;
     }, 1000);

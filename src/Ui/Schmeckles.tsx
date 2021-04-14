@@ -1,11 +1,11 @@
-import { Frame, AnimationControls } from 'framer';
-import { useAnimation } from "framer-motion"
-import React, { ForwardedRef, useEffect, useRef, useState }  from "react"
-import styled from "styled-components"
-import { TakeGems } from "../Actions"
-import { Gem } from "../Game"
-import { AnimationRefs } from "./Game"
-import { IconSize, GemUI } from "./Gems"
+import { AnimationControls, Frame } from 'framer';
+import { useAnimation } from "framer-motion";
+import React, { ForwardedRef, useEffect, useRef } from "react";
+import styled from "styled-components";
+import { TakeGems } from "../Actions";
+import { Gem } from "../Game";
+import { AnimationRefs } from "./Game";
+import { GemUI, IconSize } from "./Gems";
 
 
 const SchmeckleSizeMap = {
@@ -88,7 +88,6 @@ export const SchmeckleGemStash = styled.div.attrs((props: { isPlayersTurn: boole
   width: 80px;
   border-radius: 46px;
   padding-left: 2px;
-  box-shadow: -1px -1px 1px #4d4d4d;
 
   &:not(:last-child) {
     margin-bottom: 6px;

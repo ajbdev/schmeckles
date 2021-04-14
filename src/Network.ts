@@ -1,6 +1,6 @@
+import { classToPlain } from 'class-transformer';
 import Peer from 'peerjs';
 import { Player } from './Player';
-import { classToPlain, plainToClass } from 'class-transformer';
 
 
 export enum HostBroadcastType {

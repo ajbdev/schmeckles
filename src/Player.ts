@@ -1,6 +1,5 @@
-
+import { Card, CardPile, emptyGemStash, Gem, GemStash, Noble, PlayerTurn } from './Game';
 import namesJson from './names.json';
-import { GemStash, CardPile, Card, PlayerTurn, Noble, emptyGemStash, Gem } from './Game';
 
 const males = {
   names: namesJson.filter(n => n.gender === 'male').map(n => n.name),

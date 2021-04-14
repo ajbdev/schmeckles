@@ -1,13 +1,9 @@
-import React, { SyntheticEvent } from "react"
-import styled from "styled-components"
-import { GameTitle, BackgroundType, getRandomBackground, ErrorMessage } from './Splash';
-import { Network, Host, Client, HostBroadcastType, ClientMessageType, ClientNetworkMessage } from '../Network';
-import { GameState } from '../Game';
-import { Player, generateRandomName, getAvatarFromName } from '../Player';
+import React, { SyntheticEvent } from "react";
+import styled from "styled-components";
 import Game from '../Game';
-import { Action, BaseAction } from '../Actions';
-import GameUI from './Game';
+import { Player } from '../Player';
 import { AvatarSize, AvatarUI } from './Avatars';
+import { ErrorMessage, GameTitle } from './Splash';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 
 

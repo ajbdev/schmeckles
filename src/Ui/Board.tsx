@@ -1,18 +1,16 @@
-import React, { ReactNode, RefObject, useState } from 'react';
-import ReactDOM from 'react-dom';
+import React, { RefObject } from 'react';
 import styled from 'styled-components';
-import { DrawPileUI, CardUI, CardSize } from './Cards';
-import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
-import { Player } from '../Player';
-import { NobleUI } from './Nobles';
-import { GemUI, IconSize } from './Gems';
 import { Action } from '../Actions';
+import Game, { Card, emptyGemStash, GameState, Gem, Tier } from '../Game';
+import { Player } from '../Player';
+import { isPlayersTurn } from '../Rules';
+import { DrawPileUI } from './Cards';
+import GemBankUI from './GemBank';
+import InteractiveCardUI from './InteractiveCard';
+import { NobleUI } from './Nobles';
+import { SchmeckleGemCoinUI } from './Schmeckles';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
-import { canAffordCard, canReserveCard, isPlayersTurn } from '../Rules';
-import GemBankUI from './GemBank';
-import { SchmeckleGemCoinUI } from './Schmeckles';
-import InteractiveCardUI from './InteractiveCard';
 
 const game = Game.getInstance();
 
@@ -23,16 +21,25 @@ const NobleRowStyle = styled.div`
   justify-content: flex-end;
 `
 
-const BoardStyle = styled.div`
+const BoardStyle = styled.div.attrs((props: { isPlayersTurn?: boolean }) => ({
+  isPlayersTurn: !!props.isPlayersTurn
+}))`
   display: flex;
   flex-direction: row;
   align-self: center;
+  border: 4px solid var(--dark-gold);
+  background: rgba(55,55,55,0.5);
+  border-radius: 4px;
+  position: relative;
+  
+  ${props => props.isPlayersTurn && `
+    border: 4px solid var(--gold);
+  `}
 `
 
 const TilesStyle = styled.div`
   display: flex;
   flex-direction: column;
-  background: rgba(55,55,55,0.5);
   border-radius: 4px;
 `
 
@@ -55,10 +62,8 @@ const HoldGemSlotsStyle = styled.div`
 
 const GemSlotStyle = styled.div`
   border-radius: 100%;
-  background: #666;
-  box-shadow: -1px -1px 1px #4d4d4d;
-  width: 41px;
-  height: 41px;
+  width: 2vw;
+  height: 2vh;
   padding: 5px;
   margin-right: 5px;
 
@@ -172,6 +177,41 @@ const defaultState = {
   heldGems: []
 }
 
+const StatusStyle = styled.div.attrs((props: { isPlayersTurn?: boolean }) => ({
+  isPlayersTurn: !!props.isPlayersTurn
+}))`
+  position: absolute;
+  text-align: center;
+  left: -4px;
+  right: -4px;
+  bottom: -28px;
+  background: var(--dark-gold);
+  border: 4px solid var(--dark-gold);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  
+  ${props => props.isPlayersTurn && `
+    border: 4px solid var(--gold);
+    background: var(--gold);
+  `}
+`
+
+const statusText = (props: { isPlayersTurn?: boolean, contextPlayer?: Player }) => {
+  if (props.isPlayersTurn) {
+    return `Hey ${props.contextPlayer?.name}, it's your turn!`;
+  }
+
+  if (props.contextPlayer) {
+    return `Playing as ${props.contextPlayer.name}`;
+  }
+}
+
+const StatusUI = (props: { isPlayersTurn?: boolean, contextPlayer?: Player }) => (
+  <StatusStyle isPlayersTurn={props.isPlayersTurn}>
+    {statusText(props)}
+  </StatusStyle>
+)
+
 
 export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
   tierICardRefs: RefObject<HTMLDivElement>[] = []
@@ -225,7 +265,7 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
 
     return (
       <>
-        <BoardStyle>
+        <BoardStyle isPlayersTurn={isTurn}>
           <GemBankUI 
             isPlayersTurn={isTurn}
             ref={this.gemBankRef}
@@ -261,6 +301,7 @@ export class BoardUI extends React.Component<BoardUIProps, BoardUIState> {
               )}
             </>
           </TilesStyle>
+        <div><StatusUI isPlayersTurn={isTurn} contextPlayer={this.props.contextPlayer} /></div>
         </BoardStyle>
         <HudGutterAreaStyle>
           {this.state.heldGems.length > 0 ? <HoldGemUI player={this.props.contextPlayer!} gems={this.state.heldGems} setHeldGems={(gems: Gem[]) => this.setHeldGems(gems)} /> : null}

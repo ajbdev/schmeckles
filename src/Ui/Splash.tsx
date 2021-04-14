@@ -1,8 +1,8 @@
-import styled from 'styled-components';
-import React, { useEffect, useState } from 'react';
 import FastAverageColor from 'fast-average-color';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { generateRandomName, getAvatarFromName } from '../Player';
-import { AvatarUI, AvatarSize, SelectAvatarUI } from './Avatars';
+import { AvatarSize, AvatarUI, SelectAvatarUI } from './Avatars';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
 import { ReactComponent as DiceSvg } from './svg/dice.svg';
 import { Client } from '../Network';

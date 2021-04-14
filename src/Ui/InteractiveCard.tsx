@@ -1,16 +1,13 @@
 
-import React, { ForwardedRef, RefObject, useCallback, useRef, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { AnimationControls, Frame, useAnimation } from 'framer';
+import React, { ForwardedRef, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { animationControls, AnimationControls, Frame, useAnimation } from 'framer'
-import { Action, IAction, PurchaseCard, ReserveCard } from '../Actions';
-import Game, { Tier, CardPile, Card, GameState, Gem, GemStash, emptyGemStash, PlayerTurn } from '../Game';
+import { Action, PurchaseCard, ReserveCard } from '../Actions';
+import Game, { Card, Tier } from '../Game';
 import { Player } from '../Player';
 import { canAffordCard, canReserveCard } from '../Rules';
-import { CardUI, CardSize } from './Cards';
+import { CardSize, CardUI } from './Cards';
 import { AnimationRefs } from './Game';
-import { useEffect } from 'react';
-import { PlayerUI } from './Player';
 
 const game = Game.getInstance();
 

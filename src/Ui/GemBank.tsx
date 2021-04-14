@@ -1,6 +1,6 @@
-import React, { ForwardedRef, RefObject } from "react";
+import React, { RefObject } from "react";
 import styled from "styled-components";
-import { GemStash, Gem } from "../Game";
+import { Gem, GemStash } from "../Game";
 import { SchmeckleGemCoinUI, SchmeckleGemStash } from "./Schmeckles";
 
 const GemBankStyle = styled.div`
@@ -11,7 +11,6 @@ const GemBankStyle = styled.div`
 
 const GemBankHolderStyle = styled.div`
   border-radius: 5px;
-  background: rgba(55,55,55,0.5);
   padding: 6px;
 `
 

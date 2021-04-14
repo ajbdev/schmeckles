@@ -1,16 +1,16 @@
 
-import Game, { Card, emptyGemStash, Gem, GemStash, PlayerTurn, GameState, TURN_SECONDS_WARNING, TURN_SECONDS_TIMEOUT } from '../Game';
-import { Player, victoryPoints } from '../Player';
-import styled, { keyframes } from 'styled-components';
-import React, { useState } from 'react';
-import { GemUI, IconSize } from './Gems';
-import { CardSize, CardUI } from './Cards';
-import { SchmeckleGemCoinUI } from './Schmeckles';
-import InteractiveCardUI from './InteractiveCard'
-import { NobleUI, NobleSize } from './Nobles';
-import { AvatarSize, AvatarUI } from './Avatars';
+import React from 'react';
+import styled from 'styled-components';
 import { Action, IAction, PurchaseCard, ReserveCard, TakeGems } from '../Actions';
+import Game, { Gem, GemStash, TURN_SECONDS_TIMEOUT, TURN_SECONDS_WARNING } from '../Game';
+import { Player, victoryPoints } from '../Player';
+import { AvatarSize, AvatarUI } from './Avatars';
+import { CardSize } from './Cards';
 import { AnimationRefs } from './Game';
+import { GemUI, IconSize } from './Gems';
+import InteractiveCardUI from './InteractiveCard';
+import { NobleSize, NobleUI } from './Nobles';
+import { SchmeckleGemCoinUI } from './Schmeckles';
 
 const GemsStyle = styled.div`
   display: flex;
@@ -124,9 +124,6 @@ const CardStackStyle = styled.div`
 const CardSlotStyle = styled.div`
   width: 25px;
   height: 90px;
-  &:hover {
-    z-index: 101;
-  }
 `
 
 const ReservedCardSlotStyle = styled.div`
@@ -358,7 +355,7 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
             {this.props.player.cards.cards.length > 0 && this.props.isContextPlayer ? <label>Purchased</label> : null}
             <>
             {this.props.player.cards.cards.sort((c1, c2) => c1.points > c2.points ? -1 : 1).map((c,ix) =>
-              <CardSlotStyle key={`${this.props.player.id}_card_${c.gem}_${ix}`}>
+              <CardSlotStyle key={`${this.props.player.id}_card_${c.gem}_${ix}`} style={{ zIndex:  this.props.player.cards.cards.length-ix }}>
                 <InteractiveCardUI 
                     card={c} 
                     index={ix}
