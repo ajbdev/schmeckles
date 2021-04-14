@@ -2,9 +2,11 @@ import Peer from 'peerjs';
 import { Player } from './Player';
 import { classToPlain, plainToClass } from 'class-transformer';
 
+
 export enum HostBroadcastType {
   DISBANDED = 'DISBANDED',
   DISCONNECTED = 'DISCONNECTED',
+  REJOIN_KEY = 'REJOIN_TOKEN',
   LOBBY_PLAYERS = 'LOBBY_PLAYERS',
   LOBBY_COUNTDOWN = 'LOBBY_COUNTDOWN',
   ACTION = 'ACTION',
@@ -25,6 +27,7 @@ export interface ClientNetworkMessage {
   type: ClientMessageType
   payload?: any
 }
+
 
 export abstract class Network {
   onError = (err: any) =>  {};
@@ -59,9 +62,22 @@ export abstract class Network {
 export class Host extends Network {
   clients: Peer.DataConnection[] = [];
   players: Player[] = [];
+  rejoinTokens: { [key:string]:string } = {};
 
   createConnectionId() {
     return Math.random().toString(20).substr(2, 4).toUpperCase();
+  }
+
+  createRejoinToken(p: Player) {
+    const a = new Uint8Array(20);
+    crypto.getRandomValues(a);
+    const rejoinToken = btoa(String.fromCharCode(...a)).split('').filter(v => {
+            return !['+', '/' ,'='].includes(v);
+    }).slice(0,20).join('');
+
+    this.rejoinTokens[rejoinToken] = p.id;
+
+    this.broadcast({ type: HostBroadcastType.REJOIN_KEY, payload: rejoinToken }, this.players.filter(player => player.id !== p.id));
   }
 
   host(onConnect: (code: string) => void, onPlayerUpdate: (p: Player[]) => void, onClientAction: (m: ClientNetworkMessage) => void) {
@@ -71,9 +87,7 @@ export class Host extends Network {
     this.peer.on('open', (id) => {
       onConnect(this.connectionId);
 
-
       this.peer.on('connection', (client) => {
-
         client.peerConnection.onconnectionstatechange = (ev: any) => {
           if (ev.target.connectionState === 'failed') {
             this.players.splice(this.players.findIndex(p => p.id === client.metadata.id))
@@ -94,19 +108,26 @@ export class Host extends Network {
         client.on('open', () => {
           client.metadata.connected = true;
           this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
+
           onPlayerUpdate(this.players);
+
+          this.createRejoinToken(this.players.filter(p => p.id === client.metadata.id)[0]);
         })
 
         client.on('close', () => {
-          console.log('closed connection with ' + client.metadata.name);
-          this.players.splice(this.players.findIndex(p => p.id === client.peer), 1)
+          const player = this.players[this.players.findIndex(p => p.id === client.peer)]
+          console.log('client disconnected', player);
+          player.connected = false;
+
           this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
           onPlayerUpdate(this.players);
         })
 
         client.on('disconnected', () => {
-          console.log('client disconnected', this.players.findIndex(p => p.id === client.peer));
-          this.players.splice(this.players.findIndex(p => p.id === client.peer), 1)
+          const player = this.players[this.players.findIndex(p => p.id === client.peer)]
+          console.log('client disconnected', player);
+          player.connected = false;
+
           this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
           onPlayerUpdate(this.players);
         })
@@ -166,6 +187,7 @@ export class Client extends Network {
     return Math.random().toString(20).substr(2, 10);
   }
 
+
   send(m: ClientNetworkMessage) {
     console.log('Sending to host: ', m);
 
@@ -174,10 +196,11 @@ export class Client extends Network {
 
   join(code: string, onHostBroadcast: (message: HostNetworkMessage) => void) {
     this.peer.on('open', (id:string) => {
-      this.player.id = this.fullyQualifiedId(this.connectionId);
+      this.player.id = this.player.connectionId = this.fullyQualifiedId(this.connectionId);
 
       this.host = this.peer.connect(this.fullyQualifiedId(code), { metadata: classToPlain(this.player) });
       this.code = code;
+
 
       this.host.peerConnection.onconnectionstatechange = (ev: any) => {
         if (ev.target.connectionState === 'failed') {
@@ -190,6 +213,11 @@ export class Client extends Network {
       })
       this.host.on('data', (data) => {
         console.log('Received broadcast: ', data);
+
+        if (data.type === HostBroadcastType.REJOIN_KEY) {
+          localStorage.setItem(this.code, data.payload);
+        }
+
         onHostBroadcast(data);
       })
       this.host.on('close', () => {

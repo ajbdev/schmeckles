@@ -76,12 +76,16 @@ export const PlayerGemsTallyUI = (props: { gems: GemStash }) => (
   </GemsStyle>
 );
 
-const NameStyle = styled.span.attrs((props: { border: string }) => ({
-  border: props.border || '0'
+const NameStyle = styled.span.attrs((props: { border: string, isDisconnected: boolean }) => ({
+  border: props.border || '0',
+  isDisconnected: props.isDisconnected || false
 }))`
   border-bottom: ${props => props.border};
   user-select: none;
   margin-left: 1vw;
+  ${props => props.isDisconnected && `
+    text-decoration: line-through;
+  `}
 `;
 
 
@@ -164,6 +168,13 @@ const CpuTagStyle = styled.span`
   border: 2px solid #fff;
   border-radius: 4px;
   user-select: none;
+`
+
+const DisconnectedStyle = styled.span`
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #ccc;
+  margin-left: 10px;
 `
 
 const NobleStackStyle = styled.div`
@@ -284,8 +295,10 @@ export class PlayerUI extends React.Component<PlayerUIProps, PlayerUIState> {
               size={AvatarSize.sm} 
               border={this.props.isPlayersTurn ? '3px solid var(--gold)' : '3px solid #aaa'}
             />
-            <NameStyle border={this.props.isPlayersTurn ? '3px solid var(--gold)' : ''}>{this.props.player.name}</NameStyle>
+            <NameStyle border={this.props.isPlayersTurn ? '3px solid var(--gold)' : ''} isDisconnected={!this.props.player.connected}>{this.props.player.name}</NameStyle>
             {this.props.player.computer ? <CpuTagStyle>CPU</CpuTagStyle> : null}
+            {!this.props.player.connected ? <DisconnectedStyle>Disconnected</DisconnectedStyle> : null}
+            
 
             <NobleStackStyle>
               {this.props.player.nobles.map(n => 

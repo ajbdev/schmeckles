@@ -203,6 +203,9 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
   }
 
   startGame() {
+
+    this.host.players = this.host.players.filter(p => p.connected);
+
     this.host.players = shuffle(this.host.players);
 
     this.host.players.forEach(p => {

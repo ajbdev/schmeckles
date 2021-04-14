@@ -334,7 +334,12 @@ export default class Lobby extends React.Component<LobbyProps> {
                   </InAvatarStyle>
                 </AvatarUI>
                 {!p.connected
-                  ? <PlayerNameConnectingStyle>{p.name}</PlayerNameConnectingStyle>
+                  ? (
+                      <PlayerNameConnectingStyle>
+                        {p.name} <br />
+                        {p.connectionId ? <>(disconnected)</> : null}
+                      </PlayerNameConnectingStyle>
+                    )
                   : ( 
                       <div>
                         <PlayerNameStyle>{p.name}</PlayerNameStyle>
@@ -378,7 +383,7 @@ export default class Lobby extends React.Component<LobbyProps> {
                 {this.props.startCountdown && this.props.disbandLobby 
                   ? (
                     <ButtonsStyle>
-                      <StartGameButtonStyle disabled={this.props.players.length < 2} onClick={() => this.props.startCountdown && this.props.startCountdown()}>Start Game</StartGameButtonStyle>
+                      <StartGameButtonStyle disabled={this.props.players.filter(p => p.connected).length < 2} onClick={() => this.props.startCountdown && this.props.startCountdown()}>Start Game</StartGameButtonStyle>
                       <ExitToMainMenuStyle onClick={() => this.props.disbandLobby!()}>Exit to Main Menu</ExitToMainMenuStyle>
                     </ButtonsStyle>
                   )
