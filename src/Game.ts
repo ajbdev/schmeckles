@@ -167,13 +167,15 @@ export class GameState {
   turnTimer?: ReturnType<typeof setInterval>;
   turnSeconds: number;
   gameSeconds: number;
-  gameTimer?: ReturnType<typeof setInterval>
+  gameTimer?: ReturnType<typeof setInterval>;
+  chatLog: ChatMessage[];
 
   constructor() {
     const cards = mapCardValuesJsonToCardType(cardsJson);
     const nobles = shuffle(mapNobleValuesJsonToNobleType(noblesJson));
 
     this.players = [];
+    this.chatLog = [];
     this.nobles = nobles.splice(0, 5);
 
     this.tierICards = new CardPile(Tier.I, []);
@@ -281,6 +283,12 @@ interface GameEvents {
   [GameEvent.ActionStarted]: (a: BaseAction) => void
   [GameEvent.StateUpdated]: (gs: GameState) => void
   [GameEvent.ActionFailed]: (gs: BaseAction) => void
+}
+
+interface ChatMessage {
+  message: string
+  player: Player
+  time: Date
 }
 
 export default class Game {

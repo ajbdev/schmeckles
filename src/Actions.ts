@@ -8,7 +8,8 @@ export enum Action {
   TakeGems = 'TakeGems',
   ReserveCard = 'ReserveCard',
   PurchaseCard = 'PurchaseCard',
-  PassTurn = 'PassTurn'
+  PassTurn = 'PassTurn',
+  ChatMessage = 'ChatMessage'
 }
 
 export interface IAction {
@@ -41,7 +42,8 @@ export abstract class BaseAction implements IAction {
       [Action.TakeGems]: TakeGems,
       [Action.PurchaseCard]: PurchaseCard,
       [Action.ReserveCard]: ReserveCard,
-      [Action.PassTurn]: PassTurn
+      [Action.PassTurn]: PassTurn,
+      [Action.ChatMessage]: ChatMessage
     }
 
     const ActionToBePerformed = actionFactoryMap[t];
@@ -210,6 +212,27 @@ export class TakeGems extends BaseAction {
     moveGemsToPlayer(gameState.gems, this.player, this.gems);   
 
     this.nextTurn(gameState);
+  }
+}
+
+export class ChatMessage extends BaseAction {
+  message: string;
+  time: Date;
+
+  constructor(p: Player, meta: { message: string }) {
+    super(p, meta);
+
+    this.type = Action.ChatMessage;
+    this.message = meta.message.trim();
+    this.time = new Date();
+  }
+
+  act(gameState: GameState) {
+    gameState.chatLog.push({
+      player: this.player,
+      message: this.message,
+      time: this.time
+    })
   }
 }
 
