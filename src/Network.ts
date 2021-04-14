@@ -7,6 +7,7 @@ export enum HostBroadcastType {
   DISBANDED = 'DISBANDED',
   DISCONNECTED = 'DISCONNECTED',
   REJOIN_KEY = 'REJOIN_TOKEN',
+  REJOIN = 'REJOIN',
   LOBBY_PLAYERS = 'LOBBY_PLAYERS',
   LOBBY_COUNTDOWN = 'LOBBY_COUNTDOWN',
   ACTION = 'ACTION',
@@ -20,7 +21,8 @@ interface HostNetworkMessage {
 
 export enum ClientMessageType {
   DISCONNECTING = 'DISCONNECTING',
-  ACTION = 'ACTION'
+  ACTION = 'ACTION',
+  REJOIN_KEY = 'REJOIN_KEY'
 }
 
 export interface ClientNetworkMessage {
@@ -135,6 +137,7 @@ export class Host extends Network {
         client.on('data', function(data: ClientNetworkMessage) {
           console.log('Received from client: ', data);
 
+
           onClientAction(data);
         });
       })
@@ -187,7 +190,6 @@ export class Client extends Network {
     return Math.random().toString(20).substr(2, 10);
   }
 
-
   send(m: ClientNetworkMessage) {
     console.log('Sending to host: ', m);
 
@@ -201,6 +203,11 @@ export class Client extends Network {
       this.host = this.peer.connect(this.fullyQualifiedId(code), { metadata: classToPlain(this.player) });
       this.code = code;
 
+      const rejoinKey = localStorage.getItem(code);
+
+      if (rejoinKey) {
+        this.send({ type: ClientMessageType.REJOIN_KEY, payload: rejoinKey });
+      }
 
       this.host.peerConnection.onconnectionstatechange = (ev: any) => {
         if (ev.target.connectionState === 'failed') {
@@ -208,15 +215,8 @@ export class Client extends Network {
         }
       };
 
-      this.host.on('open', () => {
-        
-      })
       this.host.on('data', (data) => {
         console.log('Received broadcast: ', data);
-
-        if (data.type === HostBroadcastType.REJOIN_KEY) {
-          localStorage.setItem(this.code, data.payload);
-        }
 
         onHostBroadcast(data);
       })

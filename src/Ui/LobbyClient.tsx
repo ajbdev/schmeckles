@@ -97,6 +97,9 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
         case HostBroadcastType.DISCONNECTED:
           this.exitWithErrorMessage('Disconnected');
           break;
+        case HostBroadcastType.REJOIN_KEY:
+          localStorage.setItem(this.props.joinLobbyCode, msg.payload);
+          break;
         case HostBroadcastType.LOBBY_PLAYERS:
           this.setState({ players: msg.payload });
           break;

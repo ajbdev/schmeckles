@@ -74,6 +74,9 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
       p => this.setState({ players: p }),
       (msg: ClientNetworkMessage) => {
         switch (msg.type) {
+          case ClientMessageType.REJOIN_KEY:
+            
+            break;
           case ClientMessageType.DISCONNECTING:
             break;
           case ClientMessageType.ACTION:
