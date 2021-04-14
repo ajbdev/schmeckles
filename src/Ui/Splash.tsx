@@ -5,7 +5,6 @@ import { generateRandomName, getAvatarFromName } from '../Player';
 import { AvatarSize, AvatarUI, SelectAvatarUI } from './Avatars';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
 import { ReactComponent as DiceSvg } from './svg/dice.svg';
-import { Client } from '../Network';
 
 const SplashScreenStyle = styled.div`
   width: 100%;
@@ -317,6 +316,10 @@ export default function Splash(props: SplashProps) {
 
       if (c.length === 4) {
         setCode(c);
+
+        if (localStorage.getItem(c)) {
+          props.joinLobby(code, name, avatar);
+        }
       }
     }
   }, [])

@@ -78,7 +78,7 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
 
     game.events.on(GameEvent.ActionFailed, (a: BaseAction) => {
       console.log('Action failed: ', a);
-      if (a.player.id === this.player.id) {
+      if (a.player.id === this.state.contextPlayer!.id) {
         this.setState({
           gameErrors: a.failedRules.map(fr => fr.message)
         }, () => setTimeout(() => { 
@@ -99,6 +99,12 @@ export default class LobbyClient extends React.Component<LobbyClientProps, Lobby
           break;
         case HostBroadcastType.REJOIN_KEY:
           localStorage.setItem(this.props.joinLobbyCode, msg.payload);
+          break;
+        case HostBroadcastType.REJOIN:
+          console.log('Rejoining as ', msg.payload.player.name);
+
+          this.setState({ contextPlayer: msg.payload.player });
+          game.updateGameState(Game.unserialize(msg.payload.gameState));
           break;
         case HostBroadcastType.LOBBY_PLAYERS:
           this.setState({ players: msg.payload });

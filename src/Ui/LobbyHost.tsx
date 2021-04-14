@@ -1,3 +1,5 @@
+import { classToPlain } from "class-transformer";
+import Peer from "peerjs";
 import React from "react";
 import { Action, BaseAction, IAction } from '../Actions';
 import Game, { GameEvent, GameState, LOBBY_COUNTDOWN_FROM, shuffle, TURN_SECONDS_TIMEOUT } from '../Game';
@@ -72,10 +74,33 @@ export default class LobbyHost extends React.Component<LobbyHostProps, LobbyHost
     this.host.host(
       c => this.setState({ code: c }),
       p => this.setState({ players: p }),
-      (msg: ClientNetworkMessage) => {
+      (msg: ClientNetworkMessage, client: Peer.DataConnection) => {
         switch (msg.type) {
           case ClientMessageType.REJOIN_KEY:
-            
+            if (this.host.rejoinTokens.hasOwnProperty(msg.payload)) {
+              const id = this.host.rejoinTokens[msg.payload];
+
+              const player = game.gameState.getPlayer(id);
+
+              if (player) {
+                this.host.players.splice(this.host.players.findIndex(p => p.id === client.peer), 1);
+
+                player.id = client.peer;
+                player.connected = true;
+
+                // Inform the rejoining client which player they are
+                this.host.broadcast({
+                  type: HostBroadcastType.REJOIN,
+                  payload: { gameState: game.serialize(), player: classToPlain(player) }
+                }, this.host.players.filter(p => p.id !== client.peer));
+
+                // Update the other players to let them know this player has reconnected
+                this.host.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.host.players });
+
+                delete this.host.rejoinTokens[msg.payload];
+              }
+
+            }
             break;
           case ClientMessageType.DISCONNECTING:
             break;

@@ -82,7 +82,7 @@ export class Host extends Network {
     this.broadcast({ type: HostBroadcastType.REJOIN_KEY, payload: rejoinToken }, this.players.filter(player => player.id !== p.id));
   }
 
-  host(onConnect: (code: string) => void, onPlayerUpdate: (p: Player[]) => void, onClientAction: (m: ClientNetworkMessage) => void) {
+  host(onConnect: (code: string) => void, onPlayerUpdate: (p: Player[]) => void, onClientAction: (m: ClientNetworkMessage, c: Peer.DataConnection) => void) {
     this.player.connected = true;
     this.players = [this.player];
 
@@ -138,7 +138,7 @@ export class Host extends Network {
           console.log('Received from client: ', data);
 
 
-          onClientAction(data);
+          onClientAction(data, client);
         });
       })
     });
@@ -150,7 +150,8 @@ export class Host extends Network {
         c.close();
       }
     });
-    
+
+    this.clients.splice(this.clients.findIndex(c => c.peer === player.id), 1);    
     this.players.splice(this.players.findIndex(p => p.id === player.id), 1);
     
     this.broadcast({ type: HostBroadcastType.LOBBY_PLAYERS, payload: this.players });
@@ -203,17 +204,21 @@ export class Client extends Network {
       this.host = this.peer.connect(this.fullyQualifiedId(code), { metadata: classToPlain(this.player) });
       this.code = code;
 
-      const rejoinKey = localStorage.getItem(code);
-
-      if (rejoinKey) {
-        this.send({ type: ClientMessageType.REJOIN_KEY, payload: rejoinKey });
-      }
-
       this.host.peerConnection.onconnectionstatechange = (ev: any) => {
         if (ev.target.connectionState === 'failed') {
           this.onError(ev.target)
         }
       };
+
+      this.host.on('open', () => {
+
+        const rejoinKey = localStorage.getItem(code);
+  
+        if (rejoinKey) {
+          this.send({ type: ClientMessageType.REJOIN_KEY, payload: rejoinKey });
+          localStorage.removeItem(code);
+        }
+      })
 
       this.host.on('data', (data) => {
         console.log('Received broadcast: ', data);
