@@ -8,6 +8,10 @@ Play it at: http://schmeckles.ajbdev.com
 
 Game play mimics the rules of [Splendor](https://en.wikipedia.org/wiki/Splendor_(game)).
 
+## Artwork
+
+All artwork contained is (believed to be) public domain. If you believe this not to be true, please [raise an issue](https://github.com/ajbdev/schmeckles/issues).
+
 ## Technologies used
 
 - React
