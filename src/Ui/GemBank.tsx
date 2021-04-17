@@ -2,14 +2,10 @@ import React, { RefObject } from "react";
 import styled from "styled-components";
 import { Gem, GemStash } from "../Game";
 import { SchmeckleGemCoinUI, SchmeckleGemStash } from "./Schmeckles";
+import { FlexContainer } from "./Styles";
 
-const GemBankStyle = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-`
 
-const GemBankHolderStyle = styled.div`
+const GemBankHolder = styled.div`
   border-radius: 5px;
   padding: 6px;
 `
@@ -29,7 +25,8 @@ interface GemRefs {
   sapphire: RefObject<HTMLDivElement>,
   star: RefObject<HTMLDivElement>
 }
-export default class GemBankUI extends React.Component<GemBankProps> {
+
+export default class GemBank extends React.Component<GemBankProps> {
   gemRefs: GemRefs
   
   constructor(props: GemBankProps) {
@@ -57,8 +54,8 @@ export default class GemBankUI extends React.Component<GemBankProps> {
 
   render() {
     return (
-      <GemBankStyle>
-        <GemBankHolderStyle>
+      <FlexContainer direction="column" justifyContent="center">
+        <GemBankHolder>
           {Object.values(Gem).map(gemType =>
             this.props.gems[gemType as Gem] > 0
               ? 
@@ -84,8 +81,8 @@ export default class GemBankUI extends React.Component<GemBankProps> {
               </SchmeckleGemStash>
               : null
           )}
-        </GemBankHolderStyle>
-      </GemBankStyle>
+        </GemBankHolder>
+      </FlexContainer>
     )
   }
 }
