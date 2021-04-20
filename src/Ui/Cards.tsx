@@ -1,9 +1,7 @@
-
 import React from 'react';
 import styled from 'styled-components';
 import { Card, Tier } from '../Game';
 import { GemCostSize, GemCostsUI, GemUI, IconSize } from './Gems';
-
 
 export enum CardSize {
   xs = 'xs',
@@ -26,12 +24,9 @@ interface CardStyleProps {
   outline?: string
 }
 
-const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
-  size: props.size || CardSize.md,
-  outline: props.outline || ''
-}))`
-  width: ${props => CardSizes[props.size][0]};
-  height: ${props => CardSizes[props.size][1]};
+const CardStyle = styled.div<{ size?: CardSize, outline?: string }>`
+  width: ${props => props.size ? CardSizes[props.size][0] : CardSizes[CardSize.md][0]};
+  height: ${props => props.size ? CardSizes[props.size][1] : CardSizes[CardSize.md][1]};
   border: 1px solid #000;
   border-radius: 5px;
   background: #fff;
@@ -41,9 +36,7 @@ const CardStyle = styled.div.attrs((props: CardStyleProps) => ({
   user-select: none;
 `
 
-export const VictoryPointsStyle = styled.div.attrs((props: { size: CardSize }) => ({
-  size: props.size ? props.size : CardSize.xs
-}))`
+export const VictoryPoints = styled.div<{ size?: CardSize }>`
   font-size: 30px;
   font-weight: bold;
   color: #000;
@@ -65,19 +58,11 @@ interface CardUIProps {
   onClick?: () => void
 }
 
-const GemAwardStyle = styled.div`
+const GemAward = styled.div`
   position: absolute;
   right: 2px;
   top: 2px;
 `
-
-const AwardGemMap = {
-  [IconSize.xs]: IconSize.xs,
-  [IconSize.sm]: IconSize.sm,
-  [IconSize.md]: IconSize.md,
-  [IconSize.lg]: IconSize.md,
-  [IconSize.xl]: IconSize.md
-}
 
 export const CardUI = (props: CardUIProps) => {
   const borderSize = BorderSize[props.size as keyof typeof BorderSize] || BorderSize.md;
@@ -98,7 +83,7 @@ export const CardUI = (props: CardUIProps) => {
 
   return (
     <CardStyle size={props.size ? props.size : CardSize.md} outline={props.outline} onClick={props.onClick}>
-      {props.card.points ? <VictoryPointsStyle size={props.size ? props.size : CardSize.md}>{props.card.points}</VictoryPointsStyle> : null}
+      {props.card.points ? <VictoryPoints size={props.size ? props.size : CardSize.md}>{props.card.points}</VictoryPoints> : null}
       {props.card.costs && !props.hideCosts
         ? (
           <GemCostsUI {...gemCostUIProps} />
@@ -108,9 +93,9 @@ export const CardUI = (props: CardUIProps) => {
       {
         props.card.gem
         ? (
-          <GemAwardStyle>
+          <GemAward>
             <GemUI {...awardGemUIProps} />
-          </GemAwardStyle>
+          </GemAward>
         )
         : null
       }

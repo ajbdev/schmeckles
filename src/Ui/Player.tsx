@@ -9,7 +9,7 @@ import { CardSize } from './Cards';
 import { AnimationRefs } from './Game';
 import { GemUI, IconSize } from './Gems';
 import InteractiveCardUI from './InteractiveCard';
-import { NobleSize, NobleUI } from './Nobles';
+import NobleUI, { NobleSize } from './Nobles';
 import { SchmeckleGemCoinUI } from './Schmeckles';
 
 const GemsStyle = styled.div`

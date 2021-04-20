@@ -7,7 +7,7 @@ import { isPlayersTurn } from '../Rules';
 import { DrawPileUI } from './Cards';
 import GemBankUI from './GemBank';
 import InteractiveCardUI from './InteractiveCard';
-import { NobleUI } from './Nobles';
+import NobleUI from './Nobles';
 import { SchmeckleGemCoinUI } from './Schmeckles';
 import { ReactComponent as CancelSvg } from './svg/cancel.svg';
 import { ReactComponent as ConfirmSvg } from './svg/confirm.svg';
