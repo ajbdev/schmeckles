@@ -1,6 +1,6 @@
 # Schmeckles
 
-Schmeckles is a P2P networked multiplayer board game of dueling economie and resources.
+Schmeckles is a P2P networked multiplayer board game of dueling economies and resources.
 
 Play it at: http://schmeckles.ajbdev.com
 
